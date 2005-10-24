@@ -183,10 +183,10 @@ string ws2ss(vector<char*>::const_iterator itB, vector<char*>::const_iterator it
 	return ss;
 }
 
-inline void delete_charit(vector<char*>::iterator p) { delete *p; }
+inline void delete_char(char* p) { delete p; }
 
 void delete_words(vector<char*> *vs)
 {
-	for_each(vs->begin(), vs->end(), delete_charit);
+	for_each(vs->begin(), vs->end(), delete_char);
 	delete vs;
 }
