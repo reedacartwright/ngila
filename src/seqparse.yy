@@ -73,6 +73,7 @@ alnline: line {
 		db.Add(ws2ss($1->begin(), $1->begin()+1), ws2ss($1->begin()+1, $1->end()));
 	delete_words($1);
 } 
+;
 
 fsafile: fsaseq
 | fsafile fsaseq
@@ -92,19 +93,20 @@ fsabody: line { $$ = $1; }
 | fsabody line { $$ = $1; $$->insert($$->end(), $2->begin(), $2->end()); delete $2; }
 ;
 
-phyfile: phyhead phybody;
+phyfile: phyhead phybody
+;
 
-phyhead: NUMBER NUMBER ENDL
-{
+phyhead: NUMBER NUMBER ENDL {
 	szSeqNum = $1;
 	szSeq = 0;
 }
+;
 
 phybody: phyline
-| phybody phyline;
+| phybody phyline
+;
 
-phyline: line
-{
+phyline: line {
 	if(!$1->empty())
 	{
 		if(szSeq < szSeqNum)
@@ -113,10 +115,9 @@ phyline: line
 			db.Add(szSeq%szSeqNum, ws2ss($1->begin(), $1->end()));
 		++szSeq;
 	}
-	delete_words($1);
-		
-};
-
+	delete_words($1);	
+}
+;
 
 nexfile:
 ;
