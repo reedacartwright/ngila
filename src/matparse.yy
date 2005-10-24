@@ -27,7 +27,6 @@ struct Line
 
 %start matrix
 
-
 %union {
 	double d;
 	char ch;
@@ -44,9 +43,9 @@ struct Line
 %token      END
 
 %type <ln> line
-%type <pvd> list;
-%type <pvln> body;
-%type <pvch> header;
+%type <pvd> list
+%type <pvln> body
+%type <pvch> header
 
 %%
 matrix: header body {
