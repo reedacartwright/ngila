@@ -9,7 +9,7 @@
 
 %option noyywrap
 %option nounput
-%option prefix="seq_"
+%option prefix="seq_" outfile="lex.yy.c"
 
 DIGIT	[0-9]
 NUMBER	{DIGIT}+
