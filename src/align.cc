@@ -203,7 +203,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	}
 	else if(szM == 1 && szN == 1)
 	{
-		double d1 = mCost[itA1[0]][itB1[0]];
+		double d1 = mCost[(size_t)itA1[0]][(size_t)itB1[0]];
 		double d2 = 2.0*GC[1];
 		if( d1 <= d2)
 		{
@@ -241,13 +241,13 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		for(size_t j=1;j<szN;++j)
 		{
 			update_ins_forward(T,1,j,szN);
-			CC[1][j] = min3(CC[0][j-1]+mCost[itA1[0]][itB1[j-1]],
+			CC[1][j] = min3(CC[0][j-1]+mCost[(size_t)itA1[0]][(size_t)itB1[j-1]],
 				CC[0][j]+CC[1][0],T.back().Cost(j));
 		}
 		update_ins_forward(T,1,szN,szN);
 		int nRep;
 		CC[1][szN] = min3(CC[0][szN]+CC[1][0], T.back().Cost(szN),
-			CC[0][szN-1]+mCost[itA1[0]][itB1[szN-1]], nRep);
+			CC[0][szN-1]+mCost[(size_t)itA1[0]][(size_t)itB1[szN-1]], nRep);
 		switch(nRep)
 		{
 		case 0:
@@ -287,13 +287,13 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		for(size_t i=1;i<szM;++i)
 		{
 			update_ins_forward(T,1,i,szM);
-			CC[1][i] = min3(CC[0][i-1]+mCost[itA1[i-1]][itB1[0]],
+			CC[1][i] = min3(CC[0][i-1]+mCost[(size_t)itA1[i-1]][(size_t)itB1[0]],
 				CC[0][i]+CC[1][0],T.back().Cost(i));
 		}
 		update_ins_forward(T,1,szM,szM);
 		int nRep;
 		CC[1][szM] = min3(CC[0][szM]+CC[1][0], T.back().Cost(szM),
-			CC[0][szM-1]+mCost[itA1[szM-1]][itB1[0]], nRep);
+			CC[0][szM-1]+mCost[(size_t)itA1[szM-1]][(size_t)itB1[0]], nRep);
 		switch(nRep)
 		{
 		case 0:
@@ -326,7 +326,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		{
 			update_ins_forward(T,i,j,szN);
 			update_del_forward(SF[j],i,j,szM);
-			CC[1][j] = min3(CC[0][j-1]+mCost[itA1[i-1]][itB1[j-1]],
+			CC[1][j] = min3(CC[0][j-1]+mCost[(size_t)itA1[i-1]][(size_t)itB1[j-1]],
 				T.back().Cost(j), SF[j].back().Cost(i));
 		}
 		swap(CC[0], CC[1]);
@@ -351,7 +351,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			// bug some where
 			update_del_reverse(SR[j],i,j,szM);
 			// Type I
-			double d1 = RR[0][j+1]+mCost[itA1[i]][itB1[j]];
+			double d1 = RR[0][j+1]+mCost[(size_t)itA1[i]][(size_t)itB1[j]];
 			double d2 = T.back().RCost(j);
 			double d3 = SR[j].back().RCost(i);
 			RR[1][j] = min3(d1,d2,d3);
