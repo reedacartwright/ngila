@@ -37,17 +37,17 @@ struct Line
 	std::vector<Line> *pvln;
 }
 
-%token <d>  NUM
-%token <ch> LET
-%token <ch> UNKNOWN
-%token		NL
-%token      END
+%token <d>  	NUM
+%token <ch> 	LET
+%token <ch> 	UNKNOWN
+%token			NL
+%token      	END
 
-%type <ln> line
-%type <pvd> list
-%type <pvln> body
-%type <pvch> header
-%type 		matrix
+%type <ln>		line
+%type <pvd>		list
+%type <pvln>	body
+%type <pvch>	header
+%type			matrix
 
 %%
 matrix: header body {
@@ -76,6 +76,7 @@ body: line { $$ = new vector<Line>(1, $1); }
 ;
 
 line: LET list { $$.ch = $1; $$.pvd = $2; }
+;
 
 list: NUM { $$ = new vector<double>(1, $1); } 
 | list NUM { $$ = $1; $$->push_back($2); }
