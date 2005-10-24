@@ -20,7 +20,6 @@ using namespace std;
 %option nounput
 %option noyywrap
 %option prefix="mat_" outfile="lex.yy.c"
-%option yylineno
 
 DIGIT  [0-9]
 NUMBER [-+]?{DIGIT}+("."{DIGIT}+)?([eE][+-]?{DIGIT}+)?
