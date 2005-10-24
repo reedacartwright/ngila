@@ -1,6 +1,6 @@
 INCLUDES =  -I$(top_builddir) -I$(top_srcdir)
 AM_YFLAGS = -d
-AM_LFLAGS = -CF
+AM_LFLAGS = -CF -o lex.yy.c
 BUILT_SOURCES = seqparse.h matparse.h
 
 bin_PROGRAMS = ngila
