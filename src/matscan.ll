@@ -15,6 +15,8 @@ using namespace std;
 
 #define yylval mat_lval
 
+int mat_lineno = 1;
+
 %}
 
 %option nounput
@@ -45,7 +47,7 @@ SPACE [ \t\r\v\f]
 	// Skip space
 }
 
-\n { }
+\n { mat_lineno++;}
 
 <<EOF>> {
 	yyterminate();

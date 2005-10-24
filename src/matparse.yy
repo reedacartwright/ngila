@@ -1,12 +1,11 @@
 %{
-// cmdline: bison -y -d  -o "$(InputName).cc" "$(InputPath)"
-//			move  /Y "$(InputName).hh" "$(InputName).h"
-// outputs: "$(InputName).cc"; "$(InputName).h"
-
-#include <stdio.h>
-#include <vector>
-
 #include "ngila.h"
+
+#ifdef HAVE_STDIO_H
+#	include <stdio.h>
+#endif
+
+#include <vector>
 
 using namespace std;
 
@@ -18,6 +17,8 @@ struct Line
 	char ch;
 	vector<double>* pvd;
 };
+
+extern int mat_lineno;
 
 %}
 
