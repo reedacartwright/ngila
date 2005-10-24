@@ -81,11 +81,6 @@ WORD	{NONSP}+
 	yyterminate();	
 }
 
-. {
-	yylval.ch = yytext[0];
-	return UNKNOWN;	
-}
-
 %%
 
 void seq_error(char *s)

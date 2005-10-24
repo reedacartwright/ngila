@@ -1,8 +1,4 @@
 %{
-// Lexical Scanner for Penalty Matrixes
-// cmd: flex -t "$(InputPath)" > "$(InputName).cc"
-// opts: "$(InputName).cc"
-
 #include <vector>
 
 struct Line
