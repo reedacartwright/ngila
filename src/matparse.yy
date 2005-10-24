@@ -47,7 +47,7 @@ struct Line
 %type <pvd>		list
 %type <pvln>	body
 %type <pvch>	header
-%type			matrix
+%type <pvch>	matrix
 
 %%
 matrix: header body {
