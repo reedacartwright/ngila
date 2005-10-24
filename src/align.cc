@@ -441,9 +441,9 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	return dMin;	
 }
 
-void update_ins_forward(IndelVec& T, size_t i, size_t j, size_t szZ)
+void update_ins_forward(IndelVec& T, size_t /*i*/, size_t j, size_t szZ)
 {
-	i; // i should be constant in all comparisons
+	//i; // i should be constant in all comparisons
 	if(j == 1)
 	{
 		T.clear();
@@ -487,9 +487,9 @@ void update_del_forward(IndelVec& T, size_t i, size_t j, size_t szZ)
 	}
 }
 
-void update_ins_reverse(IndelVec& T, size_t i, size_t j, size_t szZ)
+void update_ins_reverse(IndelVec& T, size_t /*i*/, size_t j, size_t szZ)
 {
-	i; // i should be constant in all comparisons
+	//i; // i should be constant in all comparisons
 	if(j == szZ-1)
 	{
 		T.clear();
