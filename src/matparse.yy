@@ -20,6 +20,7 @@ struct Line
 };
 
 %}
+
 %name-prefix="mat_"
 %yacc
 %defines
@@ -46,6 +47,7 @@ struct Line
 %type <pvd> list
 %type <pvln> body
 %type <pvch> header
+%type 		matrix
 
 %%
 matrix: header body {
