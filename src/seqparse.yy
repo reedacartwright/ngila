@@ -1,10 +1,37 @@
-%{
-#include <stdio.h>
-#include <string.h>
+/*  Nigla - Logarithmic Sequence Alignments
+    Copyright (C) 2005  Reed A. Cartwright
 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+%{
 #include "ngila.h"
 
-#define strdup _strdup
+#ifdef HAVE_STDIO_H
+#	include <stdio.h>
+#endif
+#ifdef HAVE_STRING_H
+#	include <string.h>
+#endif
+
+
+#ifndef HAVE_STRDUP
+#	ifdef HAVE__STRDUP
+#		define strdup _strdup
+#	endif
+#endif
 
 using namespace std;
 
@@ -156,8 +183,10 @@ string ws2ss(vector<char*>::const_iterator itB, vector<char*>::const_iterator it
 	return ss;
 }
 
+inline void delete_charit(vector<char*>::iterator p) { delete p; }
+
 void delete_words(vector<char*> *vs)
 {
-	for_each(vs->begin(), vs->end(), delete_func);
+	for_each(vs->begin(), vs->end(), delete_charit);
 	delete vs;
 }
