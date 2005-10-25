@@ -70,7 +70,7 @@ PACKAGE_NAME \
 "  -n negate matrix\n" \
 "  -p don't negate matrix\n" \
 "  -f free end gaps\n" \
-"  -e scored end gaps\n" \
+"  -e score end gaps\n" \
 "  -i case insensitive sequences\n" \
 "  -s case sensitive sequence\n" \
 "  -q no message\n" \
