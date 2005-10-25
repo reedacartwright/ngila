@@ -81,7 +81,7 @@ void update_ins_reverse(IndelVec& T, size_t i, size_t j, size_t szZ);
 void update_del_reverse(IndelVec& T, size_t i, size_t j, size_t szZ);
 double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2,
 				 Sequence::const_iterator itB1, Sequence::const_iterator itB2,
-				 Sequence& seqC, Sequence& seqD);
+				 Sequence& seqC, Sequence& seqD,bool bFreeFront, bool bFreeBack);
 
 inline size_t g1(size_t p, size_t x, size_t j, size_t m, size_t n)
 {
