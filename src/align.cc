@@ -309,7 +309,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		DM[j].s = 0;
 		DM[j].z = 0;
 		DM[j].x = szM;
-		DM[j].c = SF[j][DM[j].s].Cost(DM[j].x)+GC[szN-j];
+		DM[j].c = SF[j][DM[j].s].Cost(DM[j].x)+RR[0][j];
 	}
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
@@ -376,7 +376,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		dTemp = DM[j].c;
 		g = g1(SF[j][DM[j].s].p, DM[j].x, j, szM, szN);
 		h = g2(SF[j][DM[j].s].p, DM[j].x, j, szM, szN);
-		if(dTemp < dMin || (dTemp == dMin &&
+		/*if(dTemp < dMin || (dTemp == dMin &&
 			(g > gg1 || (g == gg1 &&
 			(h < gg2 || (h == gg2 &&
 			DM[j].x > xx))))))
@@ -387,11 +387,10 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			jj = j;
 			gg1 = g;
 			gg2 = h;
-		}
+		}*/
 	}
-	
-	g_bFree = false;
-	
+	g_bFree = false;		
+
 	align_pair_r(itA1, itA1+pp, itB1, itB1+jj, seqA, seqB);
 	if(xx != pp)
 	{
