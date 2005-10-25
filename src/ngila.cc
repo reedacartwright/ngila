@@ -41,8 +41,29 @@ void print_aln(const string& n1, const string& s1, const string& n2, const strin
 double g_dMatch = 0.0;
 double g_dReplacement = 1.0;
 
-char g_csUsage[] =
-"ngila [hnpisa:b:c:x:m:r:] file\n" \
+
+
+char g_csUsage[] = PACKAGE_STRING \
+" - Logarithmic Sequence Alignments\n" \
+"Copyright (C) 2005  Reed A. Cartwright\n" \
+"\n" \
+"This program is free software; you can redistribute it and/or modify\n" \
+"it under the terms of the GNU General Public License as published by\n" \
+"the Free Software Foundation; either version 2 of the License, or\n" \
+"(at your option) any later version.\n" \
+"\n" \
+"This program is distributed in the hope that it will be useful,\n" \
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n" \
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" \
+"GNU General Public License for more details.\n" \
+"\n" \
+"You should have received a copy of the GNU General Public License\n" \
+"along with this program; if not, write to the Free Software\n" \
+"Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n" \
+"\n" \
+"Usage\n" \
+PACKAGE_NAME \
+" [hnpisa:b:c:x:m:r:] file\n" \
 "  -a -b -c gap parameters\n" \
 "  -m match cost\n" \
 "  -r mismatch/replacement cost\n" \
@@ -54,6 +75,10 @@ char g_csUsage[] =
 "  -q no message\n" \
 "  -v message\n" \
 "  -h usage\n" \
+"\n" \
+"Send bug reports to " \
+PACKAGE_BUGREPORT \
+"\n" \
 "\n";
 
 int main(int argc, char *argv[])
@@ -189,7 +214,7 @@ void seqproc(string& ss)
 
 void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const string& msg)
 {
-	cout << "CLUSTAL multiple sequence alignment (Created by Ngila Beta";
+	cout << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
 	if(g_bMsg)
 		cout << ": " << msg;
 	cout << ")" << endl << endl << endl;
