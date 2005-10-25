@@ -118,8 +118,6 @@ inline size_t g2(size_t p, size_t x, size_t j, size_t m, size_t n)
 	return 0;
 }
 
-bool g_bFree = true;
-
 double align_pair(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, Sequence& seqD)
 {
 	if(seqA.size() >= seqB.size())
@@ -144,14 +142,13 @@ double align_pair_x(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, 
 	//run recursive algorithm
 	seqC.clear();
 	seqD.clear();
-	g_bFree = g_bFreeEnds;
 
-	return align_pair_r(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), seqC, seqD);
+	return align_pair_r(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), seqC, seqD, g_bFreeEnds, g_bFreeEnds);
 }
 
 double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2,
 				 Sequence::const_iterator itB1, Sequence::const_iterator itB2,
-				 Sequence& seqA, Sequence& seqB)
+				 Sequence& seqA, Sequence& seqB, bool bFreeFront, bool bFreeBack)
 {
 	size_t szM = itA2-itA1;
 	size_t szN = itB2-itB1;
@@ -165,18 +162,19 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	{
 		seqA.append(itA1, itA2);
 		seqB.append(szM, chGap);
-		return g_bFree ? 0.0 : GC[szM]; // delete A
+		return (bFreeFront||bFreeBack) ? 0.0 : GC[szM]; // delete A
 	}
 	else if(szM == 0)
 	{
 		seqA.append(szN, chGap);
 		seqB.append(itB1, itB2);
-		return g_bFree ? 0.0 : GC[szN]; // insert B
+		return (bFreeFront||bFreeBack) ? 0.0 : GC[szN]; // insert B
 	}
 	else if(szM == 1 && szN == 1)
 	{
 		double d1 = mCost[(size_t)itA1[0]][(size_t)itB1[0]];
-		double d2 = g_bFree ? 0.0 : 2.0*GC[1];
+		double d2 = bFreeFront ? 0.0 : GC[1];
+		d2 += bFreeBack ? 0.0 : GC[1];
 		if( d1 <= d2)
 		{
 			seqA.append(1, itA1[0]);
@@ -202,11 +200,11 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 
 	CC[0][0] = 0.0;
 	for(size_t j=1;j<=szN;++j)
-		CC[0][j] = g_bFree ? 0.0 : GC[j];
+		CC[0][j] = bFreeFront ? 0.0 : GC[j];
 	
 	if(szM == 1)
 	{
-		CC[1][0] = g_bFree ? 0.0 : GC[1];
+		CC[1][0] = bFreeFront ? 0.0 : GC[1];
 		for(size_t j=1;j<szN;++j)
 		{
 			update_ins_forward(T,1,j,szN);
@@ -250,8 +248,8 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			CC[1].resize(szM+1);
 		}
 		for(size_t i=2;i<=szM;++i)
-			CC[0][i] = g_bFree ? 0.0 : GC[i];
-		CC[1][0] = g_bFree ? 0.0 : GC[1];
+			CC[0][i] = bFreeFront ? 0.0 : GC[i];
+		CC[1][0] = bFreeFront ? 0.0 : GC[1];
 		
 		for(size_t i=1;i<szM;++i)
 		{
@@ -290,7 +288,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	// Foward Algorithm
 	for(size_t i=1;i<=szMh;++i)
 	{
-		CC[1][0] = g_bFree ? 0.0 : GC[i];
+		CC[1][0] = bFreeFront ? 0.0 : GC[i];
 		for(size_t j=1;j<=szN;++j)
 		{
 			update_ins_forward(T,i,j,szN);
@@ -305,7 +303,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	//Reverse Algorithm
 	for(size_t j=szN;j!=(size_t)-1;--j)
 	{
-		RR[0][j] = g_bFree ? 0.0 : GC[szN-j];
+		RR[0][j] = bFreeBack ? 0.0 : GC[szN-j];
 		DM[j].s = 0;
 		DM[j].z = 0;
 		DM[j].x = szM;
@@ -313,7 +311,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	}
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
-		RR[1][szN] = g_bFree ? 0.0 : GC[szM-i];
+		RR[1][szN] = bFreeBack ? 0.0 : GC[szM-i];
 		for(size_t j=szN-1;j!=(size_t)-1;--j)
 		{
 			update_ins_reverse(T,i,j,szN);
@@ -388,19 +386,18 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			gg1 = g;
 			gg2 = h;
 		}
-	}
-	g_bFree = false;		
+	}	
 	
 	printf("%f: %d %d %d\n", dMin, pp, xx, jj);
 	
-	align_pair_r(itA1, itA1+pp, itB1, itB1+jj, seqA, seqB);
+	align_pair_r(itA1, itA1+pp, itB1, itB1+jj, seqA, seqB, bFreeFront, false);
 	if(xx != pp)
 	{
 		// Delete itA1+pp .. itA1+xx
 		seqA.append(itA1+pp, itA1+xx);
 		seqB.append(xx-pp, chGap);
 	}
-	align_pair_r(itA1+xx, itA2, itB1+jj, itB2, seqA, seqB);
+	align_pair_r(itA1+xx, itA2, itB1+jj, itB2, seqA, seqB, false, bFreeBack);
 	return dMin;	
 }
 
