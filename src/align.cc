@@ -170,23 +170,29 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	size_t szMh = szM/2;
 
 	if(szN == 0 && szM == 0)
+	{
+		g_bFree = false;
 		return 0.0; // Nothing to do
+	}
 	else if(szN == 0)
 	{
 		seqA.append(itA1, itA2);
 		seqB.append(szM, chGap);
+		g_bFree = false;
 		return GC[szM]; // delete A
 	}
 	else if(szM == 0)
 	{
 		seqA.append(szN, chGap);
 		seqB.append(itB1, itB2);
+		g_bFree = false;
 		return GC[szN]; // insert B
 	}
 	else if(szM == 1 && szN == 1)
 	{
 		double d1 = mCost[(size_t)itA1[0]][(size_t)itB1[0]];
 		double d2 = 2.0*GC[1];
+		g_bFree = false;
 		if( d1 <= d2)
 		{
 			seqA.append(1, itA1[0]);
@@ -251,6 +257,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			break;
 		};
 		seqB.append(itB1, itB2);
+		g_bFree = false;
 		return CC[1][szN];
 	}
 	else if(szN == 1)
@@ -297,6 +304,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			break;
 		};
 		seqA.append(itA1, itA2);
+		g_bFree = false;
 		return CC[1][szM];		
 	}
 	SF[0].push_back(Indel(0, szM, CC[0][0]));
