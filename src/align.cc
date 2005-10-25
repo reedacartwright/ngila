@@ -69,42 +69,6 @@ public:
 	double RCostX() { return d + GC[p-x]; }
 };
 
-//class GapState
-//{
-//public:
-//	void Process(size_t p, size_t x, size_t m, size_t j, size_t n)
-//	{
-//		m -= x; x -= p; n -= j;
-//		if(m > n)
-//		{
-//			sz[0] = 0;
-//			sz[1] = m-n;
-//		}
-//		else if(m < n)
-//		{
-//			sz[0] = 0;
-//			sz[1] = n-m;
-//		}
-//		else if(x != 0)
-//		{
-//			sz[0] = m;
-//			sz[1] = m+x;
-//		}
-//		else if(p > j)
-//		{
-//			sz[0] = m;
-//			sz[1] = m+p-j;
-//		}
-//		else if(p < j)
-//		{
-//			sz[0] = m;
-//			sz[1] = m+j-p;
-//		}
-//
-//	}
-//	size_t sz[6];
-//};
-
 typedef vector<Indel> IndelVec;
 
 IndelVec T;
@@ -154,13 +118,15 @@ inline size_t g2(size_t p, size_t x, size_t j, size_t m, size_t n)
 	return 0;
 }
 
+bool g_bFree = true;
+
 double align_pair(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, Sequence& seqD)
 {
 	// Allocate memory space
 	// seqA >= seqB
 	//if(seqB.size() > seqA.size())
 	//	return alignPair(seqB, seqA, seqD, seqC);
-
+	
 	if(seqA.size() >= seqB.size())
 		return align_pair_x(seqA, seqB, seqC, seqD);
 	else
@@ -169,6 +135,7 @@ double align_pair(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, Se
 
 double align_pair_x(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, Sequence& seqD)
 {
+	g_bFree = g_bFreeEnds;
 	size_t sz = seqB.size()+1;
 	CC[0].resize(sz);
 	CC[1].resize(sz);
@@ -248,11 +215,11 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 
 	CC[0][0] = 0.0;
 	for(size_t j=1;j<=szN;++j)
-		CC[0][j] = GC[j];
+		CC[0][j] = g_bFree ? 0.0 : GC[j];
 	
 	if(szM == 1)
 	{
-		CC[1][0] = GC[1];
+		CC[1][0] = g_bFree ? 0.0 : GC[1];
 		for(size_t j=1;j<szN;++j)
 		{
 			update_ins_forward(T,1,j,szN);
@@ -296,9 +263,9 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			CC[1].resize(szM+1);
 		}
 		for(size_t i=2;i<=szM;++i)
-			CC[0][i] = GC[i];
-
-		CC[1][0] = GC[1];
+			CC[0][i] = g_bFree ? 0.0 : GC[i];
+		CC[1][0] = g_bFree ? 0.0 : GC[1];
+		
 		for(size_t i=1;i<szM;++i)
 		{
 			update_ins_forward(T,1,i,szM);
@@ -336,7 +303,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	// Foward Algorithm
 	for(size_t i=1;i<=szMh;++i)
 	{
-		CC[1][0] = GC[i];
+		CC[1][0] = g_bFree ? 0.0 : GC[i];
 		for(size_t j=1;j<=szN;++j)
 		{
 			update_ins_forward(T,i,j,szN);
@@ -351,7 +318,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	//Reverse Algorithm
 	for(size_t j=szN;j!=(size_t)-1;--j)
 	{
-		RR[0][j] = GC[szN-j];
+		RR[0][j] = g_bFree ? 0.0 : GC[szN-j];
 		DM[j].s = 0;
 		DM[j].z = 0;
 		DM[j].x = szM;
@@ -359,7 +326,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	}
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
-		RR[1][szN] = GC[szM-i];
+		RR[1][szN] = g_bFree ? 0.0 : GC[szM-i];
 		for(size_t j=szN-1;j!=(size_t)-1;--j)
 		{
 			update_ins_reverse(T,i,j,szN);
@@ -445,6 +412,9 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		//printf("%f %u %u %u\n", DM[j].c, SF[j][DM[j].s].p, DM[j].x, j);
 	}
 	//printf("MidPt: %u %u %u\n\n", pp,xx,jj);
+	
+	g_bFree = false;
+	
 	align_pair_r(itA1, itA1+pp, itB1, itB1+jj, seqA, seqB);
 	if(xx != pp)
 	{

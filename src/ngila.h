@@ -45,6 +45,7 @@ typedef std::map<std::string, Sequence> SeqMap;
 // External variables
 extern double mCost[128][128]; //substitution scoring
 extern double dB,dA,dC;
+extern bool g_bFreeEnds;
 
 // Static Variables
 static const char chGap = '-';

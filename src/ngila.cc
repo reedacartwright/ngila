@@ -35,13 +35,12 @@ using namespace std;
 bool g_bNoCase = true;
 bool g_bNegate = false;
 bool g_bMsg = false;
+bool g_bFreeEnds = true;
 
 void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const string& msg);
 
 double g_dMatch = 0.0;
 double g_dReplacement = 1.0;
-
-
 
 char g_csUsage[] = PACKAGE_STRING \
 " - Logarithmic Sequence Alignments\n" \
@@ -61,15 +60,17 @@ char g_csUsage[] = PACKAGE_STRING \
 "along with this program; if not, write to the Free Software\n" \
 "Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n" \
 "\n" \
-"Usage\n" \
+"USAGE: " \
 PACKAGE_NAME \
-" [hnpisa:b:c:x:m:r:] file\n" \
-"  -a -b -c gap parameters\n" \
+" [hnpisaef:b:c:x:m:r:] file[.aln|.fsa|.phy]\n" \
+"  -a -b -c gap parameters: g(x) = a + b*x + c*ln x\n" \
 "  -m match cost\n" \
 "  -r mismatch/replacement cost\n" \
 "  -x substitution matix\n" \
 "  -n negate matrix\n" \
 "  -p don't negate matrix\n" \
+"  -f free end gaps\n" \
+"  -e scored end gaps\n" \
 "  -i case insensitive sequences\n" \
 "  -s case sensitive sequence\n" \
 "  -q no message\n" \
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 {
 	int ch;
 	char *csMatrix = NULL;
-	while((ch = getopt(argc, argv, "hnpisvqa:b:c:x:m:r:")) != -1)
+	while((ch = getopt(argc, argv, "hnpisvqefa:b:c:x:m:r:")) != -1)
 	{
 		switch(ch)
 		{
@@ -124,6 +125,12 @@ int main(int argc, char *argv[])
 			break;
 		case 'v':
 			g_bMsg = true;
+			break;
+		case 'f':
+			g_bFreeEnds = true;
+			break;
+		case 'e':
+			g_bFreeEnds = false;
 			break;
 		case 'h':
 		case '?':
