@@ -41,7 +41,7 @@ vector<MinMidCost> DM;
 
 inline double gapcost(size_t L)
 {
-	return (L ? dA+dB*L+dC*log((double)L) : 0.0);
+	return (L != 0) ? dA+dB*L+dC*log((double)L) : 0.0;
 }
 
 inline double kstar(double x, double y)
@@ -309,7 +309,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		DM[j].s = 0;
 		DM[j].z = 0;
 		DM[j].x = szM;
-		DM[j].c = SF[j][DM[j].s].Cost(DM[j].x)+RR[0][j];
+		DM[j].c = SF[j][DM[j].s].Cost(DM[j].x)+GC[szN-j];
 	}
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
