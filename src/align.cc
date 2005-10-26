@@ -348,17 +348,32 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	//CC[0] is now C(M/2,j)
 
 	//Reverse Algorithm
+	RR[0][szN] = 0.0;
+	DM[szN].s = 0;
+	DM[szN].z = 0;
+	DM[szN].x = szM;
+	DM[szN].c = bFreeBack ? SF[j][0].d : SF[j][0].Cost(szM);
 	for(size_t j=szN;j!=(size_t)-1;--j)
 	{
 		RR[0][j] = bFreeBack ? 0.0 : GC[szN-j];
 		DM[j].s = 0;
 		DM[j].z = 0;
 		DM[j].x = szM;
-		DM[j].c = SF[j][DM[j].s].Cost(DM[j].x)+RR[0][j];
+		DM[j].c = SF[j][0].Cost(szM)+RR[0][j];
 	}
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
 		RR[1][szN] = bFreeBack ? 0.0 : GC[szM-i];
+		if( SF[j].size() < DM[j].z+1 && i <= SF[j][DM[j].z+1].x)
+		  ++DM[j].z; // Advance position
+		double dTemp = SF[j][DM[j].z].Cost(i)+RR[1][j];
+		if(dTemp < DM[j].c)
+			{
+				DM[j].c = dTemp;
+				DM[j].s = DM[j].z;
+				DM[j].x = i;
+			}
+			
 		for(size_t j=szN-1;j!=(size_t)-1;--j)
 		{
 			update_ins_reverse(T,i,j,szN);
@@ -387,6 +402,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	size_t pp = szMh;
 	size_t xx = pp;
 	size_t jj = 0;
+	printf("%f: %d %d %d\n", dMin, pp, xx, jj);
 	size_t gg1 = g1(pp,xx,jj, szM, szN);
 	size_t gg2 = g2(pp,xx,jj, szM, szN);
 	size_t g = g1(SF[0][DM[0].s].p,DM[0].x,0, szM, szN);
@@ -402,9 +418,11 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		gg1 = g;
 		gg2 = h;
 	}
+	printf("%f: %d %d %d\n", DM[0].c,SF[0][DM[0].s].p , DM[0].x, 0);
 	for(size_t j=1;j<=szN;++j)
 	{
 		double dTemp = CC[0][j]+RR[0][j];
+		printf("%f: %d %d %d\n", dTemp, szMh,szMh, j);
 		g = g1(szMh,szMh,j, szM, szN);
 		h = g2(szMh,szMh,j, szM, szN);
 		if(dTemp < dMin || (dTemp == dMin &&
@@ -433,9 +451,10 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			gg1 = g;
 			gg2 = h;
 		}
+		printf("%f: %d %d %d\n", DM[j].c,SF[j][DM[j].s].p , DM[j].x, j);
 	}	
 	
-	//printf("%f: %d %d %d\n", dMin, pp, xx, jj);
+	printf("Min %f: %d %d %d\n", dMin, pp, xx, jj);
 	
 	align_pair_r(itA1, itA1+pp, itB1, itB1+jj, seqA, seqB, bFreeFront, false);
 	if(xx != pp)
