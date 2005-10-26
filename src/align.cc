@@ -217,16 +217,16 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		dTemp = (bFreeFront ? 0.0 : GC[1])+(bFreeBack ? 0.0 : GC[szN]);
 		if(dTemp < dMin)
 		{
-			i = -1;
+			i = (size_t)-1;
 			dMin = dTemp;
 		}
 		dTemp = (bFreeFront ? 0.0 : GC[szN])+(bFreeBack ? 0.0 : GC[1]);
 		if(dTemp < dMin)
 		{
-			i = szN
+			i = szN;
 			dMin = dTemp;
 		}
-		if(i == -1)
+		if(i == (size_t)-1)
 		{
 			// Del A, Ins B(1,N)
 			seqA.append(1, itA1[0]);
@@ -281,16 +281,16 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		dTemp = (bFreeFront ? 0.0 : GC[1])+(bFreeBack ? 0.0 : GC[szM]);
 		if(dTemp < dMin)
 		{
-			i = -1;
+			i = (size_t)-1;
 			dMin = dTemp;
 		}
 		dTemp = (bFreeFront ? 0.0 : GC[szM])+(bFreeBack ? 0.0 : GC[1]);
 		if(dTemp < dMin)
 		{
-			i = szN
+			i = szM;
 			dMin = dTemp;
 		}
-		if(i == -1)
+		if(i == (size_t)-1)
 		{
 			// Del B, Ins A(1,M)
 			seqB.append(1, itB1[0]);
