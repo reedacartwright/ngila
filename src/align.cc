@@ -197,93 +197,140 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		}
 		return d2;
 	}
+	
+	if(szM == 1)
+	{
+		double dTemp = mCost[(size_t)itA1[0]][(size_t)itB1[0]]
+					+(bFreeBack ? 0.0 : GC[szN-1]);
+		double dMin = dTemp;
+		size_t i = 0;
+		for(size_t j=1;j<szN;++j)
+		{
+			dTemp = mCost[(size_t)itA1[0]][(size_t)itB1[j]]
+					+(bFreeFront ? 0.0 : GC[j])+(bFreeBack ? 0.0 : GC[szN-j-1]);
+			if(dTemp < dMin)
+			{
+				dMin = dTemp;
+				i = j;
+			}
+		}
+		dTemp = (bFreeFront ? 0.0 : GC[1])+(bFreeBack ? 0.0 : GC[szN]);
+		if(dTemp < dMin)
+		{
+			i = -1;
+			dMin = dTemp;
+		}
+		dTemp = (bFreeFront ? 0.0 : GC[szN])+(bFreeBack ? 0.0 : GC[1]);
+		if(dTemp < dMin)
+		{
+			i = szN
+			dMin = dTemp;
+		}
+		if(i == -1)
+		{
+			// Del A, Ins B(1,N)
+			seqA.append(1, itA1[0]);
+			seqA.append(szN, chGap);
+			seqB.append(1, chGap);				
+		}
+		else if( i == 0)
+		{
+			// A->B(1), Ins B(2,N)
+			seqA.append(1, itA1[0]);			
+			seqA.append(szN-1, chGap);
+		}		
+		else if(i == szN-1)
+		{
+			// Ins B(1,N-1), A->B(N)
+			seqA.append(szN-1, chGap);			
+			seqA.append(1, itA1[0]);			
+		}
+		else if( i == szN)
+		{
+			// Ins B(1,N), Del A
+			seqA.append(szN, chGap);
+			seqA.append(1, itA1[0]);
+			seqB.append(1, chGap);						
+		}
+		else
+		{
+			//Ins B(1,i), A->B(i+1), Ins B(i+2,N)
+			seqA.append(i, chGap);
+			seqA.append(1, itA1[0]);
+			seqA.append(szN-i-1, chGap);	
+		}
+		seqB.append(itB1, itB2);
+		return dMin;
+	}
+	else if(szN == 1)
+	{
+		double dTemp = mCost[(size_t)itA1[0]][(size_t)itB1[0]]
+					+(bFreeBack ? 0.0 : GC[szM-1]);
+		double dMin = dTemp;
+		size_t i = 0;
+		for(size_t j=1;j<szM;++j)
+		{
+			dTemp = mCost[(size_t)itA1[j]][(size_t)itB1[0]]
+					+(bFreeFront ? 0.0 : GC[j])+(bFreeBack ? 0.0 : GC[szM-j-1]);
+			if(dTemp < dMin)
+			{
+				dMin = dTemp;
+				i = j;
+			}
+		}
+		dTemp = (bFreeFront ? 0.0 : GC[1])+(bFreeBack ? 0.0 : GC[szM]);
+		if(dTemp < dMin)
+		{
+			i = -1;
+			dMin = dTemp;
+		}
+		dTemp = (bFreeFront ? 0.0 : GC[szM])+(bFreeBack ? 0.0 : GC[1]);
+		if(dTemp < dMin)
+		{
+			i = szN
+			dMin = dTemp;
+		}
+		if(i == -1)
+		{
+			// Del B, Ins A(1,M)
+			seqB.append(1, itB1[0]);
+			seqB.append(szM, chGap);
+			seqA.append(1, chGap);				
+		}
+		else if( i == 0)
+		{
+			// B->A(1), Ins A(2,M)
+			seqB.append(1, itB1[0]);			
+			seqB.append(szM-1, chGap);
+		}		
+		else if(i == szM-1)
+		{
+			// Ins A(1,M-1), B->A(M)
+			seqB.append(szM-1, chGap);			
+			seqB.append(1, itB1[0]);			
+		}
+		else if( i == szM)
+		{
+			// Ins A(1,M), Del B
+			seqB.append(szM, chGap);
+			seqB.append(1, itB1[0]);
+			seqA.append(1, chGap);						
+		}
+		else
+		{
+			//Ins A(1,i), B->A(i+1), Ins A(i+2,M)
+			seqB.append(i, chGap);
+			seqB.append(1, itB1[0]);
+			seqB.append(szM-i-1, chGap);	
+		}
+		seqA.append(itA1, itA2);
+		return dMin;
+	}
 
 	CC[0][0] = 0.0;
 	for(size_t j=1;j<=szN;++j)
 		CC[0][j] = bFreeFront ? 0.0 : GC[j];
 	
-	if(szM == 1)
-	{
-		CC[1][0] = bFreeFront ? 0.0 : GC[1];
-		for(size_t j=1;j<szN;++j)
-		{
-			update_ins_forward(T,1,j,szN);
-			CC[1][j] = min3(CC[0][j-1]+mCost[(size_t)itA1[0]][(size_t)itB1[j-1]],
-				CC[0][j]+CC[1][0],T.back().Cost(j));
-		}
-		update_ins_forward(T,1,szN,szN);
-		int nRep;
-		CC[1][szN] = min3(CC[0][szN]+CC[1][0], T.back().Cost(szN),
-			CC[0][szN-1]+mCost[(size_t)itA1[0]][(size_t)itB1[szN-1]], nRep);
-		switch(nRep)
-		{
-		case 0:
-			// Del A, Ins B(1,N)
-			seqA.append(1, itA1[0]);
-			seqA.append(szN, chGap);
-			seqB.append(1, chGap);
-			break;
-		case 1:
-			//Ins B(1,p-1), A->B(p), Ins B(p+1,N)
-			seqA.append(T.back().p-1, chGap);
-			seqA.append(1, itA1[0]);
-			seqA.append(szN-T.back().p, chGap);
-			break;
-		case 2:
-			//Ins B(1,N-1), A -> B(N)
-			seqA.append(szN-1, chGap);
-			seqA.append(1, itA1[0]);
-			break;
-		};
-		seqB.append(itB1, itB2);
-		return CC[1][szN];
-	}
-	else if(szN == 1)
-	{
-		if(CC[0].size() < szM+1)
-		{
-			// because we are using CC vertically
-			// in rare instances it may need to be resized
-			CC[0].resize(szM+1);
-			CC[1].resize(szM+1);
-		}
-		for(size_t i=2;i<=szM;++i)
-			CC[0][i] = bFreeFront ? 0.0 : GC[i];
-		CC[1][0] = bFreeFront ? 0.0 : GC[1];
-		
-		for(size_t i=1;i<szM;++i)
-		{
-			update_ins_forward(T,1,i,szM);
-			CC[1][i] = min3(CC[0][i-1]+mCost[(size_t)itA1[i-1]][(size_t)itB1[0]],
-				CC[0][i]+CC[1][0],T.back().Cost(i));
-		}
-		update_ins_forward(T,1,szM,szM);
-		int nRep;
-		CC[1][szM] = min3(CC[0][szM]+CC[1][0], T.back().Cost(szM),
-			CC[0][szM-1]+mCost[(size_t)itA1[szM-1]][(size_t)itB1[0]], nRep);
-		switch(nRep)
-		{
-		case 0:
-			// Ins B, Del A(1,M)
-			seqA.append(1, chGap);
-			seqB.append(1, itB1[0]);
-			seqB.append(szM, chGap);
-			break;
-		case 1:
-			// Del A(1,x-1), A(x) -> B, Del A(x+1,M)
-			seqB.append(T.back().p-1, chGap);
-			seqB.append(1, itB1[0]);
-			seqB.append(szM-T.back().p, chGap);
-			break;
-		case 2:
-			// Del A(1,M-1) A(M) -> B
-			seqB.append(szM-1, chGap);
-			seqB.append(1, itB1[0]);
-			break;
-		};
-		seqA.append(itA1, itA2);
-		return CC[1][szM];		
-	}
 	SF[0].push_back(Indel(0, szM, CC[0][0]));
 	// Foward Algorithm
 	for(size_t i=1;i<=szMh;++i)
@@ -388,7 +435,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 		}
 	}	
 	
-	printf("%f: %d %d %d\n", dMin, pp, xx, jj);
+	//printf("%f: %d %d %d\n", dMin, pp, xx, jj);
 	
 	align_pair_r(itA1, itA1+pp, itB1, itB1+jj, seqA, seqB, bFreeFront, false);
 	if(xx != pp)
