@@ -353,7 +353,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	DM[szN].z = 0;
 	DM[szN].x = szM;
 	DM[szN].c = bFreeBack ? SF[j][0].d : SF[j][0].Cost(szM);
-	for(size_t j=szN;j!=(size_t)-1;--j)
+	for(size_t j=szN-1;j!=(size_t)-1;--j)
 	{
 		RR[0][j] = bFreeBack ? 0.0 : GC[szN-j];
 		DM[j].s = 0;
@@ -364,15 +364,25 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
 		RR[1][szN] = bFreeBack ? 0.0 : GC[szM-i];
-		if( SF[j].size() < DM[j].z+1 && i <= SF[j][DM[j].z+1].x)
-		  ++DM[j].z; // Advance position
-		double dTemp = SF[j][DM[j].z].Cost(i)+RR[1][j];
-		if(dTemp < DM[j].c)
-			{
-				DM[j].c = dTemp;
-				DM[j].s = DM[j].z;
-				DM[j].x = i;
-			}
+		if( SF[szN].size() < DM[szN].z+1 && i <= SF[szN][DM[szN].z+1].x)
+			++DM[j].z; // Advance position
+		double dTemp;
+		if(bFreeBack)
+		{
+			RR[1][szN] = 0.0;
+			dTemp = SF[szN][DM[szN].z].d;
+		}
+		else
+		{
+			RR[1][szN] = GC[szM-i];
+			dTemp = SF[szN][DM[szN].z].Cost(i)+RR[1][szN];
+		}
+		if(dTemp < DM[szN].c)
+		{
+			DM[szN].c = dTemp;
+			DM[szN].s = DM[szN].z;
+			DM[szN].x = i;
+		}
 			
 		for(size_t j=szN-1;j!=(size_t)-1;--j)
 		{
@@ -386,7 +396,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			// Minimum Type II cost
 			if( SF[j].size() < DM[j].z+1 && i <= SF[j][DM[j].z+1].x)
 				++DM[j].z; // Advance position
-			double dTemp = SF[j][DM[j].z].Cost(i)+RR[1][j];
+			dTemp = SF[j][DM[j].z].Cost(i)+RR[1][j];
 			if(dTemp < DM[j].c)
 			{
 				DM[j].c = dTemp;
