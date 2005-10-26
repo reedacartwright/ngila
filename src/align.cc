@@ -355,7 +355,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	DM[szN].x = szM;
 	RR[0][0] = bFreeBack ? 0.0 : GC[szN];
 	DM[0].c = (bFreeFront ? 0.0 : GC[szM])+RR[0][0];
-	DM[0].s = 0
+	DM[0].s = 0;
 	DM[0].z = 0;
 	DM[0].x = szM;
 	for(size_t j=szN-1;j>0;--j)
