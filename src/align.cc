@@ -352,7 +352,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	DM[szN].s = 0;
 	DM[szN].z = 0;
 	DM[szN].x = szM;
-	DM[szN].c = bFreeBack ? SF[j][0].d : SF[j][0].Cost(szM);
+	DM[szN].c = bFreeBack ? SF[szN][0].d : SF[szN][0].Cost(szM);
 	for(size_t j=szN-1;j!=(size_t)-1;--j)
 	{
 		RR[0][j] = bFreeBack ? 0.0 : GC[szN-j];
@@ -365,7 +365,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	{
 		RR[1][szN] = bFreeBack ? 0.0 : GC[szM-i];
 		if( SF[szN].size() < DM[szN].z+1 && i <= SF[szN][DM[szN].z+1].x)
-			++DM[j].z; // Advance position
+			++DM[szN].z; // Advance position
 		double dTemp;
 		if(bFreeBack)
 		{
