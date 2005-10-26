@@ -408,8 +408,8 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 				DM[j].s = DM[j].z;
 				DM[j].x = i;
 			}
-			
 		}
+		
 		swap(RR[0], RR[1]);
 	}
 
