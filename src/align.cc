@@ -349,17 +349,22 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 
 	//Reverse Algorithm
 	RR[0][szN] = 0.0;
+	DM[szN].c = bFreeBack ? SF[szN][0].d : SF[szN][0].Cost(szM);
 	DM[szN].s = 0;
 	DM[szN].z = 0;
 	DM[szN].x = szM;
-	DM[szN].c = bFreeBack ? SF[szN][0].d : SF[szN][0].Cost(szM);
-	for(size_t j=szN-1;j!=(size_t)-1;--j)
+	RR[0][0] = bFreeBack ? 0.0 : GC[szN];
+	DM[0].c = (bFreeFront ? 0.0 : GC[szM])+RR[0][0];
+	DM[0].s = 0
+	DM[0].z = 0;
+	DM[0].x = szM;
+	for(size_t j=szN-1;j>0;--j)
 	{
 		RR[0][j] = bFreeBack ? 0.0 : GC[szN-j];
+		DM[j].c = SF[j][0].Cost(szM)+RR[0][j];
 		DM[j].s = 0;
 		DM[j].z = 0;
 		DM[j].x = szM;
-		DM[j].c = SF[j][0].Cost(szM)+RR[0][j];
 	}
 	for(size_t i=szM-1;i!=szMh-1;--i)
 	{
@@ -384,7 +389,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 			DM[szN].x = i;
 		}
 			
-		for(size_t j=szN-1;j!=(size_t)-1;--j)
+		for(size_t j=szN-1;j>0;--j)
 		{
 			update_ins_reverse(T,i,j,szN);
 			update_del_reverse(SR[j],i,j,szM);
