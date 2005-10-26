@@ -37,7 +37,7 @@ bool g_bNegate = false;
 bool g_bMsg = false;
 bool g_bFreeEnds = true;
 
-void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const string& msg);
+void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg);
 
 double g_dMatch = 0.0;
 double g_dReplacement = 1.0;
@@ -164,15 +164,14 @@ int main(int argc, char *argv[])
 	for_each(seqs.begin(), seqs.end(), seqproc);
 	
 	Sequence seqA, seqB;
-	ostringstream msg;
+	char msgbuf[255];
 	for(size_t i = 0; i < seqs.size(); ++i)
 	{
 		for(size_t j=i+1; j < seqs.size(); ++j)
 		{
 			double d = align_pair(seqs[i], seqs[j], seqA, seqB);
-			msg.str().clear();
-			msg << "Score = " << d;
-			print_aln(names[i], seqA, names[j], seqB, msg.str() );
+			sprintf(msgbuf, "Score = %f", d);
+			print_aln(names[i], seqA, names[j], seqB, msgbuf);
 		}
 	}
 
@@ -219,7 +218,7 @@ void seqproc(string& ss)
 	}
 }
 
-void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const string& msg)
+void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg)
 {
 	cout << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
 	if(g_bMsg)
