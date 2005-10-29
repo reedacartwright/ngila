@@ -1,0 +1,1 @@
+EXTRA_DIST = vs.sln vs.vcproj vs.suo vs.cpp config.h
