@@ -1,7 +1,20 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="0" />
+ <DocsAndViews NumberOfDocuments="4" >
+  <Doc0 NumberOfViews="1" URL="file:///home/reed/ngila/current/ngila.kdevses" >
+   <View0 line="0" Type="Source" />
+  </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///home/reed/ngila/current/ngila.kdevelop.pcs" >
+   <View0 Type="Other" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///home/reed/ngila/current/Doxyfile" >
+   <View0 line="0" Type="Source" />
+  </Doc2>
+  <Doc3 NumberOfViews="1" URL="file:///home/reed/ngila/current/config/ylwrap" >
+   <View0 line="0" Type="Source" />
+  </Doc3>
+ </DocsAndViews>
  <pluginList>
   <kdevdebugger>
    <breakpointList/>
