@@ -1,4 +1,4 @@
-TESTS = test1
+TESTS = test1.sh
 TESTFILES = test1.fsa test1.aln
 EXTRA_DIST = ${TESTS} ${TESTFILES}
 
