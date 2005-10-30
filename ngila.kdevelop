@@ -15,7 +15,7 @@
   <kdevautoproject>
     <general>
       <activetarget>src/ngila</activetarget>
-      <useconfiguration>debug</useconfiguration>
+      <useconfiguration>default</useconfiguration>
     </general>
     <run>
       <mainprogram>src/ngila</mainprogram>
@@ -154,8 +154,9 @@
       <hidenonlocation>false</hidenonlocation>
     </groups>
     <tree>
-      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
-      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidepatterns></hidepatterns>
+      <hidenonprojectfiles>true</hidenonprojectfiles>
+      <showvcsfields>true</showvcsfields>
     </tree>
   </kdevfileview>
 </kdevelop>
