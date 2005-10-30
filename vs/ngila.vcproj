@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="vs"
+	Name="ngila"
 	ProjectGUID="{078A46DE-A473-4FEF-A496-22356476C97A}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="getoptd.lib"
-				OutputFile="$(OutDir)/vs.exe"
+				OutputFile="$(OutDir)/ngila.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/vs.pdb"
@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="getopt.lib"
-				OutputFile="$(OutDir)/vs.exe"
+				OutputFile="$(OutDir)/ngila.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
 				SubSystem="1"

@@ -35,7 +35,7 @@ using namespace std;
 bool g_bNoCase = true;
 bool g_bNegate = false;
 bool g_bMsg = false;
-bool g_bFreeEnds = true;
+bool g_bFreeEnds = false;
 
 void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg);
 
