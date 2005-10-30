@@ -164,7 +164,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = src examples tests doc
+SUBDIRS = src examples tests doc vs
 EXTRA_DIST = 
 DISTCLEANFILES = _stdint.h
 all: config.h
