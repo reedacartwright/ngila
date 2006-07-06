@@ -62,7 +62,7 @@ char g_csUsage[] = PACKAGE_STRING \
 "\n" \
 "USAGE: " \
 PACKAGE_NAME \
-" [hnpisaef:b:c:x:m:r:] file[.aln|.fsa|.phy]\n" \
+" [hnpisaef:b:c:x:m:r:M:N:] file[.aln|.fsa|.phy]\n" \
 "  -a -b -c gap parameters: g(x) = a + b*x + c*ln x\n" \
 "  -m match cost\n" \
 "  -r mismatch/replacement cost\n" \
@@ -76,6 +76,7 @@ PACKAGE_NAME \
 "  -q no message\n" \
 "  -v message\n" \
 "  -h usage\n" \
+"  -M -N thresholds for O(MN) alignment\n" \
 "\n" \
 "Send bug reports to " \
 PACKAGE_BUGREPORT \
@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
 {
 	int ch;
 	char *csMatrix = NULL;
-	while((ch = getopt(argc, argv, "hnpisvqefa:b:c:x:m:r:")) != -1)
+	while((ch = getopt(argc, argv, "hnpisvqefa:b:c:x:m:r:M:N:")) != -1)
 	{
 		switch(ch)
 		{
@@ -104,6 +105,12 @@ int main(int argc, char *argv[])
 			break;
 		case 'r':
 			g_dReplacement = atof(optarg);
+			break;
+		case 'M':
+			g_szM = (size_t)atoi(optarg);
+			break;
+		case 'N':
+			g_szN = (size_t)atoi(optarg);
 			break;
 		case 'x':
 			csMatrix = optarg;
