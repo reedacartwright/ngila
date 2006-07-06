@@ -230,7 +230,7 @@ void print_aln(const string& n1, const string& s1, const string& n2, const strin
 	// Print interleaved sequences
 	for(size_t u = 0; u < sz; u+=l)
 	{
-		l = min(60u, sz);
+		l = std::min((size_t)60u, sz);
 		// Print a row of each sequence
 		cout << setw(15) << setiosflags(ios::left) << n1 << " " << s1.substr(u, l) << endl;
 		cout << setw(15) << setiosflags(ios::left) << n2 << " " << s2.substr(u, l) << endl;
