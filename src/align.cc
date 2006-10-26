@@ -1,5 +1,5 @@
 /*  Nigla - Logarithmic Sequence Alignments
-    Copyright (C) 2005  Reed A. Cartwright
+    Copyright (C) 2005-2006  Reed A. Cartwright
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

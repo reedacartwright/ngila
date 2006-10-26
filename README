@@ -1,0 +1,76 @@
+NGILA VERSION 1.0 - Logarithmic Sequence Alignments
+
+Copyright (C) 2005-2006  Reed A. Cartwright - All rights reserved.
+
+DESCRIPTION
+
+Ngila is a global alignment program that can align pairs of sequences using
+logarithmic and affine gap penalties.
+
+CONTACT
+
+See AUTHORS for contact information.
+
+LICENSE
+
+See COPYING for license information.
+
+INSTALLATION
+
+See INSTALL for installation instructions.
+
+DOWNLOAD
+
+Ngila can be downloaded from the url <http://scit.us/projects/ngila/>, which
+is its development website.
+
+COMMAND LINE USAGE
+
+ngila [flags options] filename
+
+Options:
+  -a value -b value -c value   gap parameters: g(x) = a + b*x + c*ln x
+  -m value                     match cost
+  -r value                     mismatch/replacement cost
+  -x file                      substitution matix
+  -M value -N value            thresholds for O(MN) alignment
+
+Flags:
+  -n                           negate substitution matrix
+  -p                           don't negate matrix
+  -f                           free end gaps
+  -e                           score end gaps
+  -i                           case insensitive sequences
+  -s                           case sensitive sequence
+  -q                           no messages
+  -v                           messages
+  -h                           usage
+
+Filename:
+
+The input file has to be in either Clustal, Fasta, or Phylip format.  If more
+than two sequences are given then Ngila will align each pair.
+
+Example:
+
+ngila -m 0 -r 1 -a 2 -b 0.25 -c 0.5 -M 100 -N 100 seqs.aln
+
+SUBSTITUTION MATRIX
+
+An example of the format can be seen in matrix/dna
+
+ALGORITHM
+
+Ngila implements a Miller and Myers (1988) candidate list method of sequence
+alignment with the gap cost being of the form g(x) = a + b*x + c*ln x.  Ngila
+will return the alignment with the minimum cost and has rules for breaking
+ties.  Ngila's main alignment algorithm requires O(M) memory; but is a little
+slower than an O(MN) memory algorithm.
+
+Ngila implements a secondary, O(MN) memory algorithm for alignment, that is
+faster.  The options -M and -N (-M is for the larger sequence) allow users to
+specify thresholds for when the O(MN) algorithm is used instead of the O(M)
+algorithm.  For example, command 'ngila -M 50 -N 50 seqs.aln' will align the
+sequences in 'seq.aln' via the divide and conquer algorithm, but when
+subsequnces less than or equal to 50-50 are being aligned, the O(MN) algorithm
+will be used.
