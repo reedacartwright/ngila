@@ -62,20 +62,19 @@ char g_csUsage[] = PACKAGE_STRING \
 "\n" \
 "USAGE: " \
 PACKAGE_NAME \
-" [hnpisaef:b:c:x:m:r:M:N:] file[.aln|.fsa|.phy]\n" \
+" [npisvqef:g:h:a:b:c:x:m:r:M:N:] file[.aln|.fsa|.phy]\n" \
 "  -a -b -c gap parameters: g(x) = a + b*x + c*ln x\n" \
 "  -m match cost\n" \
 "  -r mismatch/replacement cost\n" \
 "  -x substitution matix\n" \
 "  -n negate matrix\n" \
 "  -p don't negate matrix\n" \
-"  -f free end gaps\n" \
+"  -f -g -h free end gap parameters: g(x) = f + g*x + h*ln x\n" \
 "  -e score end gaps\n" \
 "  -i case insensitive sequences\n" \
 "  -s case sensitive sequence\n" \
 "  -q no message\n" \
 "  -v message\n" \
-"  -h usage\n" \
 "  -M -N thresholds for O(MN) alignment\n" \
 "\n" \
 "Send bug reports to " \
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
 {
 	int ch;
 	char *csMatrix = NULL;
-	while((ch = getopt(argc, argv, "hnpisvqefa:b:c:x:m:r:M:N:")) != -1)
+	while((ch = getopt(argc, argv, "npisvqef:g:h:a:b:c:x:m:r:M:N:")) != -1)
 	{
 		switch(ch)
 		{
@@ -133,13 +132,21 @@ int main(int argc, char *argv[])
 		case 'v':
 			g_bMsg = true;
 			break;
-		case 'f':
-			g_bFreeEnds = true;
-			break;
 		case 'e':
 			g_bFreeEnds = false;
 			break;
+		case 'f':
+			g_bFreeEnds = true;
+			dF = atof(optarg);
+			break;
+		case 'g':
+			g_bFreeEnds = true;
+			dG = atof(optarg);
+			break;
 		case 'h':
+			g_bFreeEnds = true;
+			dH = atof(optarg);
+			break;
 		case '?':
 		default:
 			printf("%s", g_csUsage);

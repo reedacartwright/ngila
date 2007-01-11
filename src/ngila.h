@@ -44,7 +44,7 @@ typedef std::map<std::string, Sequence> SeqMap;
 
 // External variables
 extern double mCost[128][128]; //substitution scoring
-extern double dB,dA,dC;
+extern double dB,dA,dC,dF,dG,dH;
 extern bool g_bFreeEnds;
 extern size_t g_szM, g_szN;
 
