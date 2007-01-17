@@ -594,7 +594,7 @@ double align_pair_mn(Sequence::const_iterator itA1, Sequence::const_iterator itA
 		seqA.insert(seqA.begin()+szA, itA1+szNI, itA1+szM);
 		seqB.insert(szB, szM-szNI, chGap);
 	}
-	while(i != 0 && j != 0)
+	while(i != 0 || j != 0)
 	{
 		if(szTable[i][j] == 0)
 		{
