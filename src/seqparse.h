@@ -1,7 +1,7 @@
-/* A Bison parser, made from /usr/home/reed/ngila/current/src/seqparse.yy, by GNU bison 1.75.  */
+/* A Bison parser, made by GNU Bison 2.1.  */
 
 /* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,16 +15,13 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
 /* As a special exception, when this file is copied by Bison into a
    Bison output file, you may use that output file without restriction.
    This special exception was added by the Free Software Foundation
    in version 1.24 of Bison.  */
-
-#ifndef BISON_SEQPARSE_H
-# define BISON_SEQPARSE_H
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -38,40 +35,44 @@
      NEXUS = 261,
      NUMBER = 262,
      WORD = 263,
-     ENDL = 264,
-     GT = 265,
-     UNKNOWN = 266
+     HWORD = 264,
+     ENDL = 265,
+     GT = 266,
+     UNKNOWN = 267
    };
 #endif
+/* Tokens.  */
 #define CLUSTAL 258
 #define FASTA 259
 #define PHYLIP 260
 #define NEXUS 261
 #define NUMBER 262
 #define WORD 263
-#define ENDL 264
-#define GT 265
-#define UNKNOWN 266
+#define HWORD 264
+#define ENDL 265
+#define GT 266
+#define UNKNOWN 267
 
 
 
 
-#ifndef YYSTYPE
+#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
 #line 59 "seqparse.yy"
-typedef union {
+typedef union YYSTYPE {
 	char ch;
 	char *cs;
 	std::vector<char*> *vs;
 	int  n;
 	double d;
-} yystype;
-/* Line 1281 of /usr/local/share/bison/yacc.c.  */
-#line 70 "seqparse.h"
-# define YYSTYPE yystype
+} YYSTYPE;
+/* Line 1403 of yacc.c.  */
+#line 70 "/usr/home/reed/Projects/ngila/current/src/seqparse.h"
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
+# define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 extern YYSTYPE seq_lval;
 
 
-#endif /* not BISON_SEQPARSE_H */
 

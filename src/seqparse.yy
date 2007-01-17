@@ -71,11 +71,14 @@ void delete_words(vector<char*> *vs);
 
 %token <n>	NUMBER
 %token <cs> WORD
+%token <cs> HWORD
 %token <ch> ENDL
 %token <ch> GT '>'
 %token <ch> UNKNOWN
 
 %type <vs>	line
+%type <vs>	hline
+%type <vs>	sline
 %type <vs>	words
 %type <vs>	fsabody
 %type <vs>	fsahead
@@ -95,11 +98,12 @@ alnbody: alnline
 | alnbody alnline
 ;
 
-alnline: line {
+alnline: hline {
 	if(!$1->empty())
 		db.Add(ws2ss($1->begin(), $1->begin()+1), ws2ss($1->begin()+1, $1->end()));
 	delete_words($1);
-} 
+}
+| sline { delete_words($1); }
 ;
 
 fsafile: fsaseq
@@ -149,8 +153,16 @@ phyline: line {
 nexfile:
 ;
 
-line: words ENDL { $$ = $1; }
+hline: HWORD words ENDL { $$ = $2;  $$->insert($$->begin(), $1); }
+| HWORD ENDL { $$ = new vector<char*>(1, $1); }
+;
+
+sline: words ENDL { $$ = $1; }
 | ENDL { $$ = new vector<char*>(); }
+;
+
+line: hline { $$ = $1; }
+| sline { $$ = $1; }
 ;
 
 words: WORD { $$ = new vector<char*>(1, $1); }
@@ -183,7 +195,7 @@ string ws2ss(vector<char*>::const_iterator itB, vector<char*>::const_iterator it
 	return ss;
 }
 
-inline void delete_char(char* p) { delete p; }
+inline void delete_char(char* p) { free(p); }
 
 void delete_words(vector<char*> *vs)
 {

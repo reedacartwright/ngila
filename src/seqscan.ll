@@ -81,6 +81,11 @@ WORD	{NONSP}+
 	return NUMBER;
 }
 
+<*>^{WORD} {
+	yylval.cs = strdup(yytext);
+	return HWORD;
+}
+
 <*>{WORD} {
 	yylval.cs = strdup(yytext);
 	return WORD;
