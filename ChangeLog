@@ -1,1 +1,9 @@
-1.0 - First Release
+1.1-RELEASE
+
+* Added options to specify free-end gap scores
+
+* Fixed bug with holisitc algorithm
+
+1.0-RELEASE
+
+* Initial Release
