@@ -174,6 +174,8 @@ extern FILE *seq_in;
 
 bool parse_file(const char* csFile, StringVec &vNames, SeqVec &vSeqs)
 {
+	if(csFile == NULL)
+		return false;
 	seq_in = fopen(csFile, "rt");
 	if(seq_in == NULL)
 		return false;

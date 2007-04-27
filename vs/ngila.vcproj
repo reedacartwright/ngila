@@ -243,6 +243,22 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath="..\src\matparse.yy"
+			>
+		</File>
+		<File
+			RelativePath="..\src\matscan.ll"
+			>
+		</File>
+		<File
+			RelativePath="..\src\seqparse.yy"
+			>
+		</File>
+		<File
+			RelativePath="..\src\seqscan.ll"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
