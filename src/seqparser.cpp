@@ -15,10 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ***************************************************************************/
 
-#ifdef HAVE_CONFIG_H
-#	include "config.h"
-#endif
-
+#include "ngila.h"
 #include "seqparser.h"
 
 using namespace std;
@@ -28,7 +25,7 @@ bool parse_file(const char* cs, seq_db &rdb)
 	file_iterator<char> file_first(cs);
 	if(!file_first)
 	{
-		cerr << "ERROR: unable to open \'" << cs << "\'" << endl;
+		cerror() << "unable to open \'" << cs << "\'" << endl;
 		return false;			
 	}
 	file_iterator<char>  file_last = file_first.make_end();
@@ -38,7 +35,7 @@ bool parse_file(const char* cs, seq_db &rdb)
 	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
 	if (!info.full)
 	{
-		cerr << "ERROR: unable to parse \'" << cs << "\'" << endl;
+		cerror() << "unable to parse \'" << cs << "\'" << endl;
 		return false;
 	}
 	return true;

@@ -17,10 +17,8 @@
 
 #include "ngila.h"
 
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+#include "ngila_app.h"
+#include "seqdb.h"
 
 using namespace std;
 
@@ -31,106 +29,85 @@ int main(int argc, char *argv[])
 		emdel_app app(argc, argv);
 		ret = app.run();
 	} catch(exception &e) {
-		cerr << "ERROR: " << e.what() << endl;
+		cerror() << e.what() << endl;
 	}
 	return ret;
 }
 
-bool g_bNoCase = true;
-bool g_bNegate = false;
-bool g_bMsg = false;
-bool g_bFreeEnds = false;
+namespace boost { namespace program_options {
+template<>
+typed_value<bool>* value() { return bool_switch(); }
 
-void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg);
+template<>
+typed_value<bool>* value(bool* v) { return bool_switch(v); }
 
-double g_dMatch = 0.0;
-double g_dReplacement = 1.0;
+}}
+
+ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
+{
+	try {
+		desc.add_options()
+			#define XCMD(lname, sname, desc, type, def) ( \
+				_SS("-", lname) BOOST_PP_EXPR_IF(_SD(sname), "," BOOST_PP_STRINGIZE sname), \
+				po::value< type >(&arg._JS(_, lname))->default_value(def), \
+				desc )
+			#include "ngila.cmds"
+			#undef XCMD
+			;
+		po::variables_map vm;
+		po::positional_options_description pdesc;
+		pdesc.add("input", -1);
+		po::store(po::command_line_parser(argc, argv).options(desc).positional(pdesc).run(), vm);
+		po::notify(vm);
+		if(!arg.arg_file.empty())
+		{
+			if(arg.arg_file == "-")
+			{
+				po::store(po::parse_config_file(cin, desc), vm);	
+			}
+			else
+			{
+				std::ifstream ifs(arg.arg_file.c_str());
+				if(!ifs.is_open())
+				{
+					string sse = "unable to open argument file ";
+					sse += arg.arg_file;
+					throw std::runtime_error(sse);
+				}
+				po::store(po::parse_config_file(ifs, desc), vm);
+			}
+			po::notify(vm);
+		}
+	} catch (exception &e) {
+			cerror() << e.what() << endl;
+			throw std::runtime_error("unable to process command line");
+	}
+}
+
+int ngila_app::run()
+{
+	if(arg.help || arg.version)
+	{
+		cerr << desc << endl;
+		return EXIT_SUCCESS;
+	}
+
+	seq_db mydb;
+	for(vector<string>::const_iterator cit = arg_input.begin(); cit != arg_input.end(); ++cit)
+	{
+		if(!mydb.parse_file(cit->c_str(), true))
+		{
+			cerror() << "parsing of \'" << cit->c_str() << "\' failed." << endl;
+			return EXIT_FAILURE;
+		}
+	}
+	
+	return EXIT_SUCCESS;
+}
 
 int main(int argc, char *argv[])
 {
-	int ch;
-	char *csMatrix = NULL;
-	while((ch = getopt(argc, argv, "npisvqef:g:h:a:b:c:x:m:r:M:N:")) != -1)
-	{
-		switch(ch)
-		{
-		case 'a':
-			dA = atof(optarg);
-			break;
-		case 'b':
-			dB = atof(optarg);
-			break;
-		case 'c':
-			dC = atof(optarg);
-			break;
-		case 'm':
-			g_dMatch = atof(optarg);
-			break;
-		case 'r':
-			g_dReplacement = atof(optarg);
-			break;
-		case 'M':
-			g_szM = (size_t)atoi(optarg);
-			break;
-		case 'N':
-			g_szN = (size_t)atoi(optarg);
-			break;
-		case 'x':
-			csMatrix = optarg;
-			break;
-		case 'n':
-			g_bNegate = true;
-			break;
-		case 'p':
-			g_bNegate = false;
-			break;
-		case 's':
-			g_bNoCase = false;
-			break;
-		case 'i':
-			g_bNoCase = true;
-			break;
-		case 'q':
-			g_bMsg = false;
-			break;
-		case 'v':
-			g_bMsg = true;
-			break;
-		case 'e':
-			g_bFreeEnds = false;
-			break;
-		case 'f':
-			g_bFreeEnds = true;
-			dF = atof(optarg);
-			break;
-		case 'g':
-			g_bFreeEnds = true;
-			dG = atof(optarg);
-			break;
-		case 'h':
-			g_bFreeEnds = true;
-			dH = atof(optarg);
-			break;
-		case '?':
-		default:
-			printf("%s", g_csUsage);
-			return 1;
-			break;
-		}
-	}
-    argc -= optind;
-    argv += optind;
-	if(csMatrix == NULL)
-	{
-		for(int i = 0;i<128;++i)
-			for(int j=0;j<128;++j)
-				mCost[i][j] = ((i == j) ? g_dMatch : g_dReplacement);
-	}
-	else if(!parse_matrix(csMatrix))
-	{
-		fprintf(stderr, "Parsing substitution cost matrix failed.\n");
-		return 1;
-	}
+
 	
 	SeqVec seqs;
 	StringVec names;
