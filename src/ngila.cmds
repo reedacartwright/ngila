@@ -1,0 +1,94 @@
+/***************************************************************************
+ *   Copyright (C) 2005-2007 by Reed A. Cartwright                         *
+ *   reed@scit.us                                                          *
+ *                                                                         *
+ *   Permission is hereby granted, free of charge, to any person obtaining *
+ *   a copy of this software and associated documentation files (the       *
+ *   "Software"), to deal in the Software without restriction, including   *
+ *   without limitation the rights to use, copy, modify, merge, publish,   *
+ *   distribute, sublicense, and/or sell copies of the Software, and to    *
+ *   permit persons to whom the Software is furnished to do so, subject to *
+ *   the following conditions:                                             *
+ *                                                                         *
+ *   The above copyright notice and this permission notice shall be        *
+ *   included in all copies or substantial portions of the Software.       *
+ *                                                                         *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       *
+ *   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    *
+ *   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*
+ *   IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR     *
+ *   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, *
+ *   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR *
+ *   OTHER DEALINGS IN THE SOFTWARE.                                       *
+ ***************************************************************************/
+
+/***************************************************************************
+ *    X-Helpers List                                                       *
+ ***************************************************************************/
+
+#include <boost/preprocessor.hpp>
+
+// The _JS macro cats a seq 'seq' with separator 'sep'
+
+#define _JS_OP(s, data, elem) BOOST_PP_CAT(data, elem)
+
+#define _JS(sep, seq) BOOST_PP_SEQ_CAT(() BOOST_PP_SEQ_REPLACE( \
+		BOOST_PP_SEQ_TRANSFORM(_JS_OP, sep, seq), 0, BOOST_PP_SEQ_HEAD(seq) \
+))
+
+// The _SS macro is similiar to _JS except that it stringizes everything
+
+#define _SS_OP(r, data, elem) data BOOST_PP_STRINGIZE(elem)
+
+#define _SS(sep, seq) BOOST_PP_STRINGIZE(BOOST_PP_SEQ_HEAD(seq)) \
+	BOOST_PP_SEQ_FOR_EACH(_SS_OP, sep, BOOST_PP_SEQ_TAIL(seq))
+
+// Tests whether a seq is defined.
+
+#define _SD(seq) BOOST_PP_GREATER(BOOST_PP_SEQ_SIZE(() seq),1)
+
+/***************************************************************************
+ *    X-Macro List                                                         *
+ *                                                                         *
+ *    XCMD(lname, sname, desc, type, def)                                  *
+ ***************************************************************************/
+
+XCMD((model),          (m), "alignment model: zeta|geo|cost", std::string, std::string("zeta"))
+XCMD((branch)(length), (t), "sequence separation time",    double, 0.1)
+XCMD((indel)(rate),    (r), "relative rate of insertion and deletion", double, 0.1)
+XCMD((indel)(slope),   (z), "slope param of insertion and deletion (for zeta)",   double, 1.7)
+XCMD((indel)(mean),    (q), "mean of insertion and deletion (for geo)", double, 10.0)
+XCMD((ratio),          (k), "transition-transversion ratio", double, 2.0)
+XCMD((avgaln),         (l), "average alignment skeleton length", double, 1000)
+
+XCMD((cost)(match),              (i), "residue match cost", double, 0.0)
+XCMD((cost)(mismatch),           (j), "residue mismatch cost", double, 1.0)
+XCMD((cost)(matrix),             (x), "read residue cost matrix from file", std::string, std::string(""))
+XCMD((cost)(intersection),       (a), "gap inersection cost", double, 1.0)
+XCMD((cost)(linear),             (b), "gap linear cost", double, 1.0)
+XCMD((cost)(logarithmic),        (c), "gap logarithmic cost", double, 0.0)
+XCMD((cost)(intersection)(free), (f), "gap inersection cost", double, 0.0)
+XCMD((cost)(linear)(free),       (g), "gap linear cost", double, 0.0)
+XCMD((cost)(logarithmic)(free),  (h), "gap logarithmic cost", double, 0.0)
+
+XCMD((free)(end)(gaps),    (e), "free end gaps", bool, false)
+XCMD((case)(sensitivity),  (s), "sequences are case sensitive", bool, false)
+XCMD((threshold)(larger),  (M), "threshold for O(MN) alignment", double, 10000)
+XCMD((threshold)(smaller), (N), "threshold for O(MN) alignment", double, 10000)
+
+XCMD((quiet),        , "disable all warnings and error messages", bool, false)
+XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))
+XCMD((version),      , "display version information", bool, false)
+XCMD((help),         , "display help message", bool, false)
+XCMD((input),        , "input file", std::vector< std::string >,
+		std::vector< std::string >(1, std::string("-")) )
+
+
+/***************************************************************************
+ *    Cleanup                                                              *
+ ***************************************************************************/
+
+#undef _JS_OP
+#undef _JS
+#undef _SS
+#undef _SD

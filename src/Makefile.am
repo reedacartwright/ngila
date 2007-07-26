@@ -9,4 +9,4 @@ ngila_SOURCES = ngila.cc align.cc seqparse.yy seqscan.ll matparse.yy matscan.ll
 ngila_LDADD = $(LIBOBJS) @LEXLIB@
 
 CLEANFILES = matparse.cc matparse.h matscan.cc seqparse.cc seqparse.h seqscan.cc
-noinst_HEADERS = ngila.h
+noinst_HEADERS = ngila.cmds ngila.h
