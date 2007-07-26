@@ -1,20 +1,20 @@
-/*  Nigla - Logarithmic Sequence Alignments
-    Copyright (C) 2005-2006  Reed A. Cartwright
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/***************************************************************************
+*  NGILA - LOG-AFFINE SEQUENCE ALIGMENTS                                   *
+*  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
+*                                                                          *
+*  This program is free software: you can redistribute it and/or modify    *
+*  it under the terms of the GNU General Public License as published by    *
+*  the Free Software Foundation, either version 3 of the License, or       *
+*  (at your option) any later version.                                     *
+*                                                                          *
+*  This program is distributed in the hope that it will be useful,         *
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+*  GNU General Public License for more details.                            *
+*                                                                          *
+*  You should have received a copy of the GNU General Public License       *
+*  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
+***************************************************************************/
 
 #include "ngila.h"
 
@@ -41,46 +41,6 @@ void print_aln(const string& n1, const string& s1, const string& n2, const strin
 
 double g_dMatch = 0.0;
 double g_dReplacement = 1.0;
-
-char g_csUsage[] = PACKAGE_STRING \
-" - Logarithmic Sequence Alignments\n" \
-"Copyright (C) 2005-2006  Reed A. Cartwright\n" \
-"\n" \
-"This program is free software; you can redistribute it and/or modify\n" \
-"it under the terms of the GNU General Public License as published by\n" \
-"the Free Software Foundation; either version 2 of the License, or\n" \
-"(at your option) any later version.\n" \
-"\n" \
-"This program is distributed in the hope that it will be useful,\n" \
-"but WITHOUT ANY WARRANTY; without even the implied warranty of\n" \
-"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" \
-"GNU General Public License for more details.\n" \
-"\n" \
-"You should have received a copy of the GNU General Public License\n" \
-"along with this program; if not, write to the Free Software\n" \
-"Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n" \
-"\n" \
-"USAGE: " \
-PACKAGE_NAME \
-" [npisvqef:g:h:a:b:c:x:m:r:M:N:] file[.aln|.fsa|.phy]\n" \
-"  -a -b -c gap parameters: g(x) = a + b*x + c*ln x\n" \
-"  -m match cost\n" \
-"  -r mismatch/replacement cost\n" \
-"  -x substitution matix\n" \
-"  -n negate matrix\n" \
-"  -p don't negate matrix\n" \
-"  -f -g -h free end gap parameters: g(x) = f + g*x + h*ln x\n" \
-"  -e score end gaps\n" \
-"  -i case insensitive sequences\n" \
-"  -s case sensitive sequence\n" \
-"  -q no message\n" \
-"  -v message\n" \
-"  -M -N thresholds for O(MN) alignment\n" \
-"\n" \
-"Send bug reports to " \
-PACKAGE_BUGREPORT \
-"\n" \
-"\n";
 
 int main(int argc, char *argv[])
 {
