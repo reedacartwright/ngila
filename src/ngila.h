@@ -23,18 +23,40 @@
 #	include "config.h"
 #endif
 
-#ifndef HAVE_MALLOC
-extern "C" void *rpl_malloc(size_t n);
-#endif
-
-#ifndef HAVE_REALLOC
-extern "C" void *rpl_realloc(void *p, size_t n);
-#endif
-
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <map>
+
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
+
+/***************************************************************************
+ *    class ngila_app                                                      *
+ ***************************************************************************/
+
+class ngila_app  {
+public:
+	ngila_app(int argc, char *argv[]);
+	virtual ~ngila_app() { }
+	
+	virtual int run();
+	
+	po::options_description desc;	
+	
+	struct args
+	{			
+	// use X-Macros to specify argument variables
+#	define XCMD(lname, sname, desc, type, def) type _JS(_, lname) ;
+#	include "emdel.cmds"
+#	undef XCMD
+	};
+	
+protected:
+	args arg;
+	
+};
+
 
 // Typedefs
 typedef std::string Sequence;

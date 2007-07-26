@@ -1,36 +1,40 @@
-/***************************************************************************
-*  NGILA - LOG-AFFINE SEQUENCE ALIGMENTS                                   *
-*  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
-*                                                                          *
-*  This program is free software: you can redistribute it and/or modify    *
-*  it under the terms of the GNU General Public License as published by    *
-*  the Free Software Foundation, either version 3 of the License, or       *
-*  (at your option) any later version.                                     *
-*                                                                          *
-*  This program is distributed in the hope that it will be useful,         *
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of          *
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
-*  GNU General Public License for more details.                            *
-*                                                                          *
-*  You should have received a copy of the GNU General Public License       *
-*  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
-***************************************************************************/
+/****************************************************************************
+ *  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
+ *                                                                          *
+ *  This program is free software: you can redistribute it and/or modify    *
+ *  it under the terms of the GNU General Public License as published by    *
+ *  the Free Software Foundation, either version 3 of the License, or       *
+ *  (at your option) any later version.                                     *
+ *                                                                          *
+ *  This program is distributed in the hope that it will be useful,         *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *  GNU General Public License for more details.                            *
+ *                                                                          *
+ *  You should have received a copy of the GNU General Public License       *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
+ ****************************************************************************/
 
 #include "ngila.h"
 
-#ifdef HAVE_MATH_H
-#	include <math.h>
-#endif
-
-#ifdef HAVE_GETOPT_H
-#	include <getopt.h>
-#endif
-
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 
 using namespace std;
+
+int main(int argc, char *argv[])
+{
+	int ret = EXIT_FAILURE;
+	try {
+		emdel_app app(argc, argv);
+		ret = app.run();
+	} catch(exception &e) {
+		cerr << "ERROR: " << e.what() << endl;
+	}
+	return ret;
+}
 
 bool g_bNoCase = true;
 bool g_bNegate = false;
