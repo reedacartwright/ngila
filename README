@@ -65,12 +65,12 @@ Ngila implements a Miller and Myers (1988) candidate list method of sequence
 alignment with the gap cost being of the form g(x) = a + b*x + c*ln x.  Ngila
 will return the alignment with the minimum cost and has rules for breaking
 ties.  Ngila's main alignment algorithm is divide-and-conquer, which requires
-O(M) memory; but slower than a holisitc, O(MN) memory algorithm.
+O(M) memory; but slower than a holistic, O(MN) memory algorithm.
 
 Ngila implements a secondary, holistic algorithm for alignment, which is
 faster.  The options -M and -N (-M is for the larger sequence) allow users to
 specify thresholds for when the holistic algorithm is used instead of the DnC
 algorithm.  For example, command 'ngila -M 5000 -N 5000 seqs.aln' will align the
 sequences in 'seq.aln' via the divide-and-conquer algorithm, but when
-subsequnces less than or equal to 5000-5000 are being aligned, the holistic
+subsequences less than or equal to 5000-5000 are being aligned, the holistic
 algorithm will be used.
