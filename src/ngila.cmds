@@ -25,7 +25,7 @@
 
 #define _JS_OP(s, data, elem) BOOST_PP_CAT(data, elem)
 
-#define _JS(sep, seq) BOOST_PP_SEQ_CAT(() BOOST_PP_SEQ_REPLACE( \
+#define _JS(sep, seq) BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_REPLACE( \
 		BOOST_PP_SEQ_TRANSFORM(_JS_OP, sep, seq), 0, BOOST_PP_SEQ_HEAD(seq) \
 ))
 
@@ -38,7 +38,7 @@
 
 // Tests whether a seq is defined.
 
-#define _SD(seq) BOOST_PP_GREATER(BOOST_PP_SEQ_SIZE(() seq),1)
+#define _SD(seq) BOOST_PP_GREATER(BOOST_PP_SEQ_SIZE(seq),1)
 
 /***************************************************************************
  *    X-Macro List                                                         *

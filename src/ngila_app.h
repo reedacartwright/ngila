@@ -40,7 +40,7 @@ public:
 	{			
 	// use X-Macros to specify argument variables
 #	define XCMD(lname, sname, desc, type, def) type _JS(_, lname) ;
-#	include "emdel.cmds"
+#	include "ngila.cmds"
 #	undef XCMD
 	};
 	

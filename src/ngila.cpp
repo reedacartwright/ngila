@@ -16,9 +16,15 @@
  ****************************************************************************/
 
 #include "ngila.h"
+#include <boost/preprocessor.hpp>
+
+#include <fstream>
+#include <ostream>
+#include <iterator>
 
 #include "ngila_app.h"
-#include "seqdb.h"
+//#include "seqdb.h"
+#include "matparser.h"
 
 using namespace std;
 
@@ -26,7 +32,7 @@ int main(int argc, char *argv[])
 {
 	int ret = EXIT_FAILURE;
 	try {
-		emdel_app app(argc, argv);
+		ngila_app app(argc, argv);
 		ret = app.run();
 	} catch(exception &e) {
 		cerror() << e.what() << endl;
@@ -43,12 +49,28 @@ typed_value<bool>* value(bool* v) { return bool_switch(v); }
 
 }}
 
+namespace std {
+template<typename _Tp, typename _CharT, typename _Traits>
+basic_ostream<_CharT, _Traits>&
+operator<<(basic_ostream<_CharT, _Traits>& os, const std::vector<_Tp> &v)
+{
+	if(v.size() == 1)
+		os << v.front();
+	else if(v.size() > 1)
+	{
+		std::copy(v.begin(), v.end()-1, std::ostream_iterator<_Tp, _CharT, _Traits>(os, " "));
+		os << v.back();
+	} 
+	return os;
+}
+}
+
 ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 {
 	try {
 		desc.add_options()
 			#define XCMD(lname, sname, desc, type, def) ( \
-				_SS("-", lname) BOOST_PP_EXPR_IF(_SD(sname), "," BOOST_PP_STRINGIZE sname), \
+				_SS("-", lname) BOOST_PP_EXPR_IF(_SD((_)sname), "," BOOST_PP_STRINGIZE sname), \
 				po::value< type >(&arg._JS(_, lname))->default_value(def), \
 				desc )
 			#include "ngila.cmds"
@@ -91,104 +113,119 @@ int ngila_app::run()
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}
-
-	seq_db mydb;
-	for(vector<string>::const_iterator cit = arg_input.begin(); cit != arg_input.end(); ++cit)
+	
+	sub_matrix mat;
+	if(!parse_matrix(arg.cost_matrix.c_str(), mat))
 	{
-		if(!mydb.parse_file(cit->c_str(), true))
-		{
-			cerror() << "parsing of \'" << cit->c_str() << "\' failed." << endl;
-			return EXIT_FAILURE;
-		}
+		cerror() << "parsing of matrix \'" << arg.cost_matrix << "\' failed." << endl;
+		return EXIT_FAILURE;
 	}
+	for(int i=0;i<128;++i)
+	{
+		for(int j=0;j<128;++j)
+		{
+			cout << mat[i][j] << " ";
+		}
+		cout << endl;
+	}
+
+	//seq_db mydb;
+	//for(vector<string>::const_iterator cit = arg_input.begin(); cit != arg_input.end(); ++cit)
+	//{
+	//	if(!mydb.parse_file(cit->c_str(), true))
+	//	{
+	//		cerror() << "parsing of \'" << cit->c_str() << "\' failed." << endl;
+	//		return EXIT_FAILURE;
+	//	}
+	//}
 	
 	return EXIT_SUCCESS;
 }
 
-int main(int argc, char *argv[])
-{
-
-	
-	SeqVec seqs;
-	StringVec names;
-	if(!parse_file(argv[0], names, seqs))
-	{
-		fprintf(stderr, "Parsing \"%s\" failed.\n", argv[0]);
-		return 1;
-	}
-	for_each(seqs.begin(), seqs.end(), seqproc);
-	
-	Sequence seqA, seqB;
-	char msgbuf[255];
-	for(size_t i = 0; i < seqs.size(); ++i)
-	{
-		for(size_t j=i+1; j < seqs.size(); ++j)
-		{
-			double d = align_pair(seqs[i], seqs[j], seqA, seqB);
-			sprintf(msgbuf, "Score = %f", d);
-			print_aln(names[i], seqA, names[j], seqB, msgbuf);
-		}
-	}
-
-
-	return 0;
-}
-
-char letproc(char ch)
-{
-	return (g_bNoCase ? (char)toupper(ch) : ch);
-}
-
-char letproc(const char *cs)
-{
-	return letproc(cs[0]);
-}
-
-double numproc(const char *cs)
-{
-	double d = atof(cs);
-	return (g_bNegate ? -d : d);
-}
-
-void seqproc(string& ss)
-{
-	// Remove Initial Gap
-	string::size_type sy;
-	if(ss[0] == '-')
-	{
-		for(sy = 1; sy < ss.size() && ss[sy] == '-' ; ++sy) { }
-		ss.erase(0, sy);
-	}
-	// Main Body
-	for(string::size_type sz = 0; sz < ss.size(); ++sz)
-	{
-		ss[sz] = letproc(ss[sz]);
-		// Remove Gaps
-		if(ss[sz+1] == '-')
-		{
-			for( sy = sz+2; sy < ss.size() && ss[sy] == '-' ; ++sy)
-				{ }
-			ss.erase(sz+1, sy-sz-1);
-		}
-	}
-}
-
-void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg)
-{
-	cout << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
-	if(g_bMsg)
-		cout << ": " << msg;
-	cout << ")" << endl << endl << endl;
-
-	size_t sz = s1.size();
-	size_t l;
-	// Print interleaved sequences
-	for(size_t u = 0; u < sz; u+=l)
-	{
-		l = std::min((size_t)60u, sz);
-		// Print a row of each sequence
-		cout << setw(15) << setiosflags(ios::left) << n1 << " " << s1.substr(u, l) << endl;
-		cout << setw(15) << setiosflags(ios::left) << n2 << " " << s2.substr(u, l) << endl;
-		cout << endl << endl;
-	}
-}
+//int main(int argc, char *argv[])
+//{
+//
+//	
+//	SeqVec seqs;
+//	StringVec names;
+//	if(!parse_file(argv[0], names, seqs))
+//	{
+//		fprintf(stderr, "Parsing \"%s\" failed.\n", argv[0]);
+//		return 1;
+//	}
+//	for_each(seqs.begin(), seqs.end(), seqproc);
+//	
+//	Sequence seqA, seqB;
+//	char msgbuf[255];
+//	for(size_t i = 0; i < seqs.size(); ++i)
+//	{
+//		for(size_t j=i+1; j < seqs.size(); ++j)
+//		{
+//			double d = align_pair(seqs[i], seqs[j], seqA, seqB);
+//			sprintf(msgbuf, "Score = %f", d);
+//			print_aln(names[i], seqA, names[j], seqB, msgbuf);
+//		}
+//	}
+//
+//
+//	return 0;
+//}
+//
+//char letproc(char ch)
+//{
+//	return (g_bNoCase ? (char)toupper(ch) : ch);
+//}
+//
+//char letproc(const char *cs)
+//{
+//	return letproc(cs[0]);
+//}
+//
+//double numproc(const char *cs)
+//{
+//	double d = atof(cs);
+//	return (g_bNegate ? -d : d);
+//}
+//
+//void seqproc(string& ss)
+//{
+//	// Remove Initial Gap
+//	string::size_type sy;
+//	if(ss[0] == '-')
+//	{
+//		for(sy = 1; sy < ss.size() && ss[sy] == '-' ; ++sy) { }
+//		ss.erase(0, sy);
+//	}
+//	// Main Body
+//	for(string::size_type sz = 0; sz < ss.size(); ++sz)
+//	{
+//		ss[sz] = letproc(ss[sz]);
+//		// Remove Gaps
+//		if(ss[sz+1] == '-')
+//		{
+//			for( sy = sz+2; sy < ss.size() && ss[sy] == '-' ; ++sy)
+//				{ }
+//			ss.erase(sz+1, sy-sz-1);
+//		}
+//	}
+//}
+//
+//void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg)
+//{
+//	cout << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
+//	if(g_bMsg)
+//		cout << ": " << msg;
+//	cout << ")" << endl << endl << endl;
+//
+//	size_t sz = s1.size();
+//	size_t l;
+//	// Print interleaved sequences
+//	for(size_t u = 0; u < sz; u+=l)
+//	{
+//		l = std::min((size_t)60u, sz);
+//		// Print a row of each sequence
+//		cout << setw(15) << setiosflags(ios::left) << n1 << " " << s1.substr(u, l) << endl;
+//		cout << setw(15) << setiosflags(ios::left) << n2 << " " << s2.substr(u, l) << endl;
+//		cout << endl << endl;
+//	}
+//}

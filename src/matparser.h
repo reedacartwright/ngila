@@ -16,16 +16,22 @@
  ****************************************************************************/
 
 #include <boost/spirit/core.hpp>
+#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/actor/swap_actor.hpp>
+#include <boost/spirit/actor/clear_actor.hpp>
 #include <boost/spirit.hpp>
 
-using namespace boost::spirit;
+typedef double sub_matrix[128][128];
+
+bool parse_matrix(const char *cs, sub_matrix &rsm);
 
 struct mat_work
 {
 	typedef std::vector<double> row_type;
 	typedef std::vector<row_type> mat_type;
+	typedef std::string label_type;
 
-	std::string labels;
+	label_type labels;
 	mat_type data;
 	row_type rtemp;
 	
@@ -35,28 +41,33 @@ struct mat_work
 		data.clear();
 		rtemp.clear();
 	}
+
+	bool process(sub_matrix &m);
 };
+
+using namespace boost::spirit;
 
 struct mat_grammar : public grammar<mat_grammar>
 {
-	mat_grammar(mat_work& w) : work(w) {}
+	mat_grammar(mat_work& w) : work(w) { work.clear(); }
 	
 	template <typename ScannerT> struct definition
 	{
 		definition(mat_grammar const& self)
 		{
-			matrix = header >> body;
+			matrix = *(anychar_p) >> end_p;
 			header = (*graph_p)[assign_a(self.work.labels)] >> eol_p;
-			body = *line[push_back_a(self.work.data, mat_work::row_type())]
-				[swap_a(self.work.rtemp, self.work.data.back())];
+			body = *line[push_back_a(self.work.data, self.work.rtemp)]
+				[clear_a(self.work.rtemp)];
 			line = !graph_p >> *real_p[push_back_a(self.work.rtemp)] >> eol_p;
 		}
 
 		rule<ScannerT> matrix;
 		rule<ScannerT> header;
 		rule<ScannerT> body;
-		rule<ScannerT> const& start() const { work.clear(); return matrix; }
+		rule<ScannerT> line;
+		rule<ScannerT> const& start() const { return matrix; }
 	};
 	
-	mat_work& work;
+	mat_work &work;
 };
