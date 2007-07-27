@@ -183,35 +183,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\align.cc"
+				RelativePath="..\src\align.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\getopt.c"
+				RelativePath="..\src\ngila.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\matparse.cc"
+				RelativePath="..\src\seqdb.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\matscan.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\src\ngila.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\src\seqparse.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\src\seqscan.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\vs.cpp"
+				RelativePath="..\src\seqparser.cpp"
 				>
 			</File>
 		</Filter>
@@ -225,7 +209,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\matparse.h"
+				RelativePath="..\src\ngila.cmds"
 				>
 			</File>
 			<File
@@ -233,7 +217,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\seqparse.h"
+				RelativePath="..\src\ngila_app.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\seqdb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\seqparser.h"
 				>
 			</File>
 		</Filter>
@@ -243,22 +235,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<File
-			RelativePath="..\src\matparse.yy"
-			>
-		</File>
-		<File
-			RelativePath="..\src\matscan.ll"
-			>
-		</File>
-		<File
-			RelativePath="..\src\seqparse.yy"
-			>
-		</File>
-		<File
-			RelativePath="..\src\seqscan.ll"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

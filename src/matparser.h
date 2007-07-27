@@ -20,52 +20,43 @@
 
 using namespace boost::spirit;
 
+struct mat_work
+{
+	typedef std::vector<double> row_type;
+	typedef std::vector<row_type> mat_type;
+
+	std::string labels;
+	mat_type data;
+	row_type rtemp;
+	
+	void clear()
+	{
+		labels.clear();
+		data.clear();
+		rtemp.clear();
+	}
+};
+
 struct mat_grammar : public grammar<mat_grammar>
 {
-	mat_grammar() : {}
+	mat_grammar(mat_work& w) : work(w) {}
 	
 	template <typename ScannerT> struct definition
 	{
 		definition(mat_grammar const& self)
 		{
 			matrix = header >> body;
-			header = *graph_p;
-			body = *line;
-			line = word_p >> *real_p;
-
-			file_format =
-					(*space_p) >>
-					fasta_format
-//				|	clustal
-//				|	phylip
-				;
-			fasta_format = 
-					*fasta_seq
-				;
-			fasta_seq =
-				(	fasta_seq_head
-				>>	fasta_seq_body
-				)	[pop_sequence(self.string_stack, self.rdb)]
-					;
-			fasta_seq_head = 
-					ch_p('>')
-				>>	(+(graph_p|blank_p))[push_string(self.string_stack)]
-				>>	eol_p
-				;
-			fasta_seq_body =
-					(+(~ch_p('>')))[push_string(self.string_stack)]
-				;
-			
+			header = (*graph_p)[assign_a(self.work.labels)] >> eol_p;
+			body = *line[push_back_a(self.work.data, mat_work::row_type())]
+				[swap_a(self.work.rtemp, self.work.data.back())];
+			line = !graph_p >> *real_p[push_back_a(self.work.rtemp)] >> eol_p;
 		}
 
-		rule<ScannerT> file_format;
-		rule<ScannerT> fasta_format;
-		rule<ScannerT> fasta_seq;
-		rule<ScannerT> fasta_seq_head;
-		rule<ScannerT> fasta_seq_body;
-		rule<ScannerT> const& start() const { return file_format; }
+		rule<ScannerT> matrix;
+		rule<ScannerT> header;
+		rule<ScannerT> body;
+		rule<ScannerT> const& start() const { work.clear(); return matrix; }
 	};
 	
-	std::stack<std::string> &string_stack;
-	seq_db &rdb;
+	mat_work& work;
 };
