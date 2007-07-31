@@ -30,7 +30,7 @@
 #include <string>
 
 // Utility function
-#define CERROR(err) ((std::cerr << "ERROR: " << err << endl), false);
+#define CERROR(err_msg) ((std::cerr << "ERROR: " << err_msg << std::endl), false);
 
 // Typedefs
 //typedef std::string Sequence;

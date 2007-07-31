@@ -25,27 +25,30 @@ using namespace std;
 
 bool parse_matrix(const char *cs, sub_matrix &rsm, bool bi)
 {
-	file_iterator<char> file_first(cs);
-	if(!file_first)
-	{
-		cerror() << "unable to open \'" << cs << "\'" << endl;
-		return false;			
-	}
-	file_iterator<char>  file_last = file_first.make_end();
-	
 	mat_work w;
 	mat_grammar my_grammar(w);
-	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar, blank_p);
-	if (!info.full)
+	if(strcmp(cs, "-")==0)
 	{
-		cerror() << "unable to parse \'" << cs << "\'" << endl;
-		return false;
+		string ss;
+		getline(cin, ss, '\004');
+		if(ss.empty())
+			return CERROR("unable to open stdin.");
+		parse_info<string::const_iterator> info = parse(ss.begin(), ss.end(), my_grammar, blank_p);
+		if (!info.full)
+			return CERROR("unable to parse stdin.");
+	}
+	else
+	{
+		file_iterator<char> file_first(cs);
+		if(!file_first)
+			return CERROR("unable to open \'" << cs << "\'.");
+		file_iterator<char>  file_last = file_first.make_end();
+		parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar, blank_p);
+		if (!info.full)
+			return CERROR("unable to parse \'" << cs << "\'.");
 	}
 	if(!w.process(rsm, bi))
-	{
-		cerror () << "matrix \'" << cs << "\' must be triangular or square" << endl;
-		return false;
-	}
+		return CERROR("matrix \'" << cs << "\' must be triangular or square.");
 	return true;
 }
 

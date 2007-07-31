@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 		ngila_app app(argc, argv);
 		ret = app.run();
 	} catch(exception &e) {
-		cerror() << e.what() << endl;
+		CERROR(e.what());
 	}
 	return ret;
 }
@@ -119,7 +119,7 @@ int ngila_app::run()
 	{
 		if(!mydb.parse_file(cit->c_str(), true))
 		{
-			cerror() << "parsing of \'" << cit->c_str() << "\' failed." << endl;
+			CERROR("parsing of \'" << cit->c_str() << "\' failed.");
 			return EXIT_FAILURE;
 		}
 	}
