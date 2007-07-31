@@ -22,21 +22,27 @@ using namespace std;
 
 bool parse_file(const char* cs, seq_db &rdb)
 {
-	file_iterator<char> file_first(cs);
-	if(!file_first)
-	{
-		cerror() << "unable to open \'" << cs << "\'" << endl;
-		return false;			
-	}
-	file_iterator<char>  file_last = file_first.make_end();
-		
 	stack<string> my_stack;
 	seq_grammar my_grammar(my_stack, rdb);
-	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
-	if (!info.full)
+	if(strcmp(cs, "-")==0)
 	{
-		cerror() << "unable to parse \'" << cs << "\'" << endl;
-		return false;
+		string ss; 
+		getline(cin, ss, '\004');
+		if(ss.empty())
+			return CERROR("unable to open stdin.");
+		parse_info<string::const_iterator> info = parse(ss.begin(), ss.end(), my_grammar);
+		if (!info.full)
+			return CERROR("unable to parse stdin.");
+	}
+	else
+	{
+		file_iterator<char> file_first(cs);
+		if(!file_first)
+			return CERROR("unable to open \'" << cs << "\'.");
+		file_iterator<char>  file_last = file_first.make_end();
+		parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
+		if (!info.full)
+			return CERROR("unable to parse \'" << cs << "\'.");
 	}
 	return true;
 }
