@@ -31,7 +31,6 @@ struct push_string
 	template<typename It> void operator() ( It first, It last) const
 	{
 		my_stack.push(std::string(first, last));
-		//std::cout << "Pushed " << std::string(first, last) << std::endl;
 	}
 		
 	std::stack<std::string>& my_stack;

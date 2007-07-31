@@ -22,8 +22,6 @@
 #include <vector>
 #include <map>
 
-//bool parse_file(const char* csFile, StringVec &vNames, SeqVec &vSeqs);
-
 class seq_db
 {
 public:

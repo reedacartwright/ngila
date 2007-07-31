@@ -30,11 +30,7 @@
 #include <string>
 
 // Utility function
-inline std::ostream& cerror()
-{
-	std::cerr << "ERROR: ";
-	return std::cerr;
-}
+#define CERROR(err) ((std::cerr << "ERROR: " << err << endl), false);
 
 // Typedefs
 //typedef std::string Sequence;
