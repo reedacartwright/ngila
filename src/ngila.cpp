@@ -134,74 +134,8 @@ int ngila_app::run()
 	return EXIT_SUCCESS;
 }
 
-//int main(int argc, char *argv[])
-//{
-//
-//	
-//	SeqVec seqs;
-//	StringVec names;
-//	if(!parse_file(argv[0], names, seqs))
-//	{
-//		fprintf(stderr, "Parsing \"%s\" failed.\n", argv[0]);
-//		return 1;
-//	}
-//	for_each(seqs.begin(), seqs.end(), seqproc);
-//	
-//	Sequence seqA, seqB;
-//	char msgbuf[255];
-//	for(size_t i = 0; i < seqs.size(); ++i)
-//	{
-//		for(size_t j=i+1; j < seqs.size(); ++j)
-//		{
-//			double d = align_pair(seqs[i], seqs[j], seqA, seqB);
-//			sprintf(msgbuf, "Score = %f", d);
-//			print_aln(names[i], seqA, names[j], seqB, msgbuf);
-//		}
-//	}
-//
-//
-//	return 0;
-//}
-//
-//char letproc(char ch)
-//{
-//	return (g_bNoCase ? (char)toupper(ch) : ch);
-//}
-//
-//char letproc(const char *cs)
-//{
-//	return letproc(cs[0]);
-//}
-//
-//double numproc(const char *cs)
-//{
-//	double d = atof(cs);
-//	return (g_bNegate ? -d : d);
-//}
-//
-//void seqproc(string& ss)
-//{
-//	// Remove Initial Gap
-//	string::size_type sy;
-//	if(ss[0] == '-')
-//	{
-//		for(sy = 1; sy < ss.size() && ss[sy] == '-' ; ++sy) { }
-//		ss.erase(0, sy);
-//	}
-//	// Main Body
-//	for(string::size_type sz = 0; sz < ss.size(); ++sz)
-//	{
-//		ss[sz] = letproc(ss[sz]);
-//		// Remove Gaps
-//		if(ss[sz+1] == '-')
-//		{
-//			for( sy = sz+2; sy < ss.size() && ss[sy] == '-' ; ++sy)
-//				{ }
-//			ss.erase(sz+1, sy-sz-1);
-//		}
-//	}
-//}
-//
+
+
 //void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg)
 //{
 //	cout << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
