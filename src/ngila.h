@@ -79,68 +79,7 @@ inline std::ostream& cerror()
 //		{ r = (rep)2; return c; }
 //}
 //
-//// Classes
-//class SeqDB
-//{
-//public:
-//	typedef SeqVec::size_type Pos;
-//	typedef std::map<std::string, Pos> NameMap;
-//	
-//	const static Pos npos = static_cast<Pos>(-1);
-//
-//	Pos LookupPos(const std::string& ss) const
-//	{
-//		NameMap::const_iterator cit = m_map.find(ss);
-//		if(cit == m_map.end())
-//			return npos;
-//		else
-//			return cit->second;
-//	}
-//
-//	bool Add(const std::string& ss, const Sequence& seq)
-//	{
-//		Pos p = LookupPos(ss);
-//		if(p == npos)
-//		{
-//			m_names.push_back(ss);
-//			m_seqs.push_back(seq);
-//			m_map[ss] = m_names.size()-1;
-//		}
-//		else
-//		{
-//			m_seqs[p].append(seq);
-//		}
-//		return true;
-//	}
-//
-//	bool Add(Pos p, const Sequence& seq)
-//	{
-//		if(p >= m_seqs.size())
-//			return false;
-//		m_seqs[p].append(seq);
-//		return true;
-//	}
-//
-//	void Clear()
-//	{
-//		m_seqs.clear();
-//		m_names.clear();
-//		m_map.clear();
-//	}
-//
-//	void Transfer(StringVec &vNames, SeqVec &vSeqs)
-//	{
-//		std::swap(vNames, m_names);
-//		std::swap(vSeqs, m_seqs);
-//		Clear();
-//	}
-//	
-//
-//protected:
-//	SeqVec m_seqs;
-//	StringVec m_names;
-//	NameMap m_map;
-//};
+
 
 
 #endif //NGILA_H

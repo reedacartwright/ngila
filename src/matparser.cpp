@@ -16,11 +16,14 @@
  ****************************************************************************/
 
 #include "ngila.h"
+
+#include <locale>
+
 #include "matparser.h"
 
 using namespace std;
 
-bool parse_matrix(const char *cs, sub_matrix &rsm)
+bool parse_matrix(const char *cs, sub_matrix &rsm, bool bi)
 {
 	file_iterator<char> file_first(cs);
 	if(!file_first)
@@ -38,7 +41,7 @@ bool parse_matrix(const char *cs, sub_matrix &rsm)
 		cerror() << "unable to parse \'" << cs << "\'" << endl;
 		return false;
 	}
-	if(!w.process(rsm))
+	if(!w.process(rsm, bi))
 	{
 		cerror () << "matrix \'" << cs << "\' must be triangular or square" << endl;
 		return false;
@@ -46,7 +49,7 @@ bool parse_matrix(const char *cs, sub_matrix &rsm)
 	return true;
 }
 
-bool mat_work::process( matrix &m) const
+bool mat_work::process(matrix &m, bool bi) const
 {
 	fill(&m[0][0], (&m[0][0])+128*128, 0.0);
 	
@@ -55,6 +58,13 @@ bool mat_work::process( matrix &m) const
 	if(data.size() != sz || !(data.front().size() == sz
 		|| data.back().size() == sz) )
 		return false;
+	labels_type llabels(labels);
+	if(bi)
+	{
+		for(labels_type::iterator it = llabels.begin();
+			it != llabels.end(); ++it)
+			*it = toupper(*it);
+	}
 	if(data.front().size() == 1)
 	{
 		// Assume lower triangular matrix
@@ -62,10 +72,10 @@ bool mat_work::process( matrix &m) const
 		{
 			if(data[i].size() != i+1)
 				return false;
-			char ich = labels[i];
+			char ich = llabels[i];
 			for(size_t j = 0; j <= i; ++j)
 			{
-				char jch = labels[j];
+				char jch = llabels[j];
 				m[ich][jch] = m[jch][ich] = data[i][j];
 			}
 		}
@@ -77,10 +87,10 @@ bool mat_work::process( matrix &m) const
 		{
 			if(data[i].size() != sz-i)
 				return false;
-			char ich = labels[i];
+			char ich = llabels[i];
 			for(size_t j = 0; j < sz-i; ++j)
 			{
-				char jch = labels[j+i];
+				char jch = llabels[j+i];
 				m[ich][jch] = m[jch][ich] = data[i][j];
 			}
 		}
@@ -92,10 +102,10 @@ bool mat_work::process( matrix &m) const
 		{
 			if(data[i].size() != sz)
 				return false;
-			char ich = labels[i];
+			char ich = llabels[i];
 			for(size_t j = 0; j < sz; ++j)
 			{
-				char jch = labels[j];
+				char jch = llabels[j];
 				m[ich][jch] = data[i][j];
 			}
 		}

@@ -23,7 +23,7 @@
 #include <iterator>
 
 #include "ngila_app.h"
-//#include "seqdb.h"
+#include "seqdb.h"
 #include "matparser.h"
 
 using namespace std;
@@ -113,31 +113,16 @@ int ngila_app::run()
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}
-	
-	sub_matrix mat;
-	if(!parse_matrix(arg.cost_matrix.c_str(), mat))
-	{
-		cerror() << "parsing of matrix \'" << arg.cost_matrix << "\' failed." << endl;
-		return EXIT_FAILURE;
-	}
-	for(int i=0;i<128;++i)
-	{
-		for(int j=0;j<128;++j)
-		{
-			cout << mat[i][j] << " ";
-		}
-		cout << endl;
-	}
 
-	//seq_db mydb;
-	//for(vector<string>::const_iterator cit = arg_input.begin(); cit != arg_input.end(); ++cit)
-	//{
-	//	if(!mydb.parse_file(cit->c_str(), true))
-	//	{
-	//		cerror() << "parsing of \'" << cit->c_str() << "\' failed." << endl;
-	//		return EXIT_FAILURE;
-	//	}
-	//}
+	seq_db mydb;
+	for(vector<string>::const_iterator cit = arg_input.begin(); cit != arg_input.end(); ++cit)
+	{
+		if(!mydb.parse_file(cit->c_str(), true))
+		{
+			cerror() << "parsing of \'" << cit->c_str() << "\' failed." << endl;
+			return EXIT_FAILURE;
+		}
+	}
 	
 	return EXIT_SUCCESS;
 }

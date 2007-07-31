@@ -23,7 +23,7 @@
 
 typedef double sub_matrix[128][128];
 
-bool parse_matrix(const char *cs, sub_matrix &rsm);
+bool parse_matrix(const char *cs, sub_matrix &rsm, bool bi = false);
 
 struct mat_work
 {
@@ -43,7 +43,7 @@ struct mat_work
 		rt.clear();
 	}
 
-	bool process( matrix &m) const;
+	bool process(matrix &m, bool bi = false) const;
 };
 
 using namespace boost::spirit;
