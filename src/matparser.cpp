@@ -17,8 +17,6 @@
 
 #include "ngila.h"
 
-#include <locale>
-
 #include "matparser.h"
 
 using namespace std;
@@ -54,7 +52,7 @@ bool parse_matrix(const char *cs, sub_matrix &rsm, bool bi)
 
 bool mat_work::process(matrix &m, bool bi) const
 {
-	fill(&m[0][0], (&m[0][0])+128*128, 0.0);
+	sub_matrix_clear(m);
 	
 	size_t sz = labels.size();
 

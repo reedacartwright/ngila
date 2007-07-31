@@ -22,6 +22,8 @@
 #include <boost/spirit/actor/clear_actor.hpp>
 
 typedef double sub_matrix[128][128];
+const size_t sub_matrix_size = 128;
+inline void sub_matrix_clear(sub_matrix &m) { std::fill(&m[0][0], (&m[0][0])+128*128, 0.0); }
 
 bool parse_matrix(const char *cs, sub_matrix &rsm, bool bi = false);
 

@@ -1,5 +1,5 @@
 m4_define([ngila_rev], [m4_esyscmd([svnversion -n .])])
-AC_INIT([ngila], [current-r]ngila_rev(), [http://scit.us/projects/ngila/])
+AC_INIT([ngila], [[current-r]ngila_rev()], [http://scit.us/projects/ngila/])
 AC_CONFIG_SRCDIR([src/ngila.h])
 AC_CONFIG_AUX_DIR([config])
 AC_PREREQ(2.56)
@@ -16,12 +16,11 @@ AC_ARG_ENABLE(debug,
 	[  --enable-debug          Enable debugging information],
 	USE_DEBUG="$enableval", USE_DEBUG="no")
 
-
 dnl Checks for programs.
-AC_PROG_CXXCPP
+AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_CXX
-AC_PROG_CC
+AC_PROG_CXXCPP
 
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -47,13 +46,14 @@ AC_SUBST(ALL_STATIC_LDFLAGS)
 
 AC_HEADER_STDC
 dnl AM_PATH_GSL([1.5], [], AC_MSG_ERROR(could not find required version of GSL))
-AC_C_INLINE
 
+AC_C_INLINE
 if test "$ac_cv_c_inline" != no ; then
 	AC_DEFINE(HAVE_INLINE, 1, [HAVE_INLINE])
 	AC_SUBST(HAVE_INLINE)
 fi
 
+AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
 AC_DEFUN([AC_EXT_CHECK_LIB],
@@ -67,20 +67,15 @@ AX_BOOST_PROGRAM_OPTIONS
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([time.h float.h stdio.h unistd.h math.h assert.h stdarg.h stddef.h process.h getopt.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
-AC_C_BIGENDIAN
+dnl AC_C_BIGENDIAN
 
 dnl Checks for library functions.
-dnl AC_FUNC_MALLOC
-dnl AC_FUNC_REALLOC
-dnl AC_FUNC_SETVBUF_REVERSED
-dnl AC_FUNC_VPRINTF 
 
 AX_CXXFLAGS_WARN_ALL
 AX_CFLAGS_WARN_ALL

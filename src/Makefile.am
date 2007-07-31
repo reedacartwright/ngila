@@ -1,12 +1,13 @@
-INCLUDES =  -I$(top_builddir) -I$(top_srcdir)
-AM_YFLAGS = -d
-AM_LFLAGS = -CF
-BUILT_SOURCES = seqparse.h matparse.h
+AM_CPPFLAGS= -I$(top_srcdir)/include $(all_includes)
 
 bin_PROGRAMS = ngila
 
-ngila_LDADD = $(LIBOBJS) @LEXLIB@
+ngila_CPPFLAGS = $(BOOST_CPPFLAGS) $(GSL_CFLAGS)
+ngila_LDFLAGS = $(all_libraries) $(BOOST_LDFLAGS) $(ALL_STATIC_LDFLAGS)
+ngila_LDADD = ${LIBOJS} $(BOOST_PROGRAM_OPTIONS_LIB) $(GSL_LIBS)
 
-CLEANFILES = matparse.cc matparse.h matscan.cc seqparse.cc seqparse.h seqscan.cc
-noinst_HEADERS = ngila.cmds ngila.h seqdb.h seqparser.h
-ngila_SOURCES = align.cpp ngila.cpp seqdb.cpp seqparser.cpp
+ngila_SOURCES = align.cpp matparser.cpp models.cpp ngila.cpp seqdb.cpp \
+	seqparser.cpp
+
+
+noinst_HEADERS = matparser.h models.h ngila.cmds ngila.h seqdb.h seqparser.h
