@@ -32,7 +32,7 @@ bool parse_matrix(const char *cs, sub_matrix &rsm)
 	
 	mat_work w;
 	mat_grammar my_grammar(w);
-	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
+	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar, blank_p);
 	if (!info.full)
 	{
 		cerror() << "unable to parse \'" << cs << "\'" << endl;
@@ -40,25 +40,67 @@ bool parse_matrix(const char *cs, sub_matrix &rsm)
 	}
 	if(!w.process(rsm))
 	{
-		cerror() << "matrix \'" << cs << "\' specified incorrectly" << endl;
+		cerror () << "matrix \'" << cs << "\' must be triangular or square" << endl;
 		return false;
 	}
 	return true;
 }
 
-bool mat_work::process(sub_matrix &m)
+bool mat_work::process( matrix &m) const
 {
-	fill(&m[0][0], &m[128][128], 0.0);
+	fill(&m[0][0], (&m[0][0])+128*128, 0.0);
+	
+	size_t sz = labels.size();
 
-	for(size_t r = 0; r < labels.size(); ++r)
+	if(data.size() != sz || !(data.front().size() == sz
+		|| data.back().size() == sz) )
+		return false;
+	if(data.front().size() == 1)
 	{
-		char rch = labels[r];
-		for(size_t c = 0; c < labels.size(); ++c)
+		// Assume lower triangular matrix
+		for(size_t i = 0; i < sz; ++i)
 		{
-			char cch = labels[c];
-			m[rch][cch] = data[r][c];
+			if(data[i].size() != i+1)
+				return false;
+			char ich = labels[i];
+			for(size_t j = 0; j <= i; ++j)
+			{
+				char jch = labels[j];
+				m[ich][jch] = m[jch][ich] = data[i][j];
+			}
 		}
 	}
-	return false;
+	else if(data.back().size() == 1)
+	{
+		// Assume upper triangular matrix
+		for(size_t i = 0; i < sz; ++i)
+		{
+			if(data[i].size() != sz-i)
+				return false;
+			char ich = labels[i];
+			for(size_t j = 0; j < sz-i; ++j)
+			{
+				char jch = labels[j+i];
+				m[ich][jch] = m[jch][ich] = data[i][j];
+			}
+		}
+	}
+	else
+	{
+		// Assume square matrix
+		for(size_t i = 0; i < sz; ++i)
+		{
+			if(data[i].size() != sz)
+				return false;
+			char ich = labels[i];
+			for(size_t j = 0; j < sz; ++j)
+			{
+				char jch = labels[j];
+				m[ich][jch] = data[i][j];
+			}
+		}
+	}
+	return true;
 }
+
 

@@ -15,11 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/swap_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
 #include <boost/spirit.hpp>
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/core/parser.hpp>
+#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/actor/clear_actor.hpp>
 
 typedef double sub_matrix[128][128];
 
@@ -27,39 +27,45 @@ bool parse_matrix(const char *cs, sub_matrix &rsm);
 
 struct mat_work
 {
+	typedef std::vector<char> labels_type;
 	typedef std::vector<double> row_type;
-	typedef std::vector<row_type> mat_type;
-	typedef std::string label_type;
+	typedef std::vector<row_type> data_type;
+	typedef sub_matrix matrix;
 
-	label_type labels;
-	mat_type data;
-	row_type rtemp;
-	
-	void clear()
+	labels_type labels;
+	data_type data;
+	row_type rt;
+
+	inline void clear()
 	{
 		labels.clear();
 		data.clear();
-		rtemp.clear();
+		rt.clear();
 	}
 
-	bool process(sub_matrix &m);
+	bool process( matrix &m) const;
 };
 
 using namespace boost::spirit;
 
 struct mat_grammar : public grammar<mat_grammar>
 {
-	mat_grammar(mat_work& w) : work(w) { work.clear(); }
+	mat_grammar(mat_work &w) : work(w) { work.clear(); }
 	
+	mat_work &work;
+
 	template <typename ScannerT> struct definition
 	{
 		definition(mat_grammar const& self)
 		{
-			matrix = *(anychar_p) >> end_p;
-			header = (*graph_p)[assign_a(self.work.labels)] >> eol_p;
-			body = *line[push_back_a(self.work.data, self.work.rtemp)]
-				[clear_a(self.work.rtemp)];
-			line = !graph_p >> *real_p[push_back_a(self.work.rtemp)] >> eol_p;
+			matrix = *eol_p >> header >> body >> end_p;
+			header = +(graph_p[push_back_a(self.work.labels)]);
+			body = +line >> !eol_p;
+			line = eol_p >> !(graph_p - real_p) >>
+				(+(real_p[push_back_a(self.work.rt)]))
+				[push_back_a(self.work.data, self.work.rt)]
+				[clear_a(self.work.rt)]
+				;
 		}
 
 		rule<ScannerT> matrix;
@@ -68,6 +74,5 @@ struct mat_grammar : public grammar<mat_grammar>
 		rule<ScannerT> line;
 		rule<ScannerT> const& start() const { return matrix; }
 	};
-	
-	mat_work &work;
 };
+
