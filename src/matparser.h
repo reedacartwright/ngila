@@ -15,6 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
 
+#ifndef MATPARSER_H
+#define MATPARSER_H
+
 #include <boost/spirit.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/core/parser.hpp>
@@ -77,4 +80,7 @@ struct mat_grammar : public grammar<mat_grammar>
 		rule<ScannerT> const& start() const { return matrix; }
 	};
 };
+
+#endif
+
 

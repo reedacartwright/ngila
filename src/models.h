@@ -27,7 +27,7 @@ struct cost_model
 	double dF, dG, dH;
 	sub_matrix mCost;
 	
-	bool create(const ngila_app::args &rargs);
+	virtual bool create(const ngila_app::args &rargs);
 };
 
 #endif

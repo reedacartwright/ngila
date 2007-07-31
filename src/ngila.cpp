@@ -25,6 +25,7 @@
 #include "ngila_app.h"
 #include "seqdb.h"
 #include "matparser.h"
+#include "models.h"
 
 using namespace std;
 
@@ -101,8 +102,8 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 			po::notify(vm);
 		}
 	} catch (exception &e) {
-			cerror() << e.what() << endl;
-			throw std::runtime_error("unable to process command line");
+		CERROR(e.what());
+		throw std::runtime_error("unable to process command line");
 	}
 }
 
@@ -115,13 +116,19 @@ int ngila_app::run()
 	}
 
 	seq_db mydb;
-	for(vector<string>::const_iterator cit = arg_input.begin(); cit != arg_input.end(); ++cit)
+	for(vector<string>::const_iterator cit = arg.input.begin(); cit != arg.input.end(); ++cit)
 	{
 		if(!mydb.parse_file(cit->c_str(), true))
 		{
 			CERROR("parsing of \'" << cit->c_str() << "\' failed.");
 			return EXIT_FAILURE;
 		}
+	}
+	cost_model *pmod = new cost_model;
+	if(!pmod->create(arg))
+	{
+		CERROR("creating model \'" << arg.model << "\'.");
+		return EXIT_FAILURE;
 	}
 	
 	return EXIT_SUCCESS;
