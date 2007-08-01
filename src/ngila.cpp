@@ -90,8 +90,14 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 
 int ngila_app::run()
 {
-	if(arg.help || arg.version)
+	if(arg.version)
 	{
+		cerr << endl << VERSION_MSG << endl << endl;
+		return EXIT_SUCCESS;
+	}
+	if(arg.help)
+	{
+		cerr << endl << VERSION_MSG << endl << endl;
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}
