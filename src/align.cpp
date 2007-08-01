@@ -18,19 +18,189 @@
 #include "ngila.h"
 
 #include <algorithm>
-#include <cfloat>
-#include <cmath>
 
-size_t g_szM = 100;
-size_t g_szN = 100;
+#include "align.h"
 
 using namespace std;
 
-double mCost[128][128];
+double aligner::align(const sequence &seqA, const sequence &seqB, alignment &aln)
+{
+	if(seqA.size() >= seqB.size())
+		return align_x(seqA, seqB, aln);
+	double d = align_x(seqB, seqA, aln);
+	aln.swap_seqs();
+	return d;
+}
 
-double dA = 1.0, dB = 1.0, dC = 0.0;
-double dF = 0.0, dG = 0.0, dH = 0.0;
+double aligner::align_x(const sequence &seqA, const sequence &seqB, alignment &rAln)
+{
+	size_t sz = seqB.size()+1;
+	CC[0].resize(sz);
+	CC[1].resize(sz);
+	RR[0].resize(sz);
+	RR[1].resize(sz);
+	SF.resize(sz);
+	SR.resize(sz);
+	//DM.resize(sz);
+	GC.resize(1u+max(seqA.size(),seqB.size()));
+	FGC.resize(GC.size());
+	for(size_t u = 0;u<GC.size();++u)
+	{
+		GC[u] = costs.gapcost(u);
+		FGC[u] = costs.freegapcost(u);
+		
+	}
+	
+	// Allocate travel table to maximum possible size
+	tabTravel.resize(std::min(szMa,seqA.size())+1);
+	size_t szB = std::min(szMb,seqB.size())+1;
+	for(travel_table::iterator it = tabTravel.begin();
+	    it != tabTravel.end(); ++it)
+		it->resize(szB);
+	
+	//run recursive algorithm
+	rAln.clear();
+	rAln.set_seqs(seqA, seqB);
 
+	return align_mn(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), rAln, bFreeEnds, bFreeEnds);
+}
+
+double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator itA2,
+				 sequence::const_iterator itB1, sequence::const_iterator itB2,
+				 alignment &rAln, bool bFreeFront, bool bFreeBack)
+{
+	// O(MN) memory algorithm
+	size_t szNa = itA2-itA1;
+	size_t szNb = itB2-itB1;
+	
+	CC[0][0] = 0.0;
+	tabTravel[0][0] = 0;
+	for(size_t j=1;j<=szNb;++j)
+	{
+		CC[0][j] = GC[j];
+		tabTravel[0][j] = static_cast<int>(j);
+	}
+	// TODO: Is this needed?
+	SF[0].assign(1, indel(0, szNa, CC[0][0]));
+
+	for(size_t i=1;i<=szNa;++i)
+	{
+		CC[1][0] = bFreeFront ? FGC[i] : GC[i];
+		tabTravel[i][0] = -static_cast<int>(i);
+		for(size_t j=1;j<=szNb;++j)
+		{
+			update_ins_forward(T,i,j,szNb);
+			if(bFreeBack && j == szNb)
+				update_del_forward_f(SF[j],i,j,szNa);
+			else
+				update_del_forward(SF[j],i,j,szNa);
+			double dM = CC[0][j-1]+costs.mCost[(size_t)itA1[i-1]][(size_t)itB1[j-1]];
+			double dI = indel_cost(T.back(),j);
+			double dD = indel_cost(SF[j].back(),i);
+			if(dM < dI && dM < dD)
+			{
+				CC[1][j] = dM;
+				tabTravel[i][j] = 0;
+			}
+			else if(dI <= dM && dI < dD)
+			{
+				CC[1][j] = dI;
+				tabTravel[i][j] = static_cast<int>(j-T.back().p);
+			}
+			else
+			{
+				CC[1][j] = dD;
+				tabTravel[i][j] = -static_cast<int>(i-SF[j].back().p);
+			}
+		}
+		swap(CC[0], CC[1]);
+	}
+	size_t i = szNa, j = szNb;
+
+	while(!(i == 0 && j == 0))
+	{
+		int t = tabTravel[i][j];
+		rAln.push_front(t);
+		if(t == 0)
+		{
+			i = i-1;
+			j = j-1;
+		}
+		else if(t > 0)
+			j -= static_cast<size_t>(t);
+		else
+			i -= static_cast<size_t>(-t);
+	}
+	return CC[0][szNb];
+}
+
+void aligner::update_ins_forward(indel_vec &T, size_t /*i*/, size_t j, size_t szZ)
+{
+	if(j == 1)
+	{
+		T.clear();
+		T.push_back(indel(0, szZ, CC[1][0]));
+		return;
+	}
+	if( j > T.back().x)
+		T.pop_back();
+	if( CC[1][j-1] + GC[1] < indel_cost(T.back(), j) ||
+		CC[1][j-1] + GC[szZ-j+1] <= indel_cost(T.back(), szZ) )
+	{
+		while(T.size() && (CC[1][j-1] + GC[T.back().x - j+1] < indel_cost_x(T.back()) ||
+			  CC[1][j-1] + GC[szZ-j+1] <= indel_cost(T.back(), szZ)))
+			T.pop_back();
+		T.push_back(indel(j-1, (T.size() ?
+			(T.back().p+costs.kstar(j-1-T.back().p, CC[1][j-1]-T.back().d))
+			: szZ) ,CC[1][j-1]));
+	}
+}
+
+void aligner::update_del_forward(indel_vec &T, size_t i, size_t j, size_t szZ)
+{
+	if(i == 1)
+	{
+		T.clear();
+		T.push_back(indel(0, szZ, CC[0][j]));
+		return;
+	}
+	if( i > T.back().x)
+		T.pop_back();
+	if( CC[0][j] + GC[1] < indel_cost(T.back(), i) ||
+		CC[0][j] + GC[szZ-i+1] <= indel_cost(T.back(),szZ) )
+	{
+		while(T.size() && (CC[0][j] + GC[T.back().x - i+1] < indel_cost_x(T.back()) ||
+			  CC[0][j] + GC[szZ-i+1] <= indel_cost(T.back(), szZ)))
+			T.pop_back();
+		T.push_back(indel(i-1, (T.size() ?
+			(T.back().p+costs.kstar(i-1-T.back().p, CC[0][j]-T.back().d))
+			: szZ), CC[0][j]));
+	}
+}
+
+void aligner::update_del_forward_f(indel_vec &T, size_t i, size_t j, size_t szZ)
+{
+	if(i == 1)
+	{
+		T.clear();
+		T.push_back(indel(0, szZ, CC[0][j]));
+		return;
+	}
+	if( i > T.back().x)
+		T.pop_back();
+	if( CC[0][j] + GC[1] < indel_fcost(T.back(), i) ||
+		CC[0][j] + GC[szZ-i+1] <= indel_fcost(T.back(),szZ) )
+	{
+		while(T.size() && (CC[0][j] + FGC[T.back().x - i+1] < indel_fcost_x(T.back()) ||
+			  CC[0][j] + FGC[szZ-i+1] <= indel_fcost(T.back(), szZ)))
+			T.pop_back();
+		T.push_back(indel(i-1, (T.size() ?
+			(T.back().p+costs.kstar_f(i-1-T.back().p, CC[0][j]-T.back().d))
+			: szZ), CC[0][j]));
+	}
+}
+
+/*
 struct MinMidCost
 {
 	double c; // Minimum cost
@@ -41,56 +211,9 @@ struct MinMidCost
 
 vector<MinMidCost> DM;
 
-inline double gapcost(size_t L)
-{
-	return (L != 0) ? dA+dB*L+dC*log((double)L) : 0.0;
-}
-
-inline double freegapcost(size_t L)
-{
-	return (L != 0) ? dF+dG*L+dH*log((double)L) : 0.0;
-}
-
-
-inline double kstar(double x, double y)
-{
-	return x/(1.0-exp((-y+dB*x)/dC)); //needs to handle dB == 0.0?
-}
-
-vector<double> CC[2];
-vector<double> RR[2];
-vector<double> GC, FGC;
-
-class Indel
-{
-public:
-	Indel() { }
-	Indel(size_t pp, size_t xx, double dd)
-		: p(pp), x(xx), d(dd) { }
-	size_t p; // Column or Row
-	size_t x; // Crossing Point
-	double d; // Score
-
-	double Cost(size_t q) { return d + GC[q-p]; }
-	double CostX() { return d + GC[x-p]; }
-	double RCost(size_t q) { return d + GC[p-q]; }
-	double RCostX() { return d + GC[p-x]; }
-};
-
-typedef vector<Indel> IndelVec;
-
-IndelVec T;
-vector<IndelVec> SF;
-vector<IndelVec> SR;
-
-void update_ins_forward(IndelVec& T, size_t i, size_t j, size_t szZ);
-void update_del_forward(IndelVec& T, size_t i, size_t j, size_t szZ);
 void update_ins_reverse(IndelVec& T, size_t i, size_t j, size_t szZ);
 void update_del_reverse(IndelVec& T, size_t i, size_t j, size_t szZ);
 double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2,
-				 Sequence::const_iterator itB1, Sequence::const_iterator itB2,
-				 Sequence& seqC, Sequence& seqD, bool bFreeFront, bool bFreeBack);
-double align_pair_mn(Sequence::const_iterator itA1, Sequence::const_iterator itA2,
 				 Sequence::const_iterator itB1, Sequence::const_iterator itB2,
 				 Sequence& seqC, Sequence& seqD, bool bFreeFront, bool bFreeBack);
 
@@ -127,39 +250,6 @@ inline size_t g2(size_t p, size_t x, size_t j, size_t m, size_t n)
 		r += min(m-x,n-j);
 	
 	return 0;
-}
-
-double align_pair(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, Sequence& seqD)
-{
-	if(seqA.size() >= seqB.size())
-		return align_pair_x(seqA, seqB, seqC, seqD);
-	else
-		return align_pair_x(seqB, seqA, seqD, seqC);
-}
-
-double align_pair_x(const Sequence& seqA, const Sequence& seqB, Sequence& seqC, Sequence& seqD)
-{
-	size_t sz = seqB.size()+1;
-	CC[0].resize(sz);
-	CC[1].resize(sz);
-	RR[0].resize(sz);
-	RR[1].resize(sz);
-	SF.resize(sz);
-	SR.resize(sz);
-	DM.resize(sz);
-	GC.resize(1u+max(seqA.size(),seqB.size()));
-	FGC.resize(GC.size());
-	for(size_t u = 0;u<GC.size();++u)
-	{
-		GC[u] = gapcost(u);
-		FGC[u] = freegapcost(u);
-		
-	}
-	//run recursive algorithm
-	seqC.clear();
-	seqD.clear();
-
-	return align_pair_r(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), seqC, seqD, g_bFreeEnds, g_bFreeEnds);
 }
 
 double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2,
@@ -514,157 +604,7 @@ double align_pair_r(Sequence::const_iterator itA1, Sequence::const_iterator itA2
 	return dMin;	
 }
 
-double align_pair_mn(Sequence::const_iterator itA1, Sequence::const_iterator itA2,
-				 Sequence::const_iterator itB1, Sequence::const_iterator itB2,
-				 Sequence& seqA, Sequence& seqB, bool bFreeFront, bool bFreeBack)
-{
-	// O(MN) memory algorithm
-	size_t szM = itA2-itA1;
-	size_t szN = itB2-itB1;
-	// Travel Table
-	vector< vector<int> > szTable( szM+1, vector<int>(szN+1) );
-	
-	CC[0][0] = 0.0;
-	szTable[0][0] = 0;
-	for(size_t j=1;j<=szN;++j)
-	{
-		CC[0][j] = GC[j];
-		szTable[0][j] = (int)j;
-	}
-	// Location and minimum cost for j=szN
-	size_t szNI = 0;
-	double dNI = CC[0][szN];
-
-	SF[0].assign(1, Indel(0, szM, CC[0][0]));
-
-	for(size_t i=1;i<=szM;++i)
-	{
-		CC[1][0] = bFreeFront ? FGC[i] : GC[i];
-		szTable[i][0] = -((int)i);
-		for(size_t j=1;j<=szN;++j)
-		{
-			update_ins_forward(T,i,j,szN);
-			update_del_forward(SF[j],i,j,szM);
-			double dM = CC[0][j-1]+mCost[(size_t)itA1[i-1]][(size_t)itB1[j-1]];
-			double dI = T.back().Cost(j);
-			double dD = SF[j].back().Cost(i);
-			if(dM < dI && dM < dD)
-			{
-				CC[1][j] = dM;
-				szTable[i][j] = 0;
-			}
-			else if(dI <= dM && dI < dD)
-			{
-				CC[1][j] = dI;
-				szTable[i][j] = (int)(j-T.back().p);
-			}
-			else if(dD <= dM && dD < dI)
-			{
-				CC[1][j] = dD;
-				szTable[i][j] = -((int)(i-SF[j].back().p));
-			}
-			else //if(dI <= dM && dI == dD)
-			{
-				CC[1][j] = dI;
-				size_t x = j-T.back().p;
-				size_t y = i-SF[j].back().p;
-				if(x > y)
-					szTable[i][j] = (int)x;
-				else
-					szTable[i][j] = -((int)y);
-			}
-		}
-		if(bFreeBack && CC[1][szN] < dNI)
-		{
-			dNI = CC[1][szN];
-			szNI = i;
-		}
-		swap(CC[0], CC[1]);
-	}
-	size_t i = szM, j = szN;
-	size_t szA = seqA.size();
-	size_t szB = seqB.size();
-
-	if(bFreeBack)
-	{
-		CC[0][szN] = dNI;
-		i = szNI;
-		seqA.insert(seqA.begin()+szA, itA1+szNI, itA1+szM);
-		seqB.insert(szB, szM-szNI, chGap);
-	}
-	while(i != 0 || j != 0)
-	{
-		if(szTable[i][j] == 0)
-		{
-			seqA.insert(szA, 1, itA1[i-1]);
-			seqB.insert(szB, 1, itB1[j-1]);
-			i = i-1;
-			j = j-1;
-		}
-		else if(szTable[i][j] > 0)
-		{
-			size_t nj = j- (size_t)szTable[i][j];
-			seqA.insert(szA, szTable[i][j], chGap);
-			seqB.insert(seqB.begin()+szB, itB1+nj, itB1+j);
-			j = nj;
-		}
-		else
-		{
-			size_t ni = i - (size_t)(-szTable[i][j]);
-			seqA.insert(seqA.begin()+szA, itA1+ni, itA1+i);
-			seqB.insert(szB, -szTable[i][j], chGap);
-			i = ni;
-		}
-	}
-	return CC[0][szN];
-}
-
-void update_ins_forward(IndelVec& T, size_t /*i*/, size_t j, size_t szZ)
-{
-	if(j == 1)
-	{
-		T.clear();
-		T.push_back(Indel(0, szZ, CC[1][0]));
-		return;
-	}
-	if( j > T.back().x)
-		T.pop_back();
-	if( CC[1][j-1] + GC[1] < T.back().Cost(j) ||
-		CC[1][j-1] + GC[szZ-j+1] <= T.back().Cost(szZ) )
-	{
-		while(T.size() && (CC[1][j-1] + GC[T.back().x - j+1] < T.back().CostX() ||
-			  CC[1][j-1] + GC[szZ-j+1] <= T.back().Cost(szZ)))
-			T.pop_back();
-		T.push_back(Indel(j-1, (T.size() ?
-			(T.back().p+(size_t)kstar(j-1-T.back().p, CC[1][j-1]-T.back().d))
-			: szZ) ,CC[1][j-1]));
-	}
-}
-
-void update_del_forward(IndelVec& T, size_t i, size_t j, size_t szZ)
-{
-
-	if(i == 1)
-	{
-		T.clear();
-		T.push_back(Indel(0, szZ, CC[0][j]));
-		return;
-	}
-	if( i > T.back().x)
-		T.pop_back();
-	if( CC[0][j] + GC[1] < T.back().Cost(i) ||
-		CC[0][j] + GC[szZ-i+1] <= T.back().Cost(szZ) )
-	{
-		while(T.size() && (CC[0][j] + GC[T.back().x - i+1] < T.back().CostX() ||
-			  CC[0][j] + GC[szZ-i+1] <= T.back().Cost(szZ)))
-			T.pop_back();
-		T.push_back(Indel(i-1, (T.size() ?
-			(T.back().p+(size_t)kstar(i-1-T.back().p, CC[0][j]-T.back().d))
-			: szZ), CC[0][j]));
-	}
-}
-
-void update_ins_reverse(IndelVec& T, size_t /*i*/, size_t j, size_t szZ)
+void update_ins_reverse(IndelVec& T, size_t i, size_t j, size_t szZ)
 {
 	//i; // i should be constant in all comparisons
 	if(j == szZ-1)
@@ -708,4 +648,5 @@ void update_del_reverse(IndelVec& T, size_t i, size_t j, size_t szZ)
 			: 0) ,RR[0][j]));
 	}
 }
+*/
 

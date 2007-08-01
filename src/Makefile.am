@@ -10,4 +10,5 @@ ngila_SOURCES = align.cpp matparser.cpp models.cpp ngila.cpp seqdb.cpp \
 	seqparser.cpp
 
 
-noinst_HEADERS = matparser.h models.h ngila.cmds ngila.h seqdb.h seqparser.h
+noinst_HEADERS = align.h matparser.h models.h ngila.cmds ngila.h seqdb.h \
+	seqparser.h

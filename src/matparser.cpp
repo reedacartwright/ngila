@@ -73,10 +73,10 @@ bool mat_work::process(matrix &m, bool bi) const
 		{
 			if(data[i].size() != i+1)
 				return false;
-			char ich = llabels[i];
+			size_t ich = static_cast<size_t>(llabels[i]);
 			for(size_t j = 0; j <= i; ++j)
 			{
-				char jch = llabels[j];
+				size_t jch = static_cast<size_t>(llabels[j]);
 				m[ich][jch] = m[jch][ich] = data[i][j];
 			}
 		}
@@ -88,10 +88,10 @@ bool mat_work::process(matrix &m, bool bi) const
 		{
 			if(data[i].size() != sz-i)
 				return false;
-			char ich = llabels[i];
+			size_t ich = static_cast<size_t>(llabels[i]);
 			for(size_t j = 0; j < sz-i; ++j)
 			{
-				char jch = llabels[j+i];
+				size_t jch = static_cast<size_t>(llabels[j+i]);
 				m[ich][jch] = m[jch][ich] = data[i][j];
 			}
 		}
@@ -103,10 +103,10 @@ bool mat_work::process(matrix &m, bool bi) const
 		{
 			if(data[i].size() != sz)
 				return false;
-			char ich = llabels[i];
+			size_t ich = static_cast<size_t>(llabels[i]);
 			for(size_t j = 0; j < sz; ++j)
 			{
-				char jch = llabels[j];
+				size_t jch = static_cast<size_t>(llabels[j]);
 				m[ich][jch] = data[i][j];
 			}
 		}

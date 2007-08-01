@@ -26,11 +26,44 @@
 
 #include <iostream>
 #include <vector>
+#include <deque>
 #include <map>
 #include <string>
+#include <fstream>
+#include <ostream>
+#include <iterator>
 
 // Utility function
 #define CERROR(err_msg) ((std::cerr << "ERROR: " << err_msg << std::endl), false);
+
+namespace std {
+template<typename _Tp, typename _CharT, typename _Traits>
+basic_ostream<_CharT, _Traits>&
+operator<<(basic_ostream<_CharT, _Traits>& os, const std::vector<_Tp> &v)
+{
+	if(v.size() == 1)
+		os << v.front();
+	else if(v.size() > 1)
+	{
+		std::copy(v.begin(), v.end()-1, std::ostream_iterator<_Tp, _CharT, _Traits>(os, " "));
+		os << v.back();
+	} 
+	return os;
+}
+template<typename _Tp, typename _CharT, typename _Traits>
+basic_ostream<_CharT, _Traits>&
+operator<<(basic_ostream<_CharT, _Traits>& os, const std::deque<_Tp> &v)
+{
+	if(v.size() == 1)
+		os << v.front();
+	else if(v.size() > 1)
+	{
+		std::copy(v.begin(), v.end()-1, std::ostream_iterator<_Tp, _CharT, _Traits>(os, " "));
+		os << v.back();
+	} 
+	return os;
+}
+}
 
 // Typedefs
 //typedef std::string Sequence;

@@ -81,6 +81,7 @@ XCMD((free)(end)(gaps),     (e), "free end gaps", bool, false)
 XCMD((case)(insensitivity), (I), "sequences are case insensitive", bool, false)
 XCMD((threshold)(larger),   (M), "threshold for O(MN) alignment", double, 10000)
 XCMD((threshold)(smaller),  (N), "threshold for O(MN) alignment", double, 10000)
+XCMD((remove)(gaps),        (G), "realign after removing specific gap characters", std::string, std::string("-+="))
 
 XCMD((quiet),        , "disable all warnings and error messages", bool, false)
 XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))

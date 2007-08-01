@@ -18,14 +18,11 @@
 #include "ngila.h"
 #include <boost/preprocessor.hpp>
 
-#include <fstream>
-#include <ostream>
-#include <iterator>
-
 #include "ngila_app.h"
 #include "seqdb.h"
 #include "matparser.h"
 #include "models.h"
+#include "align.h"
 
 using namespace std;
 
@@ -49,22 +46,6 @@ template<>
 typed_value<bool>* value(bool* v) { return bool_switch(v); }
 
 }}
-
-namespace std {
-template<typename _Tp, typename _CharT, typename _Traits>
-basic_ostream<_CharT, _Traits>&
-operator<<(basic_ostream<_CharT, _Traits>& os, const std::vector<_Tp> &v)
-{
-	if(v.size() == 1)
-		os << v.front();
-	else if(v.size() > 1)
-	{
-		std::copy(v.begin(), v.end()-1, std::ostream_iterator<_Tp, _CharT, _Traits>(os, " "));
-		os << v.back();
-	} 
-	return os;
-}
-}
 
 ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 {
@@ -130,6 +111,15 @@ int ngila_app::run()
 		CERROR("creating model \'" << arg.model << "\'.");
 		return EXIT_FAILURE;
 	}
+	aligner alner(*pmod, arg.threshold_larger, arg.threshold_smaller, arg.free_end_gaps);
+	if(mydb.size() < 2)
+	{
+		CERROR("two or more sequences are required for alignment.");
+		return EXIT_FAILURE;
+	}
+	alignment aln;
+	alner.align(mydb[0].second, mydb[1].second, aln);
+	aln.print();
 	
 	return EXIT_SUCCESS;
 }

@@ -18,6 +18,9 @@
 #ifndef MODELS_H
 #define MODELS_H
 
+#include <cmath>
+#include <cfloat>
+
 #include "ngila_app.h"
 #include "matparser.h"
 
@@ -26,8 +29,25 @@ struct cost_model
 	double dA, dB, dC;
 	double dF, dG, dH;
 	sub_matrix mCost;
-	
+		
 	virtual bool create(const ngila_app::args &rargs);
+	
+	inline double gapcost(size_t L)
+	{
+		return (L != 0) ? dA+dB*L+dC*log((double)L) : 0.0;
+	}
+	inline double freegapcost(size_t L)
+	{
+		return (L != 0) ? dF+dG*L+dH*log((double)L) : 0.0;
+	}
+	inline size_t kstar(double x, double y)
+	{
+		return static_cast<size_t>(x/(1.0-exp((-y+dB*x)/dC))); //needs to handle dC == 0.0?
+	}
+	inline size_t kstar_f(double x, double y)
+	{
+		return static_cast<size_t>(x/(1.0-exp((-y+dG*x)/dH))); //needs to handle dC == 0.0?
+	}		
 };
 
 #endif
