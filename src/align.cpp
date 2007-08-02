@@ -93,16 +93,22 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 		tabTravel[i][0] = -static_cast<int>(i);
 		for(size_t j=1;j<=szNb;++j)
 		{
-			update_ins_forward(T,i,j,szNb);
-			if(bFreeBack && j == szNb)
-				update_del_forward_f(SF[j],i,j,szNa);
-			else
-				update_del_forward(SF[j],i,j,szNa);
 			double dM = CC[0][j-1]+costs.mCost[(size_t)itA1[i-1]][(size_t)itB1[j-1]];
+			update_ins_forward(T,i,j,szNb);
 			double dI = indel_cost(T.back(),j);
-			double dD = indel_cost(SF[j].back(),i);
+			double dD;
+			if(bFreeBack && j == szNb)
+			{
+				update_del_forward_f(SF[j],i,j,szNa);
+				dD = indel_fcost(SF[j].back(),i);
+			}
+			else
+			{
+				update_del_forward(SF[j],i,j,szNa);
+				dD = indel_cost(SF[j].back(),i);
+			}
 			
-			cout << i << " " << j << " " << dM << " " << dI <<  " " << dD << endl;
+			//cout << i << " " << j << " " << dM << " " << dI <<  " " << dD << endl;
 			
 			if(dM < dI && dM < dD)
 			{
@@ -195,8 +201,8 @@ void aligner::update_del_forward_f(indel_vec &T, size_t i, size_t j, size_t szZ)
 	}
 	if( i > T.back().x)
 		T.pop_back();
-	if( CC[0][j] + GC[1] < indel_fcost(T.back(), i) ||
-		CC[0][j] + GC[szZ-i+1] <= indel_fcost(T.back(),szZ) )
+	if( CC[0][j] + FGC[1] < indel_fcost(T.back(), i) ||
+		CC[0][j] + FGC[szZ-i+1] <= indel_fcost(T.back(),szZ) )
 	{
 		while(T.size() && (CC[0][j] + FGC[T.back().x - i+1] < indel_fcost_x(T.back()) ||
 			  CC[0][j] + FGC[szZ-i+1] <= indel_fcost(T.back(), szZ)))
