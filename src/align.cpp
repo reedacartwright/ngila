@@ -97,6 +97,9 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 			double dM = CC[0][j-1]+costs.mCost[(size_t)itA1[i-1]][(size_t)itB1[j-1]];
 			double dI = indel_cost(T.back(),j);
 			double dD = indel_cost(SF[j].back(),i);
+			
+			cout << i << " " << j << " " << dM << " " << dI <<  " " << dD << endl;
+			
 			if(dM < dI && dM < dD)
 			{
 				CC[1][j] = dM;
