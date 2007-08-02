@@ -27,16 +27,22 @@
 
 using namespace std;
 
-double aligner::align(const sequence &seqA, const sequence &seqB, alignment &aln)
+double aligner::align(alignment &aln)
 {
-	if(seqA.size() >= seqB.size())
-		return align_x(seqA, seqB, aln);
-	double d = align_x(seqB, seqA, aln);
-	aln.swap_seqs();
+	double d;
+	aln.data.clear();	
+	if(aln.seqA.size() >= aln.seqB.size())
+		d = align_x(aln.seqA, aln.seqB, aln.data);
+	else
+	{
+		d = align_x(aln.seqB, aln.seqA, aln.data);
+		for(aln_data::iterator it = aln.data.begin(); it != aln.data.end(); ++it)
+			*it = -*it;
+	}
 	return d;
 }
 
-double aligner::align_x(const sequence &seqA, const sequence &seqB, alignment &rAln)
+double aligner::align_x(const sequence &seqA, const sequence &seqB, aln_data &rAln)
 {
 	size_t sz = seqB.size()+1;
 	CC[0].resize(sz);
@@ -63,15 +69,13 @@ double aligner::align_x(const sequence &seqA, const sequence &seqB, alignment &r
 		it->resize(szB);
 	
 	//run recursive algorithm
-	rAln.clear();
-	rAln.set_seqs(seqA, seqB);
 
 	return align_mn(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), rAln, bFreeEnds, bFreeEnds);
 }
 
 double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator itA2,
 				 sequence::const_iterator itB1, sequence::const_iterator itB2,
-				 alignment &rAln, bool bFreeFront, bool bFreeBack)
+				 aln_data &rAln, bool bFreeFront, bool bFreeBack)
 {
 	// O(MN) memory algorithm
 	size_t szNa = itA2-itA1;
@@ -107,9 +111,7 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 				update_del_forward(SF[j],i,j,szNa);
 				dD = indel_cost(SF[j].back(),i);
 			}
-			
-			//cout << i << " " << j << " " << dM << " " << dI <<  " " << dD << endl;
-			
+				
 			if(dM < dI && dM < dD)
 			{
 				CC[1][j] = dM;

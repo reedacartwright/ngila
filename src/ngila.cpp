@@ -123,31 +123,9 @@ int ngila_app::run()
 		CERROR("two or more sequences are required for alignment.");
 		return EXIT_FAILURE;
 	}
-	alignment aln;
-	alner.align(mydb[0].second, mydb[1].second, aln);
-	aln.print();
+	alignment aln(mydb[0], mydb[1]);
+	alner.align(aln);
+	aln.print(cout);
 	
 	return EXIT_SUCCESS;
 }
-
-
-
-//void print_aln(const string& n1, const string& s1, const string& n2, const string& s2, const char * msg)
-//{
-//	cout << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
-//	if(g_bMsg)
-//		cout << ": " << msg;
-//	cout << ")" << endl << endl << endl;
-//
-//	size_t sz = s1.size();
-//	size_t l;
-//	// Print interleaved sequences
-//	for(size_t u = 0; u < sz; u+=l)
-//	{
-//		l = std::min((size_t)60u, sz);
-//		// Print a row of each sequence
-//		cout << setw(15) << setiosflags(ios::left) << n1 << " " << s1.substr(u, l) << endl;
-//		cout << setw(15) << setiosflags(ios::left) << n2 << " " << s2.substr(u, l) << endl;
-//		cout << endl << endl;
-//	}
-//}
