@@ -15,6 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
 
+#ifdef _MSC_VER
+#	pragma warning(disable: 4288)
+#endif
+
 #include "ngila.h"
 
 #include <algorithm>
@@ -126,8 +130,8 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 		rAln.push_front(t);
 		if(t == 0)
 		{
-			i = i-1;
-			j = j-1;
+			--i;
+			--j;
 		}
 		else if(t > 0)
 			j -= static_cast<size_t>(t);
