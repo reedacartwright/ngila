@@ -17,10 +17,14 @@
 
 #include "ngila.h"
 
+#include <limits>
+
 #include <gsl/gsl_sf_zeta.h>
 inline double zeta(double z) { return gsl_sf_zeta(z); }
 
 #include "models.h"
+
+using namespace std;
 
 /****************************************************************************
  *    class cost_model                                                      *
@@ -32,18 +36,10 @@ bool cost_model::create(const ngila_app::args &rargs)
 	dA = rargs.cost_intersection;
 	dB = rargs.cost_linear;
 	dC = rargs.cost_logarithmic;
-	if(rargs.free_end_gaps)
-	{
-		dF = rargs.cost_intersection_free;
-		dG = rargs.cost_linear_free;
-		dH = rargs.cost_logarithmic_free;
-	}
-	else
-	{
-		dF = dA;
-		dG = dB;
-		dH = dC;
-	}
+	dF = rargs.cost_intersection_free;
+	dG = rargs.cost_linear_free;
+	dH = rargs.cost_logarithmic_free;
+
 	if(rargs.cost_matrix.empty())
 	{		
 		for(size_t i=0;i<sub_matrix_size;++i)
@@ -109,18 +105,36 @@ bool k2p_model::create(const ngila_app::args &rargs)
 	for(size_t i = 0;i<64;++i)
 	{
 		int ni = nuc_table[i];
-		if(ni == -1)
-			continue;
 		for(size_t j=0;j<64;++j)
 		{
 			int nj = nuc_table[j];
-			if(nj == -1)
-				continue;
-			mCost[i+64][j+64] = sub_costs[ni][nj];
+			if(ni == -1 || nj == -1)
+				mCost[i+64][j+64] = numeric_limits<double>::quiet_NaN();
+			else
+				mCost[i+64][j+64] = sub_costs[ni][nj];
 		}
 	}
+	dEnd = log(rargs.avgaln+1.0);
 	
 	return true;
+}
+
+template<class T>
+struct isambnuc
+{
+	bool operator()(T n)
+	{
+		return (nuc_table[n-64] == nN);
+	}
+};
+
+double k2p_model::offset(const seq_db::sequence &seqA, const seq_db::sequence &seqB) const
+{
+	isambnuc<seq_db::sequence::value_type> cpred;
+	size_t ncount = count_if(seqA.begin(), seqA.end(), cpred);
+	ncount += count_if(seqB.begin(), seqB.end(), cpred);
+	
+	return dEnd-static_cast<double>(ncount)*log(4.0);
 }
 
 /****************************************************************************
@@ -139,6 +153,7 @@ bool zeta_model::create(const ngila_app::args &rargs)
 		+ log(zeta(rargs.indel_slope)));
 	dB = -log(0.25); // All N's are weighted by 0.25
 	dC = rargs.indel_slope;
+	dF = dG = dH = 0.0;
 	
 	return true;
 }
@@ -159,6 +174,7 @@ bool geo_model::create(const ngila_app::args &rargs)
 		- log(rargs.indel_mean));
 	dB = -(log(0.25)+log(rargs.indel_mean-1.0)-log(rargs.indel_mean)); // All N's are weighted by 0.25
 	dC = 0.0;
+	dF = dG = dH = 0.0;
 	
 	return true;
 }

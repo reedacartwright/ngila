@@ -146,7 +146,7 @@ inline void alignment::print(OS &os, const char *msg) const
 			
 	os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
 	if(msg != NULL)
-		os << ": " << msg;
+		os << "; " << msg;
 	os << ")" << std::endl << std::endl;
 
 	size_t sz = strA.size();

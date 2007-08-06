@@ -17,6 +17,7 @@
 
 #include "ngila.h"
 #include <boost/preprocessor.hpp>
+#include <sstream>
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -127,6 +128,7 @@ int ngila_app::run()
 	else
 	{
 		CERROR("unknown model \'" << arg.model << "\'.");
+		return EXIT_FAILURE;
 	}
 
 	if(!pmod->create(arg))
@@ -141,8 +143,12 @@ int ngila_app::run()
 		return EXIT_FAILURE;
 	}
 	alignment aln(mydb[0], mydb[1]);
-	alner.align(aln);
-	aln.print(cout);
+	double dcost = alner.align(aln);
+	dcost += pmod->offset(mydb[0].second, mydb[1].second);
+	ostringstream msg;
+	msg << "Cost = " << dcost;
+	
+	aln.print(cout, msg.str().c_str());
 	
 	return EXIT_SUCCESS;
 }

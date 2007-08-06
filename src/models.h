@@ -23,6 +23,7 @@
 
 #include "ngila_app.h"
 #include "matparser.h"
+#include "seqdb.h"
 
 struct cost_model
 {
@@ -31,6 +32,11 @@ struct cost_model
 	sub_matrix mCost;
 		
 	virtual bool create(const ngila_app::args &rargs);
+	virtual double offset(const seq_db::sequence &seqA,
+		const seq_db::sequence &seqB) const
+	{
+		return 0.0;
+	}
 	
 	inline double gapcost(size_t L)
 	{
@@ -52,12 +58,16 @@ struct cost_model
 
 struct k2p_model : public cost_model
 {
-	virtual bool create(const ngila_app::args &rargs);	
+	double dEnd;
+	virtual bool create(const ngila_app::args &rargs);
+	virtual double offset(const seq_db::sequence &seqA,
+		const seq_db::sequence &seqB) const;
 };
 
 struct zeta_model : public k2p_model
 {
 	virtual bool create(const ngila_app::args &rargs);
+
 };
 
 struct geo_model : public k2p_model
