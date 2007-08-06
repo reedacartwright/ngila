@@ -50,4 +50,19 @@ struct cost_model
 	}		
 };
 
+struct k2p_model : public cost_model
+{
+	virtual bool create(const ngila_app::args &rargs);	
+};
+
+struct zeta_model : public k2p_model
+{
+	virtual bool create(const ngila_app::args &rargs);
+};
+
+struct geo_model : public k2p_model
+{
+	virtual bool create(const ngila_app::args &rargs);
+};
+
 #endif

@@ -111,7 +111,24 @@ int ngila_app::run()
 			return EXIT_FAILURE;
 		}
 	}
-	cost_model *pmod = new cost_model;
+	cost_model *pmod;
+	if(string("zeta").find(arg.model) == 0)
+	{
+		pmod = new zeta_model;
+	}
+	else if(string("geo").find(arg.model) == 0)
+	{
+		pmod = new geo_model;
+	}
+	else if(string("cost").find(arg.model) == 0)
+	{
+		pmod = new cost_model;
+	}
+	else
+	{
+		CERROR("unknown model \'" << arg.model << "\'.");
+	}
+
 	if(!pmod->create(arg))
 	{
 		CERROR("creating model \'" << arg.model << "\'.");

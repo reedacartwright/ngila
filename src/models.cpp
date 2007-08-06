@@ -17,8 +17,10 @@
 
 #include "ngila.h"
 
-#include "models.h"
+#include <gsl/gsl_sf_zeta.h>
+inline double zeta(double z) { return gsl_sf_zeta(z); }
 
+#include "models.h"
 
 /****************************************************************************
  *    class cost_model                                                      *
@@ -53,5 +55,110 @@ bool cost_model::create(const ngila_app::args &rargs)
 		if(!parse_matrix(rargs.cost_matrix.c_str(), mCost, rargs.case_insensitivity))
 			return CERROR("parsing of \'" << rargs.cost_matrix.c_str() << "\' failed.");
 	}
+	return true;
+}
+
+/****************************************************************************
+ *    class k2p_model                                                       *
+ ****************************************************************************/
+
+enum {nA, nC, nG, nT, nN, nSize};
+const int nuc_table[] = {
+	/*64*/	-1, nA, nN, nC, nN, -1, -1, nG, nN, -1, -1, nN, -1, nN, nN, -1,
+	/*80*/	-1, -1, nN, nN, nT, nT, nN,	nN, -1, nN, -1, -1, -1, -1, -1, -1,
+	/*96*/	-1, nA, nN, nC, nN, -1, -1, nG,	nN, -1, -1, nN, -1, nN, nN, -1,
+	/*112*/	-1, -1, nN, nN, nT, nT, nN,	nN, -1, nN, -1, -1, -1, -1, -1, -1,
+	/*128*/
+};
+const int pupy[] = {1, 0, 1, 0, -1};
+
+bool k2p_model::create(const ngila_app::args &rargs)
+{
+	if(rargs.branch_length <= 0.0)
+		return CERROR("branch length must be positive.");
+	if(rargs.ratio <= 0.0)
+		return CERROR("Ts/Tv ratio must be positive.");
+	if(rargs.avgaln <= 0.0)
+		return CERROR("avgaln must be positive.");
+	if(rargs.indel_rate <= 0.0)
+		return CERROR("indel rate must be positive.");
+	
+	double p_ts = 0.25-0.5*exp(-rargs.branch_length*(2.0*rargs.ratio+1.0)/(rargs.ratio+1.0))
+			+ 0.25*exp(-2.0*rargs.branch_length/(rargs.ratio+1.0));
+	double p_tv = 0.5-0.5*exp(-2.0*rargs.branch_length/(rargs.ratio+1.0));
+	double p_match = 1.0-p_ts-p_tv;
+	double l_h = -2.0*rargs.indel_rate*rargs.branch_length
+		+log(rargs.avgaln)-log(rargs.avgaln+1.0);
+	
+	double c_ts = -(log(p_ts)+l_h+log(0.25));
+	double c_tv = -(log(p_tv)+l_h+log(0.125));
+	double c_m  = -(log(p_match)+l_h+log(0.25));
+	
+	double sub_costs[nSize][nSize];
+	for(size_t i = 0;i<nN;++i)
+	{
+		sub_costs[i][i] = c_m;
+		for(size_t j = 0; j < i; ++j)
+		{
+			sub_costs[i][j] = sub_costs[j][i] = (pupy[i] == pupy[j]) ? c_ts : c_tv;
+		}
+		sub_costs[nN][i] = sub_costs[i][nN] = -(l_h+log(0.0625)); // All N's are weighted by 0.25
+	}
+	sub_costs[nN][nN] = -(l_h+log(0.0625)); // All N's are weighted by 0.25
+	
+	for(size_t i = 0;i<64;++i)
+	{
+		int ni = nuc_table[i];
+		if(ni == -1)
+			continue;
+		for(size_t j=0;j<64;++j)
+		{
+			int nj = nuc_table[j];
+			if(nj == -1)
+				continue;
+			mCost[i+64][j+64] = sub_costs[ni][nj];
+		}
+	}
+	
+	return true;
+}
+
+/****************************************************************************
+ *    class zeta_model                                                      *
+ ****************************************************************************/
+
+bool zeta_model::create(const ngila_app::args &rargs)
+{
+	if(!k2p_model::create(rargs))
+		return false;
+	if(rargs.indel_slope <= 1.0)
+		return CERROR("indel slope must be greater than 1.0");
+	
+	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
+		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
+		+ log(zeta(rargs.indel_slope)));
+	dB = -log(0.25); // All N's are weighted by 0.25
+	dC = rargs.indel_slope;
+	
+	return true;
+}
+
+/****************************************************************************
+ *    class geo_model                                                       *
+ ****************************************************************************/
+
+bool geo_model::create(const ngila_app::args &rargs)
+{
+	if(!k2p_model::create(rargs))
+		return false;
+	if(rargs.indel_mean <= 1.0)
+		return CERROR("indel mean must be greater than 1.0");
+	
+	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
+		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
+		- log(rargs.indel_mean));
+	dB = -(log(0.25)+log(rargs.indel_mean-1.0)-log(rargs.indel_mean)); // All N's are weighted by 0.25
+	dC = 0.0;
+	
 	return true;
 }

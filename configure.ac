@@ -45,7 +45,7 @@ fi
 AC_SUBST(ALL_STATIC_LDFLAGS)
 
 AC_HEADER_STDC
-dnl AM_PATH_GSL([1.5], [], AC_MSG_ERROR(could not find required version of GSL))
+AM_PATH_GSL([1.0], [], AC_MSG_ERROR(could not find required version of GSL))
 
 AC_C_INLINE
 if test "$ac_cv_c_inline" != no ; then
