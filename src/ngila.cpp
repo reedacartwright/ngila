@@ -102,8 +102,12 @@ int ngila_app::run()
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}
-
-	seq_db mydb;
+	if(arg.quiet)
+	{
+		cerr.clear(ios::failbit);
+	}
+	
+	seq_db mydb(arg.remove_gaps);
 	for(vector<string>::const_iterator cit = arg.input.begin(); cit != arg.input.end(); ++cit)
 	{
 		if(!mydb.parse_file(cit->c_str(), true))
@@ -112,19 +116,13 @@ int ngila_app::run()
 			return EXIT_FAILURE;
 		}
 	}
-	cost_model *pmod;
+	cost_model *pmod = NULL;
 	if(string("zeta").find(arg.model) == 0)
-	{
 		pmod = new zeta_model;
-	}
 	else if(string("geo").find(arg.model) == 0)
-	{
 		pmod = new geo_model;
-	}
 	else if(string("cost").find(arg.model) == 0)
-	{
 		pmod = new cost_model;
-	}
 	else
 	{
 		CERROR("unknown model \'" << arg.model << "\'.");

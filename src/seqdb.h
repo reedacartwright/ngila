@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 class seq_db
 {
@@ -33,11 +35,25 @@ public:
 	
 	inline bool add(const name& id, const sequence& s)
 	{
+		sequence t;
+		std::remove_copy_if(s.begin(), s.end(), std::back_inserter(t),
+			boost::bind(boost::mem_fn<sequence::size_type,sequence, 
+			sequence::value_type, sequence::size_type>(&sequence::find),
+			ss_gaps, _1, 0) != sequence::npos
+		);
+// 		std::remove_copy_if(s.begin(), s.end(), std::back_inserter(t),
+// 		                    boost::bind(strchr, ss_gaps.c_str(), _1) != (char*)NULL
+// 		);
+// 		std::remove_copy_if(s.begin(), s.end(), std::back_inserter(t),
+// 		                    boost::lambda::_1 == '-');
+
+		
 		std::pair<name_map::iterator, bool> p = data_map.insert(make_pair(id, size()));
+		
 		if(p.second)
-			data_vec.push_back(make_pair(id, s));
+			data_vec.push_back(make_pair(id, t));
 		else
-			data_vec[p.first->second].second.append(s);
+			data_vec[p.first->second].second.append(t);
 		return p.second;
 	}
 	inline void append(size_type idx, const sequence& s)
@@ -60,9 +76,13 @@ public:
 	
 	bool parse_file(const char *csfile, bool bappend=false);
 	
+	seq_db() : ss_gaps("-") { }
+	seq_db(const std::string &g) : ss_gaps(g) { }
+	
 protected:
 	std::vector<value_type> data_vec;
 	name_map data_map;
+	std::string ss_gaps;
 };
 
 #endif

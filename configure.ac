@@ -62,7 +62,7 @@ AC_DEFUN([AC_EXT_CHECK_LIB],
 	AS_IF([test AS_VAR_GET([ext_lib_found]) = yes], [$3], [$4])
 ])
 
-AX_BOOST_BASE([1.32.0])
+AX_BOOST_BASE([1.33.0])
 AX_BOOST_PROGRAM_OPTIONS
 
 dnl Checks for header files.
