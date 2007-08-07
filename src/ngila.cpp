@@ -142,13 +142,20 @@ int ngila_app::run()
 		CERROR("two or more sequences are required for alignment.");
 		return EXIT_FAILURE;
 	}
-	alignment aln(mydb[0], mydb[1]);
-	double dcost = alner.align(aln);
-	dcost += pmod->offset(mydb[0].second, mydb[1].second);
-	ostringstream msg;
-	msg << "Cost = " << dcost;
-	
-	aln.print(cout, msg.str().c_str());
+	for(size_t i=1;i<mydb.size();++i)
+	{
+		for(size_t j=0;j<i;++j)
+		{
+			alignment aln(mydb[j], mydb[i]);
+			double dcost = alner.align(aln);
+			dcost += pmod->offset(mydb[0].second, mydb[1].second);
+			ostringstream msg;
+			msg << "Cost = " << dcost;
+			
+			aln.print(cout, msg.str().c_str());
+			cout << "//" << endl;
+		}
+	}
 	
 	return EXIT_SUCCESS;
 }
