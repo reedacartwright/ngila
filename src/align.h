@@ -70,6 +70,13 @@ public:
 		size_t p; // Column or Row
 		size_t x; // Crossing Point
 		double d; // Score
+	};
+	struct min_mid_cost
+	{
+		double c; // Minimum cost
+		size_t s; // minimum position in s-vector
+		size_t x; // bottom of minimum indel
+		size_t z; // active position in s-vector
 	};	
 	
 	typedef alignment::sequence sequence;
@@ -104,10 +111,21 @@ private:
 					sequence::const_iterator itB1, sequence::const_iterator itB2,
 					aln_data &rAln, bool bFreeFront, bool bFreeBack);
 	
+	double align_r(sequence::const_iterator itA1, sequence::const_iterator itA2,
+					sequence::const_iterator itB1, sequence::const_iterator itB2,
+					aln_data &rAln, bool bFreeFront, bool bFreeBack);
+	
+	double align_s(sequence::const_iterator itA1, sequence::const_iterator itA2,
+					sequence::const_iterator itB1, sequence::const_iterator itB2,
+					aln_data &rAln, bool bFreeFront, bool bFreeBack);
+	
+	
 	void update_ins_forward(indel_vec &T, size_t i, size_t j, size_t szZ);
 	void update_del_forward(indel_vec &T, size_t i, size_t j, size_t szZ);
 	void update_del_forward_f(indel_vec &T, size_t i, size_t j, size_t szZ);
-	
+	void update_ins_reverse(indel_vec &T, size_t i, size_t j, size_t szZ);
+	void update_del_reverse(indel_vec &T, size_t i, size_t j, size_t szZ);
+		
 	std::vector<double> CC[2];
 	std::vector<double> RR[2];
 	std::vector<double> GC, FGC;
@@ -115,6 +133,8 @@ private:
 	indel_vec T;
 	std::vector<indel_vec> SF;
 	std::vector<indel_vec> SR;	
+
+	std::vector<min_mid_cost> DM;	
 };
 
 template<class OS>
