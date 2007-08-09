@@ -418,7 +418,7 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 		{
 			// B->A(1), Del A(2,Na)
 			rAln.push_back(0);
-			rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
+			rAln.push_back(-static_cast<alignment::aln_atom>(szNa-1));
 		}		
 		else if(i == szNa-1)
 		{
@@ -556,7 +556,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			jj = j;
 		}
 		dTemp = DM[j].c;
-		if(dTemp < dMin)
+		if(dTemp <= dMin)
 		{
 			dMin = dTemp;
 			pp = SF[j][DM[j].s].p;
