@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 

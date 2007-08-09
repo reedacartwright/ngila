@@ -276,12 +276,12 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 		return 0.0; // Nothing to do
 	else if(szNb == 0)
 	{
-		rAln.push_back(-szNa);
+		rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
 		return (bFreeFront||bFreeBack ? FGC : GC)[szNa]; // delete A
 	}
 	else if(szNa == 0)
 	{
-		rAln.push_back(szNb);
+		rAln.push_back(static_cast<alignment::aln_atom>(szNb));
 		return GC[szNb]; // insert B
 	}
 	else if(szNa == 1 && szNb == 1)
@@ -342,32 +342,32 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 		{
 			// Del A, Ins B(1,Nb)
 			rAln.push_back(-1);
-			rAln.push_back(szNb);
+			rAln.push_back(static_cast<alignment::aln_atom>(szNb));
 		}
 		else if( i == 0)
 		{
 			// A->B(1), Ins B(2,Nb)
 			rAln.push_back(0);
-			rAln.push_back(szNb-1);
+			rAln.push_back(static_cast<alignment::aln_atom>(szNb-1));
 		}		
 		else if(i == szNb-1)
 		{
 			// Ins B(1,N-1), A->B(Nb)
-			rAln.push_back(szNb-1);
+			rAln.push_back(static_cast<alignment::aln_atom>(szNb-1));
 			rAln.push_back(0);
 		}
 		else if( i == szNb)
 		{
 			// Ins B(1,N), Del A
-			rAln.push_back(szNb);
+			rAln.push_back(static_cast<alignment::aln_atom>(szNb));
 			rAln.push_back(-1);
 		}
 		else
 		{
 			//Ins B(1,i), A->B(i+1), Ins B(i+2,Nb)
-			rAln.push_back(i);
+			rAln.push_back(static_cast<alignment::aln_atom>(i));
 			rAln.push_back(0);
-			rAln.push_back(szNb-i-1);
+			rAln.push_back(static_cast<alignment::aln_atom>(szNb-i-1));
 		}
 		return dMin;
 	}
@@ -412,32 +412,32 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 		{
 			// Ins B, Del A(1,Na)
 			rAln.push_back(1);
-			rAln.push_back(-szNa);
+			rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
 		}
 		else if( i == 0)
 		{
 			// B->A(1), Del A(2,Na)
 			rAln.push_back(0);
-			rAln.push_back(-szNa);
+			rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
 		}		
 		else if(i == szNa-1)
 		{
 			// Del A(1,Na-1), B->A(Na)
-			rAln.push_back(-(szNa-1));
+			rAln.push_back(-static_cast<alignment::aln_atom>(szNa-1));
 			rAln.push_back(0);
 		}
 		else if( i == szNa)
 		{
 			// Del A(1,Na), Ins B
-			rAln.push_back(-szNa);
+			rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
 			rAln.push_back(1);
 		}
 		else
 		{
 			//Del A(1,i), B->A(i+1), Del A(i+2,Na)
-			rAln.push_back(-i);
+			rAln.push_back(-static_cast<alignment::aln_atom>(i));
 			rAln.push_back(0);
-			rAln.push_back(-(szNa-i-1));
+			rAln.push_back(-static_cast<alignment::aln_atom>(szNa-i-1));
 		}
 		return dMin;
 	}
@@ -567,7 +567,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 		
 	align_r(itA1, itA1+pp, itB1, itB1+jj, rAln, bFreeFront, false);
 	if(xx != pp)
-		rAln.push_back(-(xx-pp)); // Delete itA1+pp .. itA1+xx
+		rAln.push_back(-static_cast<alignment::aln_atom>(xx-pp)); // Delete itA1+pp .. itA1+xx
 	align_r(itA1+xx, itA2, itB1+jj, itB2, rAln, false, bFreeBack);
 	return dMin;	
 }

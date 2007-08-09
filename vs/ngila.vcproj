@@ -63,6 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="gsl_d.lib"
 				OutputFile="$(OutDir)/ngila.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -248,6 +249,10 @@
 			</File>
 			<File
 				RelativePath="..\src\seqparser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xm.h"
 				>
 			</File>
 		</Filter>
