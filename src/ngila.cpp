@@ -151,7 +151,8 @@ int ngila_app::run()
 			msg << "Cost = " << dcost;
 			
 			aln.print(cout, msg.str().c_str());
-			cout << "//" << endl;
+			if(j != mydb.size()-2)
+				cout << "//" << endl;
 		}
 	}
 	
