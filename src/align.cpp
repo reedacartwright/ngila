@@ -76,7 +76,7 @@ double aligner::align_x(const sequence &seqA, const sequence &seqB, aln_data &rA
 	
 	//run recursive algorithm
 
-	return align_mn(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), rAln, bFreeEnds, bFreeEnds);
+	return align_r(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), rAln, bFreeEnds, bFreeEnds);
 }
 
 double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator itA2,
@@ -548,7 +548,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 	for(size_t j=1;j<=szNb;++j)
 	{
 		double dTemp = CC[0][j]+RR[0][j];
-		if(dTemp < dMin)
+		if(dTemp <= dMin)
 		{
 			dMin = dTemp;
 			pp = szMh;
