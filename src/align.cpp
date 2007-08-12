@@ -33,6 +33,11 @@ inline T min3(T a, T b, T c)
 	return min(a, min(b,c));
 }
 
+inline bool dle(double a, double b)
+{
+	return (a <= b*(1.0+DBL_EPSILON));
+}
+
 double aligner::align(alignment &aln)
 {
 	double d;
@@ -99,7 +104,7 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 
 	for(size_t i=1;i<=szNa;++i)
 	{
-		CC[1][0] = bFreeFront ? FGC[i] : GC[i];
+		CC[1][0] = (bFreeFront ? FGC : GC)[i];
 		tabTravel[i][0] = -static_cast<int>(i);
 		for(size_t j=1;j<=szNb;++j)
 		{
@@ -287,7 +292,7 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 	else if(szNa == 1 && szNb == 1)
 	{
 		double d1 = costs.mCost[(size_t)itA1[0]][(size_t)itB1[0]];
-		double d2 = (bFreeFront||bFreeBack) ? FGC[1]+GC[1] : 2.0*GC[1];
+		double d2 = (bFreeFront||bFreeBack) ? FGC[1]+GC[1] : GC[1]+GC[1];
 		if(d1 <= d2)
 		{
 			rAln.push_back(0);
@@ -307,15 +312,9 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 	}
 	else if(szNa == 1)
 	{
-		size_t i = static_cast<size_t>(-1);
-		double dTemp = (bFreeFront ? FGC : GC)[1] + GC[szNb];
+		double dTemp = costs.mCost[(size_t)itA1[0]][(size_t)itB1[0]] + GC[szNb-1];
 		double dMin = dTemp;
-		dTemp = costs.mCost[(size_t)itA1[0]][(size_t)itB1[0]] + GC[szNb-1];
-		if(dTemp < dMin)
-		{
-			dMin = dTemp;
-			i = 0;
-		}
+		size_t i = 0;
 		for(size_t j=1;j<szNb-1;++j)
 		{
 			dTemp = GC[j] + costs.mCost[(size_t)itA1[0]][(size_t)itB1[j]] + GC[szNb-j-1];
@@ -330,7 +329,14 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 		{
 			dMin = dTemp;
 			i = szNb-1;
-		}			
+		}
+		dTemp = (bFreeFront ? FGC : GC)[1] + GC[szNb];
+		if(dTemp < dTemp)
+		{
+			dMin = dTemp;
+			i = static_cast<size_t>(-1);
+		}
+
 		dTemp = (bFreeBack ? FGC : GC)[1] + GC[szNb];
 		if(dTemp < dMin)
 		{
@@ -373,16 +379,11 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 	}
 	else if(szNb == 1)
 	{
-		size_t i = (size_t)-1;
-		double dTemp =  GC[1] + (bFreeBack ? FGC : GC)[szNa];
-		double dMin = dTemp;
-		dTemp = costs.mCost[(size_t)itA1[0]][(size_t)itB1[0]]
+
+		double dTemp = costs.mCost[(size_t)itA1[0]][(size_t)itB1[0]]
 				+ (bFreeBack ? FGC : GC)[szNa-1];
-		if(dTemp < dMin)
-		{
-			dMin = dTemp;
-			i = 0;
-		}
+		double dMin = dTemp;
+		size_t i = 0;
 		for(size_t j=1;j<szNa-1;++j)
 		{
 			dTemp = costs.mCost[(size_t)itA1[j]][(size_t)itB1[0]]
@@ -400,7 +401,14 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 		{
 			dMin = dTemp;
 			i = szNa-1;
-		}			
+		}
+
+		dTemp =  GC[1] + (bFreeBack ? FGC : GC)[szNa];
+		if(dTemp < dMin)
+		{
+			dMin = dTemp;
+			i = (size_t)-1;
+		}
 		dTemp = (bFreeFront ? FGC : GC)[szNa] + GC[1];
 		if(dTemp < dMin)
 		{
@@ -539,7 +547,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 	size_t pp = szMh;
 	size_t xx = pp;
 	size_t jj = 0;
-	if(DM[0].c < dMin)
+	if(dle(DM[0].c, dMin))
 	{
 		dMin = DM[0].c;
 		pp = SF[0][DM[0].s].p;
@@ -548,7 +556,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 	for(size_t j=1;j<=szNb;++j)
 	{
 		double dTemp = CC[0][j]+RR[0][j];
-		if(dTemp <= dMin)
+		if(dTemp < dMin)
 		{
 			dMin = dTemp;
 			pp = szMh;
@@ -556,7 +564,12 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			jj = j;
 		}
 		dTemp = DM[j].c;
-		if(dTemp <= dMin)
+		cerr << j << " " << setprecision(17) << dMin << " "
+			<< setprecision(17) << DM[j].c << " "
+			<< setprecision(17) << DM[j].c-dMin << " "
+			<< setprecision(17) << dMin*(1.0+DBL_EPSILON)
+			<< endl;
+		if(dle(dTemp,dMin))
 		{
 			dMin = dTemp;
 			pp = SF[j][DM[j].s].p;

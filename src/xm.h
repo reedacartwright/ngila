@@ -28,14 +28,6 @@
 
 #define _JS_OP(s, data, elem) BOOST_PP_CAT(data, elem)
 
-/*
-#define _JS(sep, seq) BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_SEQ_SIZE(seq),1), \
-		BOOST_PP_SEQ_HEAD(seq),
-		BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_REPLACE( \
-		BOOST_PP_SEQ_TRANSFORM(_JS_OP, sep, seq), 0, BOOST_PP_SEQ_HEAD(seq) \
-))
-*/
-
 #define _JS(sep, seq) BOOST_PP_IF( BOOST_PP_EQUAL(BOOST_PP_SEQ_SIZE(seq),1), \
 	_JS_1, _JS_2)(sep,seq)
 
@@ -69,3 +61,4 @@
 #undef _SD
 
 #endif
+
