@@ -133,8 +133,6 @@ double k2p_model::offset(const seq_db::sequence &seqA, const seq_db::sequence &s
 	isambnuc<seq_db::sequence::value_type> cpred;
 	size_t ncount = count_if(seqA.begin(), seqA.end(), cpred);
 	ncount += count_if(seqB.begin(), seqB.end(), cpred);
-	
-	cerr << "ncount = " << ncount << endl;
 
 	return dEnd-static_cast<double>(ncount)*log(4.0);
 }
@@ -155,7 +153,8 @@ bool zeta_model::create(const ngila_app::args &rargs)
 		- log(zeta(rargs.indel_slope)));
 	dB = -log(0.25); // All N's are weighted by 0.25
 	dC = rargs.indel_slope;
-	dF = dG = dH = 0.0;
+	dF = dH = 0.0;
+	dG = -log(0.25);
 
 	return true;
 }
@@ -176,7 +175,8 @@ bool geo_model::create(const ngila_app::args &rargs)
 		- log(rargs.indel_mean));
 	dB = -(log(0.25)+log(rargs.indel_mean-1.0)-log(rargs.indel_mean)); // All N's are weighted by 0.25
 	dC = 0.0;
-	dF = dG = dH = 0.0;
+	dF = dH = 0.0;
+	dG = -log(0.25);
 	
 	return true;
 }

@@ -148,7 +148,7 @@ int ngila_app::run()
 			double dcost = alner.align(aln);
 			dcost += pmod->offset(mydb[j].second, mydb[i].second);
 			ostringstream msg;
-			msg << "Cost = " << dcost;
+			msg << "Cost = " << setprecision(17) << dcost;
 			
 			aln.print(cout, msg.str().c_str());
 			if(j != mydb.size()-2)
