@@ -134,6 +134,8 @@ double k2p_model::offset(const seq_db::sequence &seqA, const seq_db::sequence &s
 	size_t ncount = count_if(seqA.begin(), seqA.end(), cpred);
 	ncount += count_if(seqB.begin(), seqB.end(), cpred);
 	
+	cerr << "ncount = " << ncount << endl;
+
 	return dEnd-static_cast<double>(ncount)*log(4.0);
 }
 
@@ -150,11 +152,11 @@ bool zeta_model::create(const ngila_app::args &rargs)
 	
 	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
 		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
-		+ log(zeta(rargs.indel_slope)));
+		- log(zeta(rargs.indel_slope)));
 	dB = -log(0.25); // All N's are weighted by 0.25
 	dC = rargs.indel_slope;
 	dF = dG = dH = 0.0;
-	
+
 	return true;
 }
 

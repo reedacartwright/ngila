@@ -48,11 +48,11 @@ struct cost_model
 	}
 	inline size_t kstar(double x, double y)
 	{
-		return static_cast<size_t>(x/(1.0-exp((-y+dB*x)/dC))); //needs to handle dC == 0.0?
+		return static_cast<size_t>(floor(x/(1.0-exp((-y+dB*x)/dC)))); //needs to handle dC == 0.0?
 	}
 	inline size_t kstar_f(double x, double y)
 	{
-		return static_cast<size_t>(x/(1.0-exp((-y+dG*x)/dH))); //needs to handle dC == 0.0?
+		return static_cast<size_t>(floor(x/(1.0-exp((-y+dG*x)/dH)))); //needs to handle dC == 0.0?
 	}		
 };
 

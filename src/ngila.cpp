@@ -146,7 +146,7 @@ int ngila_app::run()
 		{
 			alignment aln(mydb[j], mydb[i]);
 			double dcost = alner.align(aln);
-			dcost += pmod->offset(mydb[0].second, mydb[1].second);
+			dcost += pmod->offset(mydb[j].second, mydb[i].second);
 			ostringstream msg;
 			msg << "Cost = " << dcost;
 			
