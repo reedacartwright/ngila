@@ -360,7 +360,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 		CC[0][j] = GC[j];
 	
 	SF[0].assign(1, indel(0, szNa, CC[0][0]));
-	// Foward Algorithm
+	// Forward Algorithm
 	for(size_t i=1;i<=szMh;++i)
 	{
 		CC[1][0] = (bFreeFront ? FGC : GC)[i];
@@ -417,18 +417,14 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			double d2 = indel_rcost(T.back(),j);
 			double d3 = indel_rcost(SR[j].back(),i);
 			RR[1][j] = min3(d1,d2,d3);
-			int tb = 0;
-			if(d1 < d2 && d1 < d3)
-				tb = 0;
-			else if(d2 <= d1 && d2 < d3)
-				tb = T.back().p-j;
-			else
-				tb = -(int)(SR[j].back().p-i);
 
 			// Minimum Type II cost
 			if( SF[j].size() < DM[j].z+1 && i <= SF[j][DM[j].z+1].x)
 				++DM[j].z; // Advance position
-			dTemp = indel_cost(SF[j][DM[j].z],i)+RR[1][j];
+			if(bFreeFront && j==0)
+				dTemp = indel_fcost(SF[j][DM[j].z],i)+RR[1][j];
+			else
+				dTemp = indel_cost(SF[j][DM[j].z],i)+RR[1][j];
 			if(dTemp < DM[j].c)
 			{
 				DM[j].c = dTemp;
