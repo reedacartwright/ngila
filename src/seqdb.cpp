@@ -15,35 +15,36 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
 
-#ifdef HAVE_CONFIG_H
-#	include "config.h"
-#endif
+#include "ngila.h"
+
+#include <algorithm>
+#include <boost/bind.hpp>
 
 #include "seqdb.h"
 #include "seqparser.h"
 
 using namespace std;
 
-bool seq_db::parse_file(const char *csfile, bool bappend)
+bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 {
 	if(!bappend)
 		clear();
 	
 	file_iterator<char> file_first(csfile);
 	if(!file_first)
-	{
-		cerr << "ERROR: unable to open \'" << csfile << "\'" << endl;
-		return false;			
-	}
+		return CERROR("unable to open \'" << csfile << "\'");
 	file_iterator<char>  file_last = file_first.make_end();
 		
 	stack<string> my_stack;
 	seq_grammar my_grammar(my_stack, *this);
 	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
 	if (!info.full)
+		return CERROR("unable to parse \'" << csfile << "\'");
+	if(bi)
 	{
-		cerr << "ERROR: unable to parse \'" << csfile << "\'" << endl;
-		return false;
+		for(data_vec_type::iterator it = data_vec.begin(); it != data_vec.end(); ++it)
+			transform(it->second.begin(), it->second.end(), it->second.begin(), std::ptr_fun(::toupper));
 	}
+	
 	return true;
 }

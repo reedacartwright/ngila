@@ -30,7 +30,8 @@ class seq_db
 public:
 	typedef std::string sequence;
 	typedef std::string name;
-	typedef std::pair<name, sequence> value_type; 
+	typedef std::pair<name, sequence> value_type;
+	typedef std::vector<value_type> data_vec_type;
 	typedef std::vector<value_type>::size_type size_type;
 	typedef std::map<name, size_type> name_map;
 	
@@ -75,13 +76,13 @@ public:
 		data_map.clear();
 	}
 	
-	bool parse_file(const char *csfile, bool bappend=false);
+	bool parse_file(const char *csfile, bool bappend=false, bool bi=false);
 	
 	seq_db() : ss_gaps("-") { }
 	seq_db(const std::string &g) : ss_gaps(g) { }
 	
 protected:
-	std::vector<value_type> data_vec;
+	data_vec_type data_vec;
 	name_map data_map;
 	std::string ss_gaps;
 };

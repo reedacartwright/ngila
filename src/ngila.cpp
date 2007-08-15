@@ -122,7 +122,7 @@ int ngila_app::run()
 	seq_db mydb(arg.remove_gaps);
 	for(vector<string>::const_iterator cit = arg.input.begin(); cit != arg.input.end(); ++cit)
 	{
-		if(!mydb.parse_file(cit->c_str(), true))
+		if(!mydb.parse_file(cit->c_str(), true, arg.case_insensitivity))
 		{
 			CERROR("parsing of \'" << cit->c_str() << "\' failed.");
 			return EXIT_FAILURE;
