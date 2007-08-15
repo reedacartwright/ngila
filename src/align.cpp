@@ -417,7 +417,14 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			double d2 = indel_rcost(T.back(),j);
 			double d3 = indel_rcost(SR[j].back(),i);
 			RR[1][j] = min3(d1,d2,d3);
-			//cerr << szNa-i << "\t" << szNb-j << "\t" << setprecision(17) << RR[1][j] << endl;
+			int tb = 0;
+			if(d1 < d2 && d1 < d3)
+				tb = 0;
+			else if(d2 <= d1 && d2 < d3)
+				tb = T.back().p-j;
+			else
+				tb = -(int)(SR[j].back().p-i);
+
 			// Minimum Type II cost
 			if( SF[j].size() < DM[j].z+1 && i <= SF[j][DM[j].z+1].x)
 				++DM[j].z; // Advance position
@@ -428,9 +435,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 				DM[j].s = DM[j].z;
 				DM[j].x = i;
 			}
-			
 		}
-
 		swap(RR[0], RR[1]);
 	}
 
@@ -463,23 +468,10 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			jj = j;
 		}
 	}	
-	double dCC = CC[0][jj];
-	double dRR = RR[0][jj];
-	double dCheck1 = align_r(itA1, itA1+pp, itB1, itB1+jj, rAln, bFreeFront, false);
-	double dCheck2 = 0.0;
+	align_r(itA1, itA1+pp, itB1, itB1+jj, rAln, bFreeFront, false);
 	if(xx != pp)
-	{
 		rAln.push_back(-static_cast<alignment::aln_atom>(xx-pp)); // Delete itA1+pp .. itA1+xx
-		dCheck2 = GC[xx-pp];
-	}
-	double dCheck3 = align_r(itA1+xx, itA2, itB1+jj, itB2, rAln, false, bFreeBack);
-	//cerr << pp << " " << xx << " " << jj
-	//	<< " " << setprecision(17) << dMin
-	//	<< " " << setprecision(17) << dCheck1+dCheck2+dCheck3 
-	//	<< " " << setprecision(17) << dCheck1 << " " << setprecision(17) <<  dCC
-	//	<< " " << setprecision(17) << dCheck2
-	//	<< " " << setprecision(17) << dCheck3 << " " << setprecision(17) << dRR
-	//	<< endl;
+	align_r(itA1+xx, itA2, itB1+jj, itB2, rAln, false, bFreeBack);
 	return dMin;	
 }
 
@@ -527,7 +519,7 @@ void aligner::update_del_forward(indel_vec &T, size_t i, size_t j, size_t szZ)
 	}
 }
 
-void aligner::update_ins_reverse(indel_vec &T, size_t /*i*/, size_t j, size_t szZ)
+void aligner::update_ins_reverse(indel_vec &T, size_t i, size_t j, size_t szZ)
 {
 	if(j == szZ-1)
 	{
@@ -544,12 +536,10 @@ void aligner::update_ins_reverse(indel_vec &T, size_t /*i*/, size_t j, size_t sz
 			  RR[1][j+1] + GC[j+1] <= indel_rcost(T.back(),0)))
 			T.pop_back();
 		T.push_back(indel(j+1, (T.size() ?
-			(T.back().p-costs.kstar(T.back().p-j-1, RR[1][j+1]-T.back().d)+1)
+			(T.back().p-costs.kstar(T.back().p-(j+1), RR[1][j+1]-T.back().d))
 			: 0) ,RR[1][j+1]));
 	}
 }
-
-
 
 void aligner::update_del_forward_f(indel_vec &T, size_t i, size_t j, size_t szZ)
 {
@@ -592,7 +582,7 @@ void aligner::update_del_reverse(indel_vec &T, size_t i, size_t j, size_t szZ)
 			  RR[0][j] + GC[i+1] <= indel_rcost(T.back(),0)))
 			T.pop_back();
 		T.push_back(indel(i+1, (T.size() ?
-			(T.back().p-costs.kstar(T.back().p-i-1, RR[0][j]-T.back().d)+1)
+			(T.back().p-costs.kstar(T.back().p-(i+1), RR[0][j]-T.back().d))
 			: 0) ,RR[0][j]));
 	}
 }
