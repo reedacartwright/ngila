@@ -18,6 +18,7 @@
 #include "ngila.h"
 #include <boost/preprocessor.hpp>
 #include <sstream>
+#include <iomanip>
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -89,6 +90,17 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 	}
 }
 
+template<size_t _N>
+size_t key_switch(const std::string &ss, const std::string (&key)[_N])
+{
+	for(size_t i=0;i<_N;++i)
+	{
+		if(key[i].find(ss) == 0)
+			return i;
+	}
+	return (size_t)-1;
+}
+
 int ngila_app::run()
 {
 	if(arg.version)
@@ -117,18 +129,23 @@ int ngila_app::run()
 		}
 	}
 	cost_model *pmod = NULL;
-	if(string("zeta").find(arg.model) == 0)
-		pmod = new zeta_model;
-	else if(string("geo").find(arg.model) == 0)
-		pmod = new geo_model;
-	else if(string("cost").find(arg.model) == 0)
-		pmod = new cost_model;
-	else
+	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
+	switch(key_switch(arg.model, model_keys))
 	{
+	case 0:
+		pmod = new zeta_model;
+		break;
+	case 1:
+		pmod = new geo_model;
+		break;
+	case 2:
+		pmod = new cost_model;
+		break;
+	default:
 		CERROR("unknown model \'" << arg.model << "\'.");
 		return EXIT_FAILURE;
-	}
-
+	};
+	
 	if(!pmod->create(arg))
 	{
 		CERROR("creating model \'" << arg.model << "\'.");
@@ -140,20 +157,39 @@ int ngila_app::run()
 		CERROR("two or more sequences are required for alignment.");
 		return EXIT_FAILURE;
 	}
-	for(size_t i=1;i<mydb.size();++i)
+	pair_vec pvec;
+	string pairs_keys[] = { string("first"), string("all"), string("each") };
+	switch(key_switch(arg.pairs, pairs_keys))
 	{
-		for(size_t j=0;j<i;++j)
-		{
-			alignment aln(mydb[j], mydb[i]);
-			double dcost = alner.align(aln);
-			dcost += pmod->offset(mydb[j].second, mydb[i].second);
-			ostringstream msg;
-			msg << "Cost = " << setprecision(17) << dcost;
-			
-			aln.print(cout, msg.str().c_str());
-			if(j != mydb.size()-2)
-				cout << "//" << endl;
-		}
+	case 0:
+		pvec.push_back(make_pair(0,1));
+		break;
+	case 1:
+		for(size_t i=1;i<mydb.size();++i)
+			for(size_t j=0;j<i;++j)
+				pvec.push_back(make_pair(j,i));
+		break;
+	case 2:
+		for(size_t i=0;i<mydb.size()-1;i+=2)
+			pvec.push_back(make_pair(i,i+1));
+		break;
+	default:
+		CERROR("unknown pairs option \'" << arg.pairs << "\'.");
+		return EXIT_FAILURE;
+	};
+	
+	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit)
+	{
+		if(cit != pvec.begin())
+			cout << "//" << endl;
+		alignment aln(mydb[cit->first], mydb[cit->second]);
+		double dcost = alner.align(aln);
+		dcost += pmod->offset(mydb[cit->first].second,
+		                      mydb[cit->second].second);
+		ostringstream msg;
+		msg << "Cost = " << setprecision(10) << dcost;
+		
+		aln.print(cout, msg.str().c_str());
 	}
 	
 	return EXIT_SUCCESS;

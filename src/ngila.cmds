@@ -47,6 +47,7 @@ XCMD((threshold)(larger),   (M), "threshold for O(MN) alignment", size_t, 10000)
 XCMD((threshold)(smaller),  (N), "threshold for O(MN) alignment", size_t, 10000)
 XCMD((remove)(gaps),        (G), "realign after removing specific gap characters", std::string, std::string("-+="))
 
+XCMD((pairs),        , "control how pairs are determined: first|all|each", std::string, std::string("first"))
 XCMD((quiet),        , "disable all warnings and error messages", bool, false)
 XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))
 XCMD((version),      , "display version information", bool, false)
