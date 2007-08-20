@@ -1,2 +1,8 @@
 man_MANS = ngila.1
-EXTRA_DIST = $(man_MANS)
+
+$(man_MANS): xcmd-doc
+
+xcmd-doc: ngila.1pp
+
+.1pp.1:
+	$CPP $(CPPFLAGS) $(BOOST_CPPFLAGS) $(GSL_CFLAGS) -o $@ - < $<
