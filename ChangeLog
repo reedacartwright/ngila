@@ -1,1 +1,23 @@
-1.0 - First Release
+2007-08-22  1.2-RELEASE
+
+* Changed license to GPL
+* Reorganized source code to a more modular framework.
+* Compiling from source now requires GSL and Boost Libraries
+* Added two evolutionary models: K2P+Zeta and K2P+Geometric
+* Command line options changed 
+* Only FASTA supported for input
+* Tie breaking has changed
+* The Clustal output format has been altered
+* Man page updated and tied to cmds file
+* Added pairs setting for more control of sequential alignments
+* Several Bug fixes
+
+2007-02-23  1.1-RELEASE
+
+* Added options to specify free-end gap scores
+* Fixed bug with holisitc algorithm
+
+2006-10-26  1.0-RELEASE
+
+* Initial Release
+
