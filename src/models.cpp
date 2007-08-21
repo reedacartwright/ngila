@@ -49,7 +49,7 @@ bool cost_model::create(const ngila_app::args &rargs)
 	else
 	{
 		if(!parse_matrix(rargs.cost_matrix.c_str(), mCost, rargs.case_insensitivity))
-			return CERROR("parsing of \'" << rargs.cost_matrix.c_str() << "\' failed.");
+			return CERRORR("parsing of \'" << rargs.cost_matrix.c_str() << "\' failed.");
 	}
 	return true;
 }
@@ -71,13 +71,13 @@ const int pupy[] = {1, 0, 1, 0, -1};
 bool k2p_model::create(const ngila_app::args &rargs)
 {
 	if(rargs.branch_length <= 0.0)
-		return CERROR("branch length must be positive.");
+		return CERRORR("branch length must be positive.");
 	if(rargs.ratio <= 0.0)
-		return CERROR("Ts/Tv ratio must be positive.");
+		return CERRORR("Ts/Tv ratio must be positive.");
 	if(rargs.avgaln <= 0.0)
-		return CERROR("avgaln must be positive.");
+		return CERRORR("avgaln must be positive.");
 	if(rargs.indel_rate <= 0.0)
-		return CERROR("indel rate must be positive.");
+		return CERRORR("indel rate must be positive.");
 	
 	double p_ts = 0.25-0.5*exp(-rargs.branch_length*(2.0*rargs.ratio+1.0)/(rargs.ratio+1.0))
 			+ 0.25*exp(-2.0*rargs.branch_length/(rargs.ratio+1.0));

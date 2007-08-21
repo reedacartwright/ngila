@@ -29,20 +29,20 @@ bool parse_file(const char* cs, seq_db &rdb)
 		string ss; 
 		getline(cin, ss, '\004');
 		if(ss.empty())
-			return CERROR("unable to open stdin.");
+			return CERRORR("unable to open stdin.");
 		parse_info<string::const_iterator> info = parse(ss.begin(), ss.end(), my_grammar);
 		if (!info.full)
-			return CERROR("unable to parse stdin.");
+			return CERRORR("unable to parse stdin.");
 	}
 	else
 	{
 		file_iterator<char> file_first(cs);
 		if(!file_first)
-			return CERROR("unable to open \'" << cs << "\'.");
+			return CERRORR("unable to open \'" << cs << "\'.");
 		file_iterator<char>  file_last = file_first.make_end();
 		parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
 		if (!info.full)
-			return CERROR("unable to parse \'" << cs << "\'.");
+			return CERRORR("unable to parse \'" << cs << "\'.");
 	}
 	return true;
 }

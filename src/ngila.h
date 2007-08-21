@@ -37,8 +37,9 @@
 	"    Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>\n" \
 	"    Report bugs to " PACKAGE_BUGREPORT
 
-// Utility function
-#define CERROR(err_msg) ((std::cerr << "ERROR: " << err_msg << std::endl), false);
+// Utility functions
+#define CERRORR(err_msg) ((std::cerr << "ERROR: " << err_msg << std::endl), false);
+#define CERROR(err_msg) (std::cerr << "ERROR: " << err_msg << std::endl);
 
 namespace std {
 template<typename _Tp, typename _CharT, typename _Traits>

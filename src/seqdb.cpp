@@ -32,14 +32,14 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 	
 	file_iterator<char> file_first(csfile);
 	if(!file_first)
-		return CERROR("unable to open \'" << csfile << "\'");
+		return CERRORR("unable to open \'" << csfile << "\'");
 	file_iterator<char>  file_last = file_first.make_end();
 		
 	stack<string> my_stack;
 	seq_grammar my_grammar(my_stack, *this);
 	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
 	if (!info.full)
-		return CERROR("unable to parse \'" << csfile << "\'");
+		return CERRORR("unable to parse \'" << csfile << "\'");
 	if(bi)
 	{
 		for(data_vec_type::iterator it = data_vec.begin(); it != data_vec.end(); ++it)
