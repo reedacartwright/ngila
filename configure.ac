@@ -1,5 +1,5 @@
 m4_define([ngila_rev], [m4_esyscmd([svnversion -n .])])
-AC_INIT([ngila], [[current-r]ngila_rev()], [http://scit.us/projects/ngila/])
+AC_INIT([ngila], [1.2-RELEASE], [http://scit.us/projects/ngila/])
 AC_CONFIG_SRCDIR([src/ngila.h])
 AC_CONFIG_AUX_DIR([config])
 AC_PREREQ(2.56)
