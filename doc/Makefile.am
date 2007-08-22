@@ -1,6 +1,6 @@
 man_MANS   = ngila.1
 CLEANFILES = ngila.1
-dist_man_MANS = mkman.pl
+EXTRA_DIST = mkman.pl
 
 $(man_MANS): xcmd-doc
 
