@@ -40,9 +40,10 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
 	if (!info.full)
 		return CERRORR("unable to parse \'" << csfile << "\'");
-	if(bi)
+	for(data_vec_type::iterator it = data_vec.begin(); it != data_vec.end(); ++it)
 	{
-		for(data_vec_type::iterator it = data_vec.begin(); it != data_vec.end(); ++it)
+		replace_if(it->first.begin(), it->first.end(), std::ptr_fun(::isspace), '_');
+		if(bi)
 			transform(it->second.begin(), it->second.end(), it->second.begin(), std::ptr_fun(::toupper));
 	}
 	
