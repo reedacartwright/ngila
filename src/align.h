@@ -178,11 +178,13 @@ inline void alignment::print(OS &os, const char *msg) const
 		// Print a row of each sequence
 		ss = strA.substr(u, 60);
 		a += ss.length() - std::count(ss.begin(), ss.end(), chGap);
-		os << std::setw(14) << std::setiosflags(std::ios::left) << nameA << " " << ss << " " << a << std::endl;
+		os << std::setw(14) << std::setiosflags(std::ios::left) << nameA.substr(0, 14)
+			<< " " << ss << " " << a << std::endl;
 		
 		ss = strB.substr(u, 60);
 		b += ss.length() - std::count(ss.begin(), ss.end(), chGap);
-		os << std::setw(14) << std::setiosflags(std::ios::left) << nameB << " " << ss << " " << b << std::endl;
+		os << std::setw(14) << std::setiosflags(std::ios::left) << nameB.substr(0, 14)
+			 << " " << ss << " " << b << std::endl;
 		
 		os << std::setw(14) << std::setiosflags(std::ios::left) << " "   << " " << strC.substr(u, 60) << std::endl;
 		os << std::endl;
