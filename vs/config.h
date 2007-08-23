@@ -23,9 +23,9 @@
 #define PACKAGE "ngila"
 #define PACKAGE_BUGREPORT "http://scit.us/projects/ngila/"
 #define PACKAGE_NAME "ngila"
-#define PACKAGE_STRING "ngila current-vs"
+#define PACKAGE_STRING "ngila 1.2.1-RELEASE"
 #define PACKAGE_TARNAME "ngila"
-#define PACKAGE_VERSION "current-vs"
+#define PACKAGE_VERSION "1.2.1-RELEASE"
 
 #define PROTOTYPES 1
 
