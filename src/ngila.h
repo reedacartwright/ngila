@@ -29,6 +29,7 @@
 #include <deque>
 #include <map>
 #include <string>
+#include <cstring>
 #include <fstream>
 #include <ostream>
 #include <iterator>
