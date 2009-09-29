@@ -15,8 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit.hpp>
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 103600
+#	include <boost/spirit/include/classic.hpp>
+#	include <boost/spirit/include/classic_core.hpp>
+using namespace boost::spirit::classic;
+#else
+#	include <boost/spirit.hpp>
+#	include <boost/spirit/core.hpp>
+using namespace boost::spirit;
+#endif
+
 #include <iostream>
 #include <stack>
 
@@ -73,9 +82,6 @@ struct pop_sequence
 	std::stack<std::string>& my_stack;
 	seq_db &rdb;
 };
-
-
-using namespace boost::spirit;
 
 struct seq_grammar : public grammar<seq_grammar>
 {

@@ -18,11 +18,22 @@
 #ifndef MATPARSER_H
 #define MATPARSER_H
 
-#include <boost/spirit.hpp>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/core/parser.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 103600
+#	include <boost/spirit/include/classic.hpp>
+#	include <boost/spirit/include/classic_core.hpp>
+#	include <boost/spirit/include/classic_parser.hpp>
+#	include <boost/spirit/include/classic_assign_actor.hpp>
+#	include <boost/spirit/include/classic_clear_actor.hpp>
+using namespace boost::spirit::classic;
+#else
+#	include <boost/spirit.hpp>
+#	include <boost/spirit/core.hpp>
+#	include <boost/spirit/core/parser.hpp>
+#	include <boost/spirit/actor/assign_actor.hpp>
+#	include <boost/spirit/actor/clear_actor.hpp>
+using namespace boost::spirit;
+#endif
 
 typedef double sub_matrix[128][128];
 const size_t sub_matrix_size = 128;
@@ -50,8 +61,6 @@ struct mat_work
 
 	bool process(matrix &m, bool bi = false) const;
 };
-
-using namespace boost::spirit;
 
 struct mat_grammar : public grammar<mat_grammar>
 {

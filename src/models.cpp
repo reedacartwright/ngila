@@ -146,7 +146,7 @@ bool zeta_model::create(const ngila_app::args &rargs)
 	if(!k2p_model::create(rargs))
 		return false;
 	if(rargs.indel_slope <= 1.0)
-		return CERROR("indel slope must be greater than 1.0");
+		return CERRORR("indel slope must be greater than 1.0");
 	
 	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
 		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
@@ -168,7 +168,7 @@ bool geo_model::create(const ngila_app::args &rargs)
 	if(!k2p_model::create(rargs))
 		return false;
 	if(rargs.indel_mean <= 1.0)
-		return CERROR("indel mean must be greater than 1.0");
+		return CERRORR("indel mean must be greater than 1.0");
 	
 	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
 		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)

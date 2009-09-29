@@ -27,6 +27,10 @@
 
 using namespace std;
 
+#ifdef min
+#	undef min
+#endif
+
 template<class T>
 inline T min3(T a, T b, T c)
 {
