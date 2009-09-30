@@ -165,9 +165,9 @@ int ngila_app::run()
 		pvec.push_back(make_pair(0,1));
 		break;
 	case 1:
-		for(size_t i=1;i<mydb.size();++i)
-			for(size_t j=0;j<i;++j)
-				pvec.push_back(make_pair(j,i));
+		for(size_t i=0;i<mydb.size();++i)
+			for(size_t j=i+1;j<mydb.size();++j)
+				pvec.push_back(make_pair(i,j));
 		break;
 	case 2:
 		for(size_t i=0;i<mydb.size()-1;i+=2)
@@ -180,6 +180,7 @@ int ngila_app::run()
 	
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit)
 	{
+		cout << cit->first << " " << cit->second << endl;
 		if(cit != pvec.begin())
 			cout << "//" << endl;
 		alignment aln(mydb[cit->first], mydb[cit->second]);
