@@ -90,6 +90,8 @@ bool k2p_model::create(const ngila_app::args &rargs)
 	double c_tv = -(log(p_tv)+l_h+log(0.125));
 	double c_m  = -(log(p_match)+l_h+log(0.25));
 	
+	dNucScale = rargs.no_scale ? 0.0 : 0.5*c_m;
+
 	double sub_costs[nSize][nSize];
 	for(size_t i = 0;i<nN;++i)
 	{
@@ -111,10 +113,10 @@ bool k2p_model::create(const ngila_app::args &rargs)
 			if(ni == -1 || nj == -1)
 				mCost[i+64][j+64] = numeric_limits<double>::quiet_NaN();
 			else
-				mCost[i+64][j+64] = sub_costs[ni][nj];
+				mCost[i+64][j+64] = sub_costs[ni][nj] - 2.0*dNucScale;
 		}
 	}
-	dEnd = log(rargs.avgaln+1.0);
+	dEnd = rargs.no_scale ? log(rargs.avgaln+1.0) : 0.0;
 	
 	return true;
 }
@@ -151,10 +153,11 @@ bool zeta_model::create(const ngila_app::args &rargs)
 	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
 		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
 		- log(zeta(rargs.indel_slope)));
-	dB = -log(0.25); // All N's are weighted by 0.25
+	dB = -log(0.25) - dNucScale; // All N's are weighted by 0.25
 	dC = rargs.indel_slope;
 	dF = dH = 0.0;
-	dG = -log(0.25);
+	//dG = -log(0.25) - dNucScale;
+	dG = rargs.no_scale ? -log(0.25) : 0.0;
 
 	return true;
 }
@@ -173,10 +176,11 @@ bool geo_model::create(const ngila_app::args &rargs)
 	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
 		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
 		- log(rargs.indel_mean));
-	dB = -(log(0.25)+log(rargs.indel_mean-1.0)-log(rargs.indel_mean)); // All N's are weighted by 0.25
+	dB = -(log(0.25)+log(rargs.indel_mean-1.0)-log(rargs.indel_mean)) - dNucScale; // All N's are weighted by 0.25
 	dC = 0.0;
 	dF = dH = 0.0;
-	dG = -log(0.25);
-	
+	//dG = -log(0.25) - dNucScale;
+	dG = rargs.no_scale ? -log(0.25) : 0.0;
+
 	return true;
 }

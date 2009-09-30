@@ -62,6 +62,8 @@ struct k2p_model : public cost_model
 	virtual bool create(const ngila_app::args &rargs);
 	virtual double offset(const seq_db::sequence &seqA,
 		const seq_db::sequence &seqB) const;
+protected:
+	double dNucScale;
 };
 
 struct zeta_model : public k2p_model
