@@ -8,7 +8,7 @@
 
 template<class Base>
 struct seq_sort_element {
-	seq_sort_element(const Base& s) : seq(s) { }
+	seq_sort_element(const Base& s) : seq(s), direction(0), order(-1) { }
 	Base seq;
 	std::size_t order;
 	std::size_t orig_order;
@@ -20,6 +20,13 @@ class seq_sort : public std::vector< seq_sort_element<_Seq> >  {
 public:
 	typedef seq_sort_element<_Seq> element_type;
 	typedef std::vector< seq_sort_element<_Seq> > base_type;
+
+	enum {
+		REV = 1,
+		COM = 2,
+		RVC = 4,
+		ALL = 7
+	};
 	
 	seq_sort() { }
 	
@@ -27,19 +34,9 @@ public:
 	seq_sort(It first, It last) : base_type(first, last) {
 		base_type::size_type o = 0;
 		for(base_type::iterator it = begin(); it != end(); ++it) {
-			it->order = o++;
-			it->orig_order = base_type::size_type(-1);
-			it->direction = 0;
+			it->orig_order = o++;
 		}
 	}
-	
-	
-	enum {
-		REV = 1,
-		COM = 2,
-		RVC = 4,
-		ALL = 7
-	};
 
 	int seq_sort(int dirs) {
 		
@@ -57,12 +54,15 @@ inline char dna_complement(char ch) {
 
 template<It>
 void seq_transform(It first, It last, int dir) {
-	if(dir == 1) {
+	if(dir == 0) {
+		/*noop*/;
+	} else if(dir == 1) {
 		std::reverse(first,last);
 	} else if(dir == 2) {
-		
-	} else if(dir == 3) {
-		
+		std::transform(first, last, first, dna_complement);
+	} else if(dir == 4 || dir == 3) {
+		std::reverse(first, last);
+		std::transform(first, last, first, dna_complement);		
 	}
 }
 
