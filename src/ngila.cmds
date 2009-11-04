@@ -49,6 +49,7 @@ XCMD((remove)(gaps),        (G), "realign after removing specific gap characters
 
 XCMD((pairs),        , "control how pairs are determined: first|all|each", std::string, std::string("first"))
 XCMD((no)(scale),    , "do not force identical sequences to have a cost of zero", bool, false)
+XCMD((const)(align), , "sort and align sequences regardless of direction and order", size_t, 0)
 XCMD((quiet),        , "disable all warnings and error messages", bool, false)
 XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))
 XCMD((version),      , "display version information", bool, false)

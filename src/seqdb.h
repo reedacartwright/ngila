@@ -69,6 +69,8 @@ public:
 	{
 		return data_vec[sz];
 	}
+	
+	inline const data_vec_type& data() const { return data_vec; }
 			
 	inline void clear()
 	{

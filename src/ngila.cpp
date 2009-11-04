@@ -25,6 +25,7 @@
 #include "matparser.h"
 #include "models.h"
 #include "align.h"
+#include "sort.h"
 
 using namespace std;
 
@@ -128,6 +129,16 @@ int ngila_app::run()
 			return EXIT_FAILURE;
 		}
 	}
+	
+	vector<string> vs;
+	for(seq_db::data_vec_type::const_iterator it=mydb.data().begin(); it != mydb.data().end(); ++it) {
+		vs.push_back(it->second);
+	}
+	
+	seq_sort<std::string> sorter(vs.begin(), vs.end());
+	sorter.sort_seqs(7);
+	exit(1);
+		
 	cost_model *pmod = NULL;
 	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
 	switch(key_switch(arg.model, model_keys))
