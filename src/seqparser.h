@@ -15,6 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
 
+#include <iostream>
+#include <stack>
+
+#include "seqdb.h"
+
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 103600
 #	include <boost/spirit/include/classic.hpp>
@@ -25,13 +30,6 @@ using namespace boost::spirit::classic;
 #	include <boost/spirit/core.hpp>
 using namespace boost::spirit;
 #endif
-
-#include <iostream>
-#include <stack>
-
-#include "seqdb.h"
-
-bool parse_file(const char* cs, seq_db &rdb);
 
 struct push_string
 {

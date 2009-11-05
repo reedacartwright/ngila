@@ -26,7 +26,7 @@
 using namespace std;
 using namespace boost;
 
-bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
+bool seq_db::parse_file(const char *csfile, bool bappend, bool bi, int dirs)
 {
 	if(!bappend)
 		clear();
@@ -43,7 +43,7 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 		return CERRORR("unable to parse \'" << csfile << "\'");
 		
 	for(container::iterator it = cont.begin(); it != cont.end(); ++it)
-		cont.modify(it, bind(&seq_data::sanitize, _1, bi));
+		cont.modify(it, bind(&seq_data::finalize, _1, bi, dirs));
 	
 	return true;
 }

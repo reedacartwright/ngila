@@ -63,7 +63,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY
 INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 
 ADD_EXECUTABLE(ngila ${PROJ_MACOSX_BUNDLE}
-  align.cpp matparser.cpp models.cpp ngila.cpp seqdb.cpp seqparser.cpp
+  align.cpp matparser.cpp models.cpp ngila.cpp seqdb.cpp
   align.h matparser.h models.h ngila.h ngila_app.h seqdb.h seqparser.h
   xm.h ngila.cmds sort.h
   "${CMAKE_CURRENT_BINARY_DIR}/config.h"
