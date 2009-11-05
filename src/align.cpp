@@ -19,10 +19,9 @@
 #	pragma warning(disable: 4288)
 #endif
 
-#include "ngila.h"
-
 #include <algorithm>
 
+#include "ngila.h"
 #include "align.h"
 
 using namespace std;
@@ -46,11 +45,11 @@ double aligner::align(alignment &aln)
 {
 	double d;
 	aln.data.clear();	
-	if(aln.seqA.size() >= aln.seqB.size())
-		d = align_x(aln.seqA, aln.seqB, aln.data);
+	if(aln.seqA.dna.size() >= aln.seqB.dna.size())
+		d = align_x(aln.seqA.dna, aln.seqB.dna, aln.data);
 	else
 	{
-		d = align_x(aln.seqB, aln.seqA, aln.data);
+		d = align_x(aln.seqB.dna, aln.seqA.dna, aln.data);
 		for(aln_data::iterator it = aln.data.begin(); it != aln.data.end(); ++it)
 			*it = -*it;
 	}

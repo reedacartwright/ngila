@@ -23,8 +23,8 @@
 #include <iomanip>
 #include <ios>
 
-#include "models.h"
 #include "seqdb.h"
+#include "models.h"
 
 const char chGap = '-';
 
@@ -33,26 +33,16 @@ class aligner;
 class alignment
 {
 public:
-	typedef seq_db::sequence sequence;
-	typedef seq_db::sequence name;
-	typedef seq_db::value_type pair_type;
 	typedef int aln_atom;
 	typedef std::deque<aln_atom> aln_data;
 	
-	alignment() { }
-	alignment(const pair_type &A, const pair_type &B) { set_seqs(A,B); }
-	alignment(const sequence &A, const sequence &B) { set_seqs(A,B); }
-	
-	inline void set_names(const name &A, const name &B) { nameA = A; nameB = B; }
-	inline void set_seqs(const sequence &A, const sequence &B) { seqA = A; seqB = B;}
-	inline void set_seqs(const pair_type &A, const pair_type &B) { set_names(A.first, B.first); set_seqs(A.second, B.second); }
-	
+	alignment(const seq_data &A, const seq_data &B) : seqA(A), seqB(B) { }
+		
 	template<class OS>
 	inline void print(OS &os, const char *msg=NULL) const;
 	
 protected:
-	sequence seqA, seqB;
-	name nameA, nameB;
+	const seq_data &seqA, &seqB;
 	
 	aln_data data;
 	
@@ -79,7 +69,7 @@ public:
 		size_t z; // active position in s-vector
 	};	
 	
-	typedef alignment::sequence sequence;
+	typedef std::string sequence;
 	typedef alignment::aln_data aln_data;
 	typedef std::vector<indel> indel_vec;
 	typedef std::vector<int> travel_row;
@@ -141,7 +131,7 @@ template<class OS>
 inline void alignment::print(OS &os, const char *msg) const
 {
 	std::string strA, strB, strC;
-	sequence::const_iterator ait = seqA.begin(), bit = seqB.begin();
+	std::string::const_iterator ait = seqA.dna.begin(), bit = seqB.dna.begin();
 	for(aln_data::const_iterator cit = data.begin(); cit != data.end(); ++cit)
 	{
 		if(*cit == 0)
@@ -178,12 +168,12 @@ inline void alignment::print(OS &os, const char *msg) const
 		// Print a row of each sequence
 		ss = strA.substr(u, 60);
 		a += ss.length() - std::count(ss.begin(), ss.end(), chGap);
-		os << std::setw(14) << std::setiosflags(std::ios::left) << nameA.substr(0, 14)
+		os << std::setw(14) << std::setiosflags(std::ios::left) << seqA.name.substr(0, 14)
 			<< " " << ss << " " << a << std::endl;
 		
 		ss = strB.substr(u, 60);
 		b += ss.length() - std::count(ss.begin(), ss.end(), chGap);
-		os << std::setw(14) << std::setiosflags(std::ios::left) << nameB.substr(0, 14)
+		os << std::setw(14) << std::setiosflags(std::ios::left) << seqA.name.substr(0, 14)
 			 << " " << ss << " " << b << std::endl;
 		
 		os << std::setw(14) << std::setiosflags(std::ios::left) << " "   << " " << strC.substr(u, 60) << std::endl;
@@ -192,3 +182,4 @@ inline void alignment::print(OS &os, const char *msg) const
 }
 
 #endif
+

@@ -130,9 +130,9 @@ struct isambnuc
 	}
 };
 
-double k2p_model::offset(const seq_db::sequence &seqA, const seq_db::sequence &seqB) const
+double k2p_model::offset(const std::string &seqA, const std::string &seqB) const
 {
-	isambnuc<seq_db::sequence::value_type> cpred;
+	isambnuc<std::string::value_type> cpred;
 	size_t ncount = count_if(seqA.begin(), seqA.end(), cpred);
 	ncount += count_if(seqB.begin(), seqB.end(), cpred);
 

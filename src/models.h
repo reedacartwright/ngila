@@ -32,8 +32,8 @@ struct cost_model
 	sub_matrix mCost;
 		
 	virtual bool create(const ngila_app::args &rargs);
-	virtual double offset(const seq_db::sequence &seqA,
-		const seq_db::sequence &seqB) const
+	virtual double offset(const std::string &seqA,
+		const std::string &seqB) const
 	{
 		return 0.0;
 	}
@@ -60,8 +60,8 @@ struct k2p_model : public cost_model
 {
 	double dEnd;
 	virtual bool create(const ngila_app::args &rargs);
-	virtual double offset(const seq_db::sequence &seqA,
-		const seq_db::sequence &seqB) const;
+	virtual double offset(const std::string &seqA,
+		const std::string &seqB) const;
 protected:
 	double dNucScale;
 };
@@ -78,3 +78,4 @@ struct geo_model : public k2p_model
 };
 
 #endif
+

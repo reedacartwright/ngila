@@ -25,57 +25,82 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
-class seq_db
-{
-public:
-	typedef std::string sequence;
-	typedef std::string name;
-	typedef std::pair<name, sequence> value_type;
-	typedef std::vector<value_type> data_vec_type;
-	typedef std::vector<value_type>::size_type size_type;
-	typedef std::map<name, size_type> name_map;
-	
-	inline bool add(const name& id, const sequence& s)
-	{
-		sequence t;
-		std::remove_copy_if(s.begin(), s.end(), std::back_inserter(t),
-			boost::bind(boost::mem_fn<sequence::size_type,sequence, 
-			sequence::value_type, sequence::size_type>(&sequence::find),
-			ss_gaps, _1, 0) != sequence::npos
-		);
-// 		std::remove_copy_if(s.begin(), s.end(), std::back_inserter(t),
-// 		                    boost::bind(strchr, ss_gaps.c_str(), _1) != (char*)NULL
-// 		);
-// 		std::remove_copy_if(s.begin(), s.end(), std::back_inserter(t),
-// 		                    boost::lambda::_1 == '-');
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/random_access_index.hpp>
+#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/member.hpp>
 
-		
-		std::pair<name_map::iterator, bool> p = data_map.insert(make_pair(id, size()));
-		
-		if(p.second)
-			data_vec.push_back(make_pair(id, t));
-		else
-			data_vec[p.first->second].second.append(t);
-		return p.second;
+struct seq_data {
+	std::string name;
+	std::string dna;
+	
+	seq_data(const std::string &n, const std::string &s) : name(n), dna(s) {
 	}
-	inline void append(size_type idx, const sequence& s)
+	
+	// append to dna
+	seq_data& operator+=(const seq_data& a) {
+		dna += a.dna;
+		return *this;
+	}
+	
+	// remove characters in dna that belong to g
+	seq_data& operator-=(const std::string& g) {
+		std::string::size_type (std::string::*gf)(std::string::value_type, std::string::size_type) const
+			 = &std::string::find;
+		dna.erase( remove_if(dna.begin(), dna.end(),
+			boost::bind(gf, g, _1, 0) != std::string::npos),
+			dna.end());
+	}
+	
+	void sanitize(bool bi=false) {
+		std::replace_if(dna.begin(), dna.end(), std::ptr_fun(::isspace), '_');
+		if(bi)
+			std::transform(name.begin(), name.end(), name.begin(), std::ptr_fun(::toupper));		
+	}
+};
+
+//tags
+struct name {};
+
+class seq_db {
+public:
+	typedef boost::multi_index_container< seq_data, boost::multi_index::indexed_by<
+		boost::multi_index::random_access<>,
+		boost::multi_index::ordered_unique<
+			boost::multi_index::tag<name>,
+			boost::multi_index::member< seq_data, std::string, &seq_data::name> >
+		> > container;
+	typedef container::size_type size_type;
+	
+	inline void add(const seq_data &s)
 	{
-		data_vec[idx].second.append(s);
+		// check to see if "name" already exists
+		// add to name if it does, otherwise push new sequence
+		std::pair<container::iterator,bool> res = cont.push_back(s);
+		using boost::lambda::_1;
+		if(!res.second)
+			cont.modify(res.first, _1 += s);
+		// remove gaps
+		cont.modify(res.first, _1 -= ss_gaps);
 	}
 	
-	inline size_type size() const { return data_vec.size(); }
+	//inline void append(size_type idx, const sequence& s)
+	//{
+	//	data_vec[idx].second.append(s);
+	//}
 	
-	inline const value_type& operator[](size_type sz) const
-	{
-		return data_vec[sz];
+	inline size_type size() const { return cont.size(); }
+	
+	inline const seq_data& operator[](size_type sz) const {
+		return cont[sz];
 	}
 	
-	inline const data_vec_type& data() const { return data_vec; }
+	//inline const data_vec_type& data() const { return data_vec; }
 			
-	inline void clear()
-	{
-		data_vec.clear();
-		data_map.clear();
+	inline void clear() {
+		cont.clear();
 	}
 	
 	bool parse_file(const char *csfile, bool bappend=false, bool bi=false);
@@ -84,9 +109,8 @@ public:
 	seq_db(const std::string &g) : ss_gaps(g) { }
 	
 protected:
-	data_vec_type data_vec;
-	name_map data_map;
 	std::string ss_gaps;
+	
+	container cont;
 };
-
 #endif

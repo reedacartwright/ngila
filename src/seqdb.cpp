@@ -24,6 +24,7 @@
 #include "seqparser.h"
 
 using namespace std;
+using namespace boost;
 
 bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 {
@@ -40,12 +41,9 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 	parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
 	if (!info.full)
 		return CERRORR("unable to parse \'" << csfile << "\'");
-	for(data_vec_type::iterator it = data_vec.begin(); it != data_vec.end(); ++it)
-	{
-		replace_if(it->first.begin(), it->first.end(), std::ptr_fun(::isspace), '_');
-		if(bi)
-			transform(it->second.begin(), it->second.end(), it->second.begin(), std::ptr_fun(::toupper));
-	}
+		
+	for(container::iterator it = cont.begin(); it != cont.end(); ++it)
+		cont.modify(it, bind(&seq_data::sanitize, _1, bi));
 	
 	return true;
 }

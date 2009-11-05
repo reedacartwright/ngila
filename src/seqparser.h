@@ -76,7 +76,7 @@ struct pop_sequence
 		trim_string(name);
 		sanitize_string(seq);
 		
-		rdb.add(name, seq);
+		rdb.add(seq_data(name, seq));
 	}
 		
 	std::stack<std::string>& my_stack;

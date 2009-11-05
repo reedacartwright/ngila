@@ -72,3 +72,4 @@ operator<<(basic_ostream<_CharT, _Traits>& os, const std::deque<_Tp> &v)
 }
 
 #endif //NGILA_H
+

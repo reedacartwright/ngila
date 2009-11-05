@@ -129,16 +129,7 @@ int ngila_app::run()
 			return EXIT_FAILURE;
 		}
 	}
-	
-	vector<string> vs;
-	for(seq_db::data_vec_type::const_iterator it=mydb.data().begin(); it != mydb.data().end(); ++it) {
-		vs.push_back(it->second);
-	}
-	
-	seq_sort<std::string> sorter(vs.begin(), vs.end());
-	sorter.sort_seqs(7);
-	exit(1);
-		
+			
 	cost_model *pmod = NULL;
 	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
 	switch(key_switch(arg.model, model_keys))
@@ -191,13 +182,12 @@ int ngila_app::run()
 	
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit)
 	{
-		cout << cit->first << " " << cit->second << endl;
 		if(cit != pvec.begin())
 			cout << "//" << endl;
 		alignment aln(mydb[cit->first], mydb[cit->second]);
 		double dcost = alner.align(aln);
-		dcost += pmod->offset(mydb[cit->first].second,
-		                      mydb[cit->second].second);
+			dcost += pmod->offset(mydb[cit->first].dna,
+		                      mydb[cit->second].dna);
 		ostringstream msg;
 		msg << "Cost = " << setprecision(10) << dcost;
 		
