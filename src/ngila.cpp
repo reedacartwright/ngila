@@ -104,32 +104,42 @@ size_t key_switch(const std::string &ss, const std::string (&key)[_N])
 
 int ngila_app::run()
 {
-	if(arg.version)
-	{
+	if(arg.version)	{
 		cerr << endl << VERSION_MSG << endl << endl;
 		return EXIT_SUCCESS;
 	}
-	if(arg.help)
-	{
+	if(arg.help) {
 		cerr << endl << VERSION_MSG << endl << endl;
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}
 	if(arg.quiet)
-	{
 		cerr.clear(ios::failbit);
-	}
 	
 	seq_db mydb(arg.remove_gaps);
-	for(vector<string>::const_iterator cit = arg.input.begin(); cit != arg.input.end(); ++cit)
-	{
-		if(!mydb.parse_file(cit->c_str(), true, arg.case_insensitivity, arg.const_align))
-		{
+	for(vector<string>::const_iterator cit = arg.input.begin(); cit != arg.input.end(); ++cit) {
+		if(!mydb.parse_file(cit->c_str(), true, arg.case_insensitivity, arg.const_align)) {
 			CERROR("parsing of \'" << cit->c_str() << "\' failed.");
 			return EXIT_FAILURE;
 		}
 	}
-			
+	
+	typedef seq_db::container::index<hashid>::type seq_by_hash;
+	const seq_by_hash& hash_index = mydb.db().get<hashid>();
+	for(seq_by_hash::iterator it = hash_index.begin();it != hash_index.end();++it) {
+		cerr << it->name << " " << it->dir << " " << it->hashed << endl;
+	}
+
+	for(seq_db::container::iterator it = mydb.db().begin(); it != mydb.db().end(); ++it) {
+		cerr << it->name << " " << it->dir << " " << it->hashed << endl;
+	}
+
+	mydb.rearrange(hash_index.begin());
+	
+	for(seq_db::container::iterator it = mydb.db().begin(); it != mydb.db().end(); ++it) {
+		cerr << it->name << " " << it->dir << " " << it->hashed << endl;
+	}	
+				
 	cost_model *pmod = NULL;
 	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
 	switch(key_switch(arg.model, model_keys))

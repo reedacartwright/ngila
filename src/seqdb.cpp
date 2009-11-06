@@ -38,7 +38,7 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi, int dirs)
 	
 	if(strcmp(csfile, "-")==0) {
 		string ss; 
-		getline(cin, ss, '\004');
+		getline(cin, ss, '\004'); // EOT, end of transmission, ^D
 		if(ss.empty())
 			return CERRORR("unable to open stdin.");
 

@@ -48,6 +48,7 @@ public:
 #	include "ngila.cmds"
 #	undef XCMD
 	};
+	enum { CONST_ALIGN_ORDER = 8, CONST_ALIGN_SEQS = 16 }; 
 	
 protected:
 	args arg;

@@ -60,13 +60,13 @@ struct seq_data {
 	std::string name;
 	std::string dna;
 	std::size_t hashed;
-	char dir;
+	int dir;
 	
 	enum {
 		DIR_ORI = 0, DIR_REV = 1, DIR_COM = 2, DIR_RVC = 4, DIR_ALL = 7, _DIR_ORI = 8
 	};
 	
-	seq_data(const std::string &n, const std::string &s) : name(n), dna(s), hashed(0) {
+	seq_data(const std::string &n, const std::string &s) : name(n), dna(s), hashed(0), dir(0) {
 	}
 	
 	// append to dna
@@ -165,6 +165,15 @@ public:
 				
 	inline void clear() {
 		cont.clear();
+	}
+	
+	const container& db() const {
+		return cont;
+	}
+	
+	template<typename InputIterator>
+	void rearrange(InputIterator it) {
+		cont.rearrange(it);
 	}
 	
 	bool parse_file(const char *csfile, bool bappend=false, bool bi=false, int dirs=0);
