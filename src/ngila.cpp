@@ -16,16 +16,19 @@
  ****************************************************************************/
 
 #include "ngila.h"
-#include <boost/preprocessor.hpp>
 #include <sstream>
 #include <iomanip>
+
+#include <boost/preprocessor.hpp>
+#include <boost/foreach.hpp>
 
 #include "ngila_app.h"
 #include "seqdb.h"
 #include "matparser.h"
 #include "models.h"
 #include "align.h"
-#include "sort.h"
+
+#define foreach BOOST_FOREACH
 
 using namespace std;
 
@@ -92,10 +95,8 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 }
 
 template<size_t _N>
-size_t key_switch(const std::string &ss, const std::string (&key)[_N])
-{
-	for(size_t i=0;i<_N;++i)
-	{
+size_t key_switch(const std::string &ss, const std::string (&key)[_N]) {
+	for(size_t i=0;i<_N;++i) {
 		if(key[i].find(ss) == 0)
 			return i;
 	}
@@ -118,28 +119,14 @@ int ngila_app::run()
 	
 	seq_db mydb(arg.remove_gaps);
 	for(vector<string>::const_iterator cit = arg.input.begin(); cit != arg.input.end(); ++cit) {
-		if(!mydb.parse_file(cit->c_str(), true, arg.case_insensitivity, arg.const_align)) {
+		if(!mydb.parse_file(cit->c_str(), true, arg.case_insensitivity)) {
 			CERROR("parsing of \'" << cit->c_str() << "\' failed.");
 			return EXIT_FAILURE;
 		}
 	}
 	
-	typedef seq_db::container::index<hashid>::type seq_by_hash;
-	const seq_by_hash& hash_index = mydb.db().get<hashid>();
-	for(seq_by_hash::iterator it = hash_index.begin();it != hash_index.end();++it) {
-		cerr << it->name << " " << it->dir << " " << it->hashed << endl;
-	}
-
-	for(seq_db::container::iterator it = mydb.db().begin(); it != mydb.db().end(); ++it) {
-		cerr << it->name << " " << it->dir << " " << it->hashed << endl;
-	}
-
-	mydb.rearrange(hash_index.begin());
-	
-	for(seq_db::container::iterator it = mydb.db().begin(); it != mydb.db().end(); ++it) {
-		cerr << it->name << " " << it->dir << " " << it->hashed << endl;
-	}	
-				
+	mydb.unique_sort(seq_db::DIR_ORI | (arg.const_align & 7));
+					
 	cost_model *pmod = NULL;
 	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
 	switch(key_switch(arg.model, model_keys))

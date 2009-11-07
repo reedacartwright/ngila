@@ -30,6 +30,7 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/random_access_index.hpp>
 #include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/functional/hash.hpp>
 
@@ -59,14 +60,8 @@ _complementer<_Iterator> complementer(_Iterator it) {
 struct seq_data {
 	std::string name;
 	std::string dna;
-	std::size_t hashed;
-	int dir;
-	
-	enum {
-		DIR_ORI = 0, DIR_REV = 1, DIR_COM = 2, DIR_RVC = 4, DIR_ALL = 7, _DIR_ORI = 8
-	};
-	
-	seq_data(const std::string &n, const std::string &s) : name(n), dna(s), hashed(0), dir(0) {
+		
+	seq_data(const std::string &n, const std::string &s) : name(n), dna(s) {
 	}
 	
 	// append to dna
@@ -84,45 +79,10 @@ struct seq_data {
 			dna.end());
 	}
 	
-	inline void finalize(bool bi=false, int directions=0) {
+	inline void sanitize(bool bi=false) {
 		std::replace_if(name.begin(), name.end(), std::ptr_fun(::isspace), '_');
 		if(bi)
 			std::transform(dna.begin(), dna.end(), dna.begin(), std::ptr_fun(::toupper));
-		// hash sequence
-		dir = _DIR_ORI;
-		hashed = boost::hash_range(dna.begin(), dna.end());
-		// hash reverse sequence
-		if(directions & DIR_REV) {
-			std::size_t h = boost::hash_range(dna.rbegin(), dna.rend());
-			if(h > hashed) {
-				hashed = h;
-				dir = DIR_REV;
-			} else if(h == hashed) {
-				dir |= DIR_REV;
-			}
-		}
-		// hash complement sequence
-		if(directions & DIR_COM) {
-			std::size_t h = boost::hash_range(
-				complementer(dna.begin()), complementer(dna.end()));
-			if(h > hashed) {
-				hashed = h;
-				dir = DIR_COM;
-			} else if(h == hashed) {
-				dir |= DIR_COM;
-			}
-		}
-		// hash reverse complement
-		if(directions & DIR_RVC) {
-			std::size_t h = boost::hash_range(
-				complementer(dna.rbegin()), complementer(dna.rend()));
-			if(h > hashed) {
-				hashed = h;
-				dir = DIR_RVC;
-			} else if(h == hashed) {
-				dir |= DIR_RVC;
-			}
-		}
 	}
 };
 
@@ -138,13 +98,14 @@ public:
 		boost::multi_index::random_access<boost::multi_index::tag<id> >,
 		boost::multi_index::ordered_unique<
 			boost::multi_index::tag<name>,
-			boost::multi_index::member< seq_data, std::string, &seq_data::name> >,
-		boost::multi_index::ordered_non_unique<
-			boost::multi_index::tag<hashid>,
-			boost::multi_index::member< seq_data, std::size_t, &seq_data::hashed>,
-			std::greater<std::size_t> >
+			boost::multi_index::member< seq_data, std::string, &seq_data::name> >
 	> > container;
 	typedef container::size_type size_type;
+	
+	enum {
+		DIR_REV = 1, DIR_COM = 2, DIR_RVC = 4, DIR_ORI = 8,
+		DIR_ALL = 15, DIR_DNA = 15, DIR_PRO = 9
+	};	
 	
 	inline void add(const seq_data &s) {
 		// check to see if "name" already exists
@@ -176,7 +137,14 @@ public:
 		cont.rearrange(it);
 	}
 	
-	bool parse_file(const char *csfile, bool bappend=false, bool bi=false, int dirs=0);
+	int unique_sort(int directions=DIR_ORI);
+	
+//	void create_hashes(int directions=seq_data::DIR_ORI) {
+//		for(container::iterator it = cont.begin(); it != cont.end(); ++it)
+//			cont.modify(it, bind(&seq_data::create_hash, _1, directions));
+//	}
+	
+	bool parse_file(const char *csfile, bool bappend=false, bool bi=false);
 	
 	seq_db() : ss_gaps("-") { }
 	seq_db(const std::string &g) : ss_gaps(g) { }
