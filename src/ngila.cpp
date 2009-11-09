@@ -125,8 +125,16 @@ int ngila_app::run()
 		}
 	}
 	
-	mydb.unique_sort(seq_db::DIR_ORI | (arg.const_align & 7));
-					
+	int direction = 0;
+	if(arg.const_align != 0) {
+		direction = mydb.unique_sort(seq_db::DIR_ORI | (arg.const_align & 7));
+		mydb.transform(direction);
+		cerr << direction << endl;
+		if(!(arg.const_align & 8)) { // return to original order
+			mydb.rearrange(mydb.db().get<id>().begin());
+		}
+	}
+
 	cost_model *pmod = NULL;
 	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
 	switch(key_switch(arg.model, model_keys))
@@ -181,14 +189,24 @@ int ngila_app::run()
 	{
 		if(cit != pvec.begin())
 			cout << "//" << endl;
-		alignment aln(mydb[cit->first], mydb[cit->second]);
+		// swap a and b so that a's hashed position is lower
+		size_t a = cit->first;
+		size_t b = cit->second;
+		bool swapped = false;
+		if(!(arg.const_align & 8) && mydb.db().project<hashid>(mydb.db().begin()+a) > 
+			mydb.db().project<hashid>(mydb.db().begin()+b) ) {
+			swap(a,b);
+			swapped = true;
+		}
+
+		alignment aln(mydb[a], mydb[b]);
 		double dcost = alner.align(aln);
-			dcost += pmod->offset(mydb[cit->first].dna,
-		                      mydb[cit->second].dna);
+			dcost += pmod->offset(mydb[a].dna,
+		                      mydb[b].dna);
 		ostringstream msg;
 		msg << "Cost = " << setprecision(10) << dcost;
 		
-		aln.print(cout, msg.str().c_str());
+		aln.print(cout, msg.str().c_str(), ((arg.const_align & 16) ? 0 : direction), swapped);
 	}
 	
 	return EXIT_SUCCESS;

@@ -34,6 +34,17 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/functional/hash.hpp>
 
+
+inline char complement(char x) {
+	static char dnac[] = "\0\x01\x02\x03\x04\x05\x06\a\b\t\n\x0b\f\r\x0e\x0f"
+	"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+	" !\"#$%&'()*+,-./0123456789:;<=>?@"
+	"TVGHEFCDIJMLKNOPQYSAABWXRZ" "[\\]^_`"
+	"tvghefcdijmlknopqysaabwxrz" "{|}~\x7f";
+
+	return dnac[x];
+}
+
 template<class _Iterator>
 class _complementer : public _Iterator {
 public:
@@ -41,12 +52,7 @@ public:
 	typedef typename base_type::value_type value_type;
 
 	value_type operator*() const {
-		static char dnac[] = "\0\x01\x02\x03\x04\x05\x06\a\b\t\n\x0b\f\r\x0e\x0f"
-			"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
-			" !\"#$%&'()*+,-./0123456789:;<=>?@"
-			"TVGHEFCDIJMLKNOPQYSAABWXRZ" "[\\]^_`"
-			"tvghefcdijmlknopqysaabwxrz" "{|}~\x7f";
-		return value_type(dnac[**static_cast<const base_type*>(this)]);
+		return value_type(complement(**static_cast<const base_type*>(this)));
 	}
 	
 	_complementer(base_type b) : base_type(b) { }
@@ -56,6 +62,8 @@ template<class _Iterator>
 _complementer<_Iterator> complementer(_Iterator it) {
 	return _complementer<_Iterator>(it);
 }
+
+class seq_db;
 
 struct seq_data {
 	std::string name;
@@ -77,6 +85,7 @@ struct seq_data {
 		dna.erase( remove_if(dna.begin(), dna.end(),
 			boost::bind(gf, g, _1, 0) != std::string::npos),
 			dna.end());
+		return *this;
 	}
 	
 	inline void sanitize(bool bi=false) {
@@ -84,6 +93,8 @@ struct seq_data {
 		if(bi)
 			std::transform(dna.begin(), dna.end(), dna.begin(), std::ptr_fun(::toupper));
 	}
+
+	inline void transform(int dir);
 };
 
 //tags
@@ -94,8 +105,9 @@ struct hashid {};
 class seq_db {
 public:
 	typedef boost::multi_index_container< seq_data, boost::multi_index::indexed_by<
-		boost::multi_index::random_access<>,
-		boost::multi_index::random_access<boost::multi_index::tag<id> >,
+		boost::multi_index::random_access<>, // current order
+		boost::multi_index::random_access<boost::multi_index::tag<id> >, // original order
+		boost::multi_index::random_access<boost::multi_index::tag<hashid> >, // hashed order
 		boost::multi_index::ordered_unique<
 			boost::multi_index::tag<name>,
 			boost::multi_index::member< seq_data, std::string, &seq_data::name> >
@@ -136,15 +148,14 @@ public:
 	void rearrange(InputIterator it) {
 		cont.rearrange(it);
 	}
-	
-	int unique_sort(int directions=DIR_ORI);
-	
-//	void create_hashes(int directions=seq_data::DIR_ORI) {
-//		for(container::iterator it = cont.begin(); it != cont.end(); ++it)
-//			cont.modify(it, bind(&seq_data::create_hash, _1, directions));
-//	}
+		
+	void transform(int dir) {
+		for(container::iterator it = cont.begin(); it != cont.end(); ++it)
+			cont.modify(it, bind(&seq_data::transform, _1, dir));
+	}
 	
 	bool parse_file(const char *csfile, bool bappend=false, bool bi=false);
+	int unique_sort(int directions=DIR_ORI);
 	
 	seq_db() : ss_gaps("-") { }
 	seq_db(const std::string &g) : ss_gaps(g) { }
@@ -155,5 +166,25 @@ protected:
 	container cont;
 };
 
+inline void seq_transform(std::string& dna, int dir) {
+	switch(dir&7) {
+	default:
+	case 0:
+		break;
+	case seq_db::DIR_COM:
+		std::transform(dna.begin(), dna.end(), dna.begin(), complement);
+		break;
+	case seq_db::DIR_RVC:
+	case (seq_db::DIR_REV|seq_db::DIR_COM):
+		std::transform(dna.begin(), dna.end(), dna.begin(), complement);
+	case seq_db::DIR_REV:
+		std::reverse(dna.begin(), dna.end());
+		break;		
+	};
+}
+
+inline void seq_data::transform(int dir) {
+	seq_transform(dna, dir);
+}
 
 #endif

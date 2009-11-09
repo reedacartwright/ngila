@@ -43,17 +43,8 @@ inline bool dle(double a, double b)
 
 double aligner::align(alignment &aln)
 {
-	double d;
-	aln.data.clear();	
-	if(aln.seqA.dna.size() >= aln.seqB.dna.size())
-		d = align_x(aln.seqA.dna, aln.seqB.dna, aln.data);
-	else
-	{
-		d = align_x(aln.seqB.dna, aln.seqA.dna, aln.data);
-		for(aln_data::iterator it = aln.data.begin(); it != aln.data.end(); ++it)
-			*it = -*it;
-	}
-	return d;
+	aln.data.clear();
+	return align_x(aln.seqA.dna, aln.seqB.dna, aln.data);
 }
 
 double aligner::align_x(const sequence &seqA, const sequence &seqB, aln_data &rAln)

@@ -39,7 +39,7 @@ public:
 	alignment(const seq_data &A, const seq_data &B) : seqA(A), seqB(B) { }
 		
 	template<class OS>
-	inline void print(OS &os, const char *msg=NULL) const;
+	inline void print(OS &os, const char *msg=NULL, int dir=0, bool swapped=false) const;
 	
 protected:
 	const seq_data &seqA, &seqB;
@@ -128,9 +128,16 @@ private:
 };
 
 template<class OS>
-inline void alignment::print(OS &os, const char *msg) const
+inline void alignment::print(OS &os, const char *msg, int dir, bool swapped) const
 {
-	std::string strA, strB, strC;
+	std::string strA, strB, strC,
+		nameA(seqA.name.substr(0, 14)),
+		nameB(seqB.name.substr(0, 14));
+	//preallocate
+	strA.reserve(4048);
+	strB.reserve(4048);
+	strC.reserve(4048);
+
 	std::string::const_iterator ait = seqA.dna.begin(), bit = seqB.dna.begin();
 	for(aln_data::const_iterator cit = data.begin(); cit != data.end(); ++cit)
 	{
@@ -153,7 +160,14 @@ inline void alignment::print(OS &os, const char *msg) const
 			strB.append(-*cit, chGap);
 		}
 	}
-			
+	if(swapped) {
+		swap(strA, strB);
+		swap(nameA, nameB);
+	}
+	seq_transform(strA, dir);
+	seq_transform(strB, dir);
+	seq_transform(strC, dir);
+
 	os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
 	if(msg != NULL)
 		os << "; " << msg;
@@ -168,12 +182,12 @@ inline void alignment::print(OS &os, const char *msg) const
 		// Print a row of each sequence
 		ss = strA.substr(u, 60);
 		a += ss.length() - std::count(ss.begin(), ss.end(), chGap);
-		os << std::setw(14) << std::setiosflags(std::ios::left) << seqA.name.substr(0, 14)
+		os << std::setw(14) << std::setiosflags(std::ios::left) << nameA
 			<< " " << ss << " " << a << std::endl;
 		
 		ss = strB.substr(u, 60);
 		b += ss.length() - std::count(ss.begin(), ss.end(), chGap);
-		os << std::setw(14) << std::setiosflags(std::ios::left) << seqA.name.substr(0, 14)
+		os << std::setw(14) << std::setiosflags(std::ios::left) << nameB
 			 << " " << ss << " " << b << std::endl;
 		
 		os << std::setw(14) << std::setiosflags(std::ios::left) << " "   << " " << strC.substr(u, 60) << std::endl;
@@ -182,4 +196,3 @@ inline void alignment::print(OS &os, const char *msg) const
 }
 
 #endif
-

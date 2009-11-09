@@ -114,9 +114,6 @@ int seq_db::unique_sort(int directions) {
 			hc.insert(hash_data(hash_range(complementer(sd.dna.rbegin()),
 				complementer(sd.dna.rend())), DIR_RVC, sd));
 	}
-	foreach(const hash_data &h, hc) {
-		cerr << h.ref.get().name << "\t" << h.dir << "\t" << h.hashed << endl;
-	}
 	size_t hh = hc.begin()->hashed;
 	int dd = hc.begin()->dir, mask = -1; 
 	foreach(const hash_data &h, hc) {
@@ -141,8 +138,9 @@ int seq_db::unique_sort(int directions) {
 	// use an array to break any ties 8 > 1 > 2 > 4
 	static const int ties[] = { 8,1,2,1,4,1,2,1,8,8,8,8,8,8,8,8 };
 	dd = ties[dd&15];
-	//sort
+	// sort
 	cont.rearrange(hc.get<1>().find(dd));
+	// store this order
+	cont.get<hashid>().rearrange(cont.begin());
 	return dd;
 }
-
