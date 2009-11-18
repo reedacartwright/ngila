@@ -34,6 +34,14 @@ INPUT FILES
   The input file has to be in FASTA format.  If more than two sequences are
   given then Ngila will align based on the 'pairs' option.
 
+OUTPUT FILES
+  Output can be in either Clustal or Fasta format and to either the stdout or
+  a file.  Clustal is the default.  The format is read from the output file's
+  extension or specified directly; "ngila -o seqs.fas" and "ngila -o
+  fas:seqs.txt" both produce fasta output.  "ngila -o aln:-" sends Clustal
+  formated sequence to stdout.
+    
+
 SUBSTITUTION MATRIX
   An example of the format can be seen in matrix/dna
 

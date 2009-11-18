@@ -35,7 +35,7 @@
 #include <iterator>
 
 #define VERSION_MSG PACKAGE_STRING "\n" \
-	"    Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>\n" \
+	"    Copyright (C) 2005-2009  Reed A. Cartwright, PhD <reed@scit.us>\n" \
 	"    Report bugs to " PACKAGE_BUGREPORT
 
 // Utility functions

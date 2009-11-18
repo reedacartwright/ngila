@@ -24,9 +24,9 @@
  ***************************************************************************/
 
 XCMD((model),          (m), "alignment model: zeta|geo|cost", std::string, std::string("cost"))
-XCMD((branch)(length), (t), "sequence separation time",    double, 0.1)
+XCMD((branch)(length), (t), "sequence separation time",    double, _DL(0.1,  "0.1"))
 XCMD((ratio),          (k), "transition-transversion ratio", double, 2.0)
-XCMD((indel)(rate),    (r), "relative rate of insertion and deletion", double, 0.1)
+XCMD((indel)(rate),    (r), "relative rate of insertion and deletion", double, _DL(0.1,  "0.1"))
 XCMD((indel)(slope),   (z), "slope param of insertion and deletion (for zeta)",   double, 1.7)
 XCMD((indel)(mean),    (q), "mean of insertion and deletion (for geo)", double, 10.0)
 XCMD((avgaln),         (l), "average alignment skeleton length", double, 1000)
@@ -47,6 +47,8 @@ XCMD((threshold)(larger),   (M), "threshold for O(MN) alignment", size_t, 10000)
 XCMD((threshold)(smaller),  (N), "threshold for O(MN) alignment", size_t, 10000)
 XCMD((remove)(gaps),        (G), "realign after removing specific gap characters", std::string, std::string("-+="))
 
+XCMD((output),     (o), "output file", std::string, std::string("-"))
+
 XCMD((pairs),        , "control how pairs are determined: first|all|each", std::string, std::string("first"))
 XCMD((no)(scale),    , "do not force identical sequences to have a cost of zero", bool, false)
 XCMD((const)(align), , "sort and align sequences regardless of direction and order", size_t, 0)
@@ -55,8 +57,6 @@ XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))
 XCMD((version),      , "display version information", bool, false)
 XCMD((help),         , "display help message", bool, false)
 XCMD((input),        , "input file", std::vector< std::string >, std::vector< std::string >(1, std::string("-")) )
-		
-
 
 /***************************************************************************
  *    cleanup                                                              *

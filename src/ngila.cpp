@@ -18,9 +18,11 @@
 #include "ngila.h"
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 #include <boost/preprocessor.hpp>
 #include <boost/foreach.hpp>
+#include <boost/config.hpp>
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -111,6 +113,7 @@ int ngila_app::run()
 	}
 	if(arg.help) {
 		cerr << endl << VERSION_MSG << endl << endl;
+		cerr.precision(5);
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}
@@ -129,7 +132,6 @@ int ngila_app::run()
 	if(arg.const_align != 0) {
 		direction = mydb.unique_sort(seq_db::DIR_ORI | (arg.const_align & 7));
 		mydb.transform(direction);
-		cerr << direction << endl;
 		if(!(arg.const_align & 8)) { // return to original order
 			mydb.rearrange(mydb.db().get<id>().begin());
 		}
@@ -185,6 +187,41 @@ int ngila_app::run()
 		return EXIT_FAILURE;
 	};
 	
+	string format_keys[] = { string("aln"), string("fasta") };
+	int out_format = 0;
+	if(!arg.output.empty()) {
+		string ssFormat;
+		string::size_type pos = arg.output.find_first_of(':');
+#ifdef BOOST_WINDOWS
+		if(pos != string::npos && pos != 1) {
+#else
+		if(pos != string::npos) { // format:file
+#endif		
+			ssFormat = arg.output.substr(0, pos);
+			arg.output.erase(0, pos+1);
+		} else { // file.format
+			pos = arg.output.find_last_of('.');
+			if(pos != string::npos) 
+				ssFormat = arg.output.substr(pos+1);
+		}
+		if(!ssFormat.empty()) {
+			out_format = key_switch(ssFormat, format_keys);
+			if(out_format == -1) {
+				CERROR("unknown output format \'" << ssFormat << "\'.");
+				return EXIT_FAILURE;
+			}
+		}
+	}
+	
+	ofstream fout;
+	if(!(arg.output.empty() || arg.output == "-")) {
+		fout.open(arg.output.c_str(), ios_base::out|ios_base::trunc);
+		if(!fout.is_open()) {
+			CERROR("unable to open output file \'" << arg.output << "\'.");
+			return EXIT_FAILURE;
+		}
+	}
+	
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit)
 	{
 		if(cit != pvec.begin())
@@ -206,7 +243,13 @@ int ngila_app::run()
 		ostringstream msg;
 		msg << "Cost = " << setprecision(10) << dcost;
 		
-		aln.print(cout, msg.str().c_str(), ((arg.const_align & 16) ? 0 : direction), swapped);
+		if(fout.is_open()) {
+			aln.print(fout, out_format, msg.str().c_str(),
+				((arg.const_align & 16) ? 0 : direction), swapped);
+		} else {
+			aln.print(cout, out_format, msg.str().c_str(),
+				((arg.const_align & 16) ? 0 : direction), swapped);
+		}
 	}
 	
 	return EXIT_SUCCESS;

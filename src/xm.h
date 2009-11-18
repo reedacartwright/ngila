@@ -24,6 +24,9 @@
  *    X-Helpers List                                                        *
  ****************************************************************************/
 
+// The _DL macro delays argument list expantion
+#define _DL(a,b) a,b
+
 // The _JS macro cats a seq 'seq' with separator 'sep'
 
 #define _JS_OP(s, data, elem) BOOST_PP_CAT(data, elem)
@@ -59,6 +62,7 @@
 #undef _JS
 #undef _SS
 #undef _SD
+#undef _JA
 
 #endif
 
