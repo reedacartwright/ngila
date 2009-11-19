@@ -63,16 +63,18 @@ double aligner::align_x(const sequence &seqA, const sequence &seqB, aln_data &rA
 	{
 		GC[u] = costs.gapcost(u);
 		FGC[u] = costs.freegapcost(u);
-		
 	}
 	
 	// Allocate travel table to maximum possible size
-	tabTravel.resize(std::min(szMa,seqA.size())+1);
+	size_t szA = std::min(szMa,seqA.size())+1;
+	tabTravel.resize(szA);
 	size_t szB = std::min(szMb,seqB.size())+1;
 	for(travel_table::iterator it = tabTravel.begin();
 	    it != tabTravel.end(); ++it)
 		it->resize(szB);
-		
+	
+	alnBuf.reserve(szA+szB);
+	
 	//run recursive algorithm
 	return align_r(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), rAln, bFreeEnds, bFreeEnds);
 }
