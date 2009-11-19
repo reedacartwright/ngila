@@ -72,9 +72,8 @@ double aligner::align_x(const sequence &seqA, const sequence &seqB, aln_data &rA
 	for(travel_table::iterator it = tabTravel.begin();
 	    it != tabTravel.end(); ++it)
 		it->resize(szB);
-	
+		
 	//run recursive algorithm
-
 	return align_r(seqA.begin(), seqA.end(), seqB.begin(), seqB.end(), rAln, bFreeEnds, bFreeEnds);
 }
 
@@ -136,11 +135,12 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 		swap(CC[0], CC[1]);
 	}
 	size_t i = szNa, j = szNb;
-
+	
+	alnBuf.clear();
 	while(!(i == 0 && j == 0))
 	{
 		int t = tabTravel[i][j];
-		rAln.push_front(t);
+		alnBuf.push_back(t);
 		if(t == 0)
 		{
 			--i;
@@ -151,6 +151,7 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 		else
 			i -= static_cast<size_t>(-t);
 	}
+	rAln.insert(rAln.end(), alnBuf.rbegin(), alnBuf.rend());
 	return CC[0][szNb];
 }
 
@@ -346,7 +347,7 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 
 	if(szNa <= 1 || szNb <= 1) // Handle Special Cases
 		return align_s(itA1, itA2, itB1, itB2, rAln, bFreeFront, bFreeBack);
-	else if(szNa <= szMa && szNb < szMb)
+	else if(szNa <= szMa && szNb <= szMb)
 		return align_mn(itA1, itA2, itB1, itB2, rAln, bFreeFront, bFreeBack);
 
 	CC[0][0] = 0.0;
@@ -457,7 +458,13 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			xx = DM[j].x;
 			jj = j;
 		}
-	}	
+	}
+	
+	cerr << 0 << " " << pp << " X "
+		 << 0 << " " << jj << endl
+		 << pp << " " << itA2-itA1 << " X "
+		 << xx << " " << itB2-itB1 << endl;
+		 
 	align_r(itA1, itA1+pp, itB1, itB1+jj, rAln, bFreeFront, false);
 	if(xx != pp)
 		rAln.push_back(-static_cast<alignment::aln_atom>(xx-pp)); // Delete itA1+pp .. itA1+xx

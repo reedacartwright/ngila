@@ -18,7 +18,7 @@
 #ifndef ALIGN_H
 #define ALIGN_H
 
-#include <deque>
+#include <vector>
 #include <iostream>
 #include <iomanip>
 #include <ios>
@@ -34,7 +34,7 @@ class alignment
 {
 public:
 	typedef int aln_atom;
-	typedef std::deque<aln_atom> aln_data;
+	typedef std::vector<aln_atom> aln_data;
 	
 	alignment(const seq_data &A, const seq_data &B) : seqA(A), seqB(B) { }
 		
@@ -86,6 +86,7 @@ protected:
 	bool bFreeEnds;
 	
 	travel_table tabTravel;
+	aln_data alnBuf;
 	
 private:
 	inline double indel_cost(const indel& in, size_t q) const { return in.d + GC[q-in.p]; }
