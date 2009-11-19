@@ -459,11 +459,6 @@ double aligner::align_r(sequence::const_iterator itA1, sequence::const_iterator 
 			jj = j;
 		}
 	}
-	
-	cerr << 0 << " " << pp << " X "
-		 << 0 << " " << jj << endl
-		 << pp << " " << itA2-itA1 << " X "
-		 << xx << " " << itB2-itB1 << endl;
 		 
 	align_r(itA1, itA1+pp, itB1, itB1+jj, rAln, bFreeFront, false);
 	if(xx != pp)
