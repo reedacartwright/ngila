@@ -240,14 +240,12 @@ int ngila_app::run()
 		double dcost = alner.align(aln);
 			dcost += pmod->offset(mydb[a].dna,
 		                      mydb[b].dna);
-		ostringstream msg;
-		msg << "Cost = " << setprecision(10) << dcost;
 		
 		if(fout.is_open()) {
-			aln.print(fout, out_format, msg.str().c_str(),
+			aln.print(fout, out_format, dcost,
 				((arg.const_align & 16) ? 0 : direction), swapped);
 		} else {
-			aln.print(cout, out_format, msg.str().c_str(),
+			aln.print(cout, out_format, dcost,
 				((arg.const_align & 16) ? 0 : direction), swapped);
 		}
 	}

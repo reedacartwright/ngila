@@ -39,7 +39,7 @@ public:
 	alignment(const seq_data &A, const seq_data &B) : seqA(A), seqB(B) { }
 		
 	template<class OS>
-	inline void print(OS &os, int format=0, const char *msg=NULL, int dir=0, bool swapped=false) const;
+	inline void print(OS &os, int format=0, double cost=0.0, int dir=0, bool swapped=false) const;
 	
 protected:
 	const seq_data &seqA, &seqB;
@@ -129,7 +129,7 @@ private:
 };
 
 template<class OS>
-inline void alignment::print(OS &os, int format, const char *msg, int dir, bool swapped) const
+inline void alignment::print(OS &os, int format, double cost, int dir, bool swapped) const
 {
 	std::string strA, strB, strC,
 		nameA(seqA.name.substr(0, 14)),
@@ -140,22 +140,23 @@ inline void alignment::print(OS &os, int format, const char *msg, int dir, bool 
 	strC.reserve(4048);
 
 	std::string::const_iterator ait = seqA.dna.begin(), bit = seqB.dna.begin();
-	for(aln_data::const_iterator cit = data.begin(); cit != data.end(); ++cit)
-	{
-		if(*cit == 0)
-		{
-			strC.append(1, *ait==*bit ? '*' : ' ');
+	unsigned int matches = 0, mismatches = 0;
+	for(aln_data::const_iterator cit = data.begin(); cit != data.end(); ++cit) {
+		if(*cit == 0) {
+			if(*ait == *bit) {
+				strC.append(1, '*');
+				++matches;
+			} else {
+				strC.append(1, ' ');
+				++mismatches;
+			}
 			strA.append(ait, ait+1); ++ait;
 			strB.append(bit, bit+1); ++bit;
-		}
-		else if(*cit > 0)
-		{
+		} else if(*cit > 0) {
 			strC.append(*cit, ' ');
 			strA.append(*cit, chGap);
 			strB.append(bit, bit+*cit); bit+=*cit;
-		}
-		else
-		{
+		} else {
 			strC.append(-*cit, ' ');
 			strA.append(ait, ait-*cit); ait-=*cit;
 			strB.append(-*cit, chGap);
@@ -171,12 +172,11 @@ inline void alignment::print(OS &os, int format, const char *msg, int dir, bool 
 
 	size_t sz = strA.size();	
 	std::string ss;
-
+	double identity = double(matches)/(matches+mismatches);
 	if(format == 0) {
-		os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING;
-		if(msg != NULL)
-			os << "; " << msg;
-		os << ")" << std::endl << std::endl;
+		os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING
+		   << "; Cost = " << setprecision(10) << cost  << " Identity = " << identity
+		   << ")" << std::endl << std::endl;
 
 		// Print interleaved sequences
 		size_t a=0, b=0;
@@ -197,10 +197,9 @@ inline void alignment::print(OS &os, int format, const char *msg, int dir, bool 
 		}
 	} else if(format == 1) {
 		os << ">" << nameA << " " 
-		   << "(Created by " << PACKAGE_STRING;
-		if(msg != NULL)
-			os << "; " << msg;
-		os << ")" << std::endl;
+		   << "(Created by " << PACKAGE_STRING
+		   << "; Cost = " << setprecision(10) << cost  << " Identity = " << identity
+		   << ")" << std::endl;
 		for(size_t u = 0; u < sz; u += 80)
 			os << strA.substr(u, 80) << std::endl;
 		os << std::endl;
