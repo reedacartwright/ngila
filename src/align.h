@@ -205,7 +205,7 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 		os << std::endl;
 		os << ">" << nameB << std::endl;
 		for(size_t u = 0; u < sz; u += 80)
-			os << strA.substr(u, 80) << std::endl;
+			os << strB.substr(u, 80) << std::endl;
 		os << std::endl;
 	} else {
 		os << "Invalid output format.  Valid formats are 'aln' and 'fas'." << std::endl;
