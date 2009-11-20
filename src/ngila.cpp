@@ -48,11 +48,9 @@ int main(int argc, char *argv[])
 
 namespace boost { namespace program_options {
 template<>
-typed_value<bool>* value() { return bool_switch(); }
-
-template<>
-typed_value<bool>* value(bool* v) { return bool_switch(v); }
-
+typed_value<bool>* value(bool* v) {
+	return bool_switch(v);
+}
 }}
 
 ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
