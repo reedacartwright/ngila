@@ -60,9 +60,9 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 	try {
 		desc.add_options()
 			#define XCMD(lname, sname, desc, type, def) ( \
-				_SS("-", lname) BOOST_PP_EXPR_IF(_SD((_)sname), "," BOOST_PP_STRINGIZE sname), \
-				po::value< type >(&arg._JS(_, lname))->default_value(def), \
-				desc )
+				_S(lname) _IFD(sname, "," BOOST_PP_STRINGIZE sname), \
+				po::value< type >(&arg._V(lname))->default_value(def), \
+				desc )				
 			#include "ngila.cmds"
 			#undef XCMD
 			;

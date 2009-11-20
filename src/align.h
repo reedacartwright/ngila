@@ -175,7 +175,7 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 	double identity = double(matches)/(matches+mismatches);
 	if(format == 0) {
 		os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING
-		   << "; Cost = " << setprecision(10) << cost  << " Identity = " << identity
+		   << "; Cost = " << std::setprecision(10) << cost  << " Identity = " << identity
 		   << ")" << std::endl << std::endl;
 
 		// Print interleaved sequences
@@ -198,7 +198,7 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 	} else if(format == 1) {
 		os << ">" << nameA << " " 
 		   << "(Created by " << PACKAGE_STRING
-		   << "; Cost = " << setprecision(10) << cost  << " Identity = " << identity
+		   << "; Cost = " << std::setprecision(10) << cost  << " Identity = " << identity
 		   << ")" << std::endl;
 		for(size_t u = 0; u < sz; u += 80)
 			os << strA.substr(u, 80) << std::endl;

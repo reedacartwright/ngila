@@ -1,31 +1,33 @@
-/****************************************************************************
- *  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
- *                                                                          *
- *  This program is free software: you can redistribute it and/or modify    *
- *  it under the terms of the GNU General Public License as published by    *
- *  the Free Software Foundation, either version 3 of the License, or       *
- *  (at your option) any later version.                                     *
- *                                                                          *
- *  This program is distributed in the hope that it will be useful,         *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of          *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
- *  GNU General Public License for more details.                            *
- *                                                                          *
- *  You should have received a copy of the GNU General Public License       *
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
- ****************************************************************************/
+/******************************************************************************
+ * Copyright (c) 2007-2009 Reed A. Cartwright, PhD <reed@scit.us>             *
+ *                                                                            *
+ * Permission is hereby granted, free of charge, to any person obtaining a    *
+ * copy of this software and associated documentation files (the "Software"), *
+ * to deal in the Software without restriction, including without limitation  *
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,   *
+ * and/or sell copies of the Software, and to permit persons to whom the      *
+ * Software is furnished to do so, subject to the following conditions:       *
+ *                                                                            *
+ * The above copyright notice and this permission notice shall be included in *
+ * all copies or substantial portions of the Software.                        *
+ *                                                                            *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL    *
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING    *
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER        *
+ * DEALINGS IN THE SOFTWARE.                                                  *
+ ******************************************************************************/
 
 #include <boost/preprocessor.hpp>
 
 #ifndef XMACROS_HELPERS
 #define XMACROS_HELPERS
 
-/****************************************************************************
- *    X-Helpers List                                                        *
- ****************************************************************************/
-
-// The _DL macro delays argument list expantion
-#define _DL(a,b) a,b
+/******************************************************************************
+ *    X-Helpers List                                                          *
+ ******************************************************************************/
 
 // The _JS macro cats a seq 'seq' with separator 'sep'
 
@@ -47,22 +49,28 @@
 #define _SS(sep, seq) BOOST_PP_STRINGIZE(BOOST_PP_SEQ_HEAD(seq)) \
 	BOOST_PP_SEQ_FOR_EACH(_SS_OP, sep, BOOST_PP_SEQ_TAIL(seq))
 
-// Tests whether a seq is defined.
+// Output result if seq is defined
 
-#define _SD(seq) BOOST_PP_GREATER(BOOST_PP_SEQ_SIZE(seq),1)
+#define _IFD(seq,res) BOOST_PP_EXPR_IF(BOOST_PP_GREATER(BOOST_PP_SEQ_SIZE((_)seq),1), res)
+
+#define _V(lname) _JS(_, lname)
+#define _S(lname) _SS("-", lname)
+#define _DL(a,b) a,b
 
 #else
 
-/***************************************************************************
- *    Cleanup                                                              *
- ***************************************************************************/
+/******************************************************************************
+ *    Cleanup                                                                 *
+ ******************************************************************************/
 
 #undef XMACROS_HELPERS
 #undef _JS_OP
 #undef _JS
 #undef _SS
-#undef _SD
-#undef _JA
+#undef _IFD
+#undef _V
+#undef _S
+#undef _DL
 
 #endif
 

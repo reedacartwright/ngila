@@ -44,7 +44,7 @@ public:
 	struct args
 	{			
 	// use X-Macros to specify argument variables
-#	define XCMD(lname, sname, desc, type, def) type _JS(_, lname) ;
+#	define XCMD(lname, sname, desc, type, def) type _V(lname) ;
 #	include "ngila.cmds"
 #	undef XCMD
 	};
