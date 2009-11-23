@@ -23,7 +23,7 @@
  *    XCMD(lname, sname, desc, type, def)                                  *
  ***************************************************************************/
 
-XCMD((model),          (m), "alignment model: zeta|geo|cost", std::string, std::string("cost"))
+XCMD((model),          (m), "alignment model: zeta|geo|cost", std::string, std::string("zeta"))
 XCMD((branch)(length), (t), "sequence separation time",    double, _DL(0.1,  "0.1"))
 XCMD((ratio),          (k), "transition-transversion ratio", double, 2.0)
 XCMD((indel)(rate),    (r), "relative rate of insertion and deletion", double, _DL(0.1,  "0.1"))
