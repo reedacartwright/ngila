@@ -23,6 +23,7 @@
 #include <boost/preprocessor.hpp>
 #include <boost/foreach.hpp>
 #include <boost/config.hpp>
+#include <boost/multi_array.hpp>
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -166,10 +167,12 @@ int ngila_app::run()
 	}
 	pair_vec pvec;
 	string pairs_keys[] = { string("first"), string("all"), string("each") };
+	seq_db::size_type table_size = mydb.size();
 	switch(key_switch(arg.pairs, pairs_keys))
 	{
 	case 0:
 		pvec.push_back(make_pair(0,1));
+		table_size = 2;
 		break;
 	case 1:
 		for(size_t i=0;i<mydb.size();++i)
@@ -185,7 +188,7 @@ int ngila_app::run()
 		return EXIT_FAILURE;
 	};
 	
-	string format_keys[] = { string("aln"), string("fasta") };
+	string format_keys[] = { string("aln"), string("fasta"), string("smat") /*,string("imat")*/ };
 	int out_format = 0;
 	if(!arg.output.empty()) {
 		string ssFormat;
@@ -220,6 +223,9 @@ int ngila_app::run()
 		}
 	}
 	
+	typedef boost::multi_array<float, 2> tabmat;
+	tabmat cost_table(boost::extents[table_size][table_size]);
+
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit)
 	{
 		if(cit != pvec.begin())
