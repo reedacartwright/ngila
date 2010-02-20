@@ -5,9 +5,14 @@ set PROJ_DISTS=ngila-1*
 set MAKE=nmake
 set CMAKE=cmake
 set SVN=svn
-svn info | findstr /b URL | perl -pe "s!^URL: (.+)/releng$!$1!" > url.tmp
+set PERL=perl
+
+%SVN% info | findstr /b URL | %PERL% -pe "s!^URL: (.+)/releng$!$1!" > url.tmp
 set /P REPOS=<url.tmp
 del url.tmp
+
+set PF=%ProgramFiles%
+if defined ProgramFiles(x86) set PF=%ProgramFiles(x86)%
 
 echo.
 echo Building distributions for %REPOS% ...
@@ -27,7 +32,8 @@ set BUILD_DIR="%RELENG_DIR%\build"
 mkdir %BUILD_DIR% || exit /B 1
 cd %BUILD_DIR% || exit /B 1
 
-call "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+call "%PF%\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+
 
 %CMAKE% -G "NMake Makefiles" %SOURCE_DIR% -DCMAKE_BUILD_TYPE=Release -DUSE_STATIC_LIBS=ON
 %MAKE%
