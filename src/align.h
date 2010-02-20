@@ -41,6 +41,8 @@ public:
 	template<class OS>
 	inline void print(OS &os, int format=0, double cost=0.0, int dir=0, bool swapped=false) const;
 	
+	double identity() const;
+	
 protected:
 	const seq_data &seqA, &seqB;
 	
@@ -49,11 +51,9 @@ protected:
 	friend class aligner;
 };
 
-class aligner
-{
+class aligner {
 public:
-	struct indel
-	{
+	struct indel {
 		indel() { }
 		indel(size_t pp, size_t xx, double dd)
 			: p(pp), x(xx), d(dd) { }
@@ -61,8 +61,7 @@ public:
 		size_t x; // Crossing Point
 		double d; // Score
 	};
-	struct min_mid_cost
-	{
+	struct min_mid_cost {
 		double c; // Minimum cost
 		size_t s; // minimum position in s-vector
 		size_t x; // bottom of minimum indel
@@ -140,16 +139,12 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 	strC.reserve(4048);
 
 	std::string::const_iterator ait = seqA.dna.begin(), bit = seqB.dna.begin();
-	unsigned int matches = 0, mismatches = 0;
 	for(aln_data::const_iterator cit = data.begin(); cit != data.end(); ++cit) {
 		if(*cit == 0) {
-			if(*ait == *bit) {
+			if(*ait == *bit)
 				strC.append(1, '*');
-				++matches;
-			} else {
+			else
 				strC.append(1, ' ');
-				++mismatches;
-			}
 			strA.append(ait, ait+1); ++ait;
 			strB.append(bit, bit+1); ++bit;
 		} else if(*cit > 0) {
@@ -172,10 +167,9 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 
 	size_t sz = strA.size();	
 	std::string ss;
-	double identity = double(matches)/(matches+mismatches);
 	if(format == 0) {
 		os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING
-		   << "; Cost = " << std::setprecision(10) << cost  << " Identity = " << identity
+		   << "; Cost = " << std::setprecision(10) << cost
 		   << ")" << std::endl << std::endl;
 
 		// Print interleaved sequences
@@ -198,7 +192,7 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 	} else if(format == 1) {
 		os << ">" << nameA << " " 
 		   << "(Created by " << PACKAGE_STRING
-		   << "; Cost = " << std::setprecision(10) << cost  << " Identity = " << identity
+		   << "; Cost = " << std::setprecision(10) << cost
 		   << ")" << std::endl;
 		for(size_t u = 0; u < sz; u += 80)
 			os << strA.substr(u, 80) << std::endl;

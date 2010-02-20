@@ -26,14 +26,10 @@
 
 using namespace std;
 
-#ifdef min
-#	undef min
-#endif
-
 template<class T>
 inline T min3(T a, T b, T c)
 {
-	return min(a, min(b,c));
+	return (std::min)(a, (std::min)(b,c));
 }
 
 inline bool dle(double a, double b)
@@ -66,9 +62,9 @@ double aligner::align_x(const sequence &seqA, const sequence &seqB, aln_data &rA
 	}
 	
 	// Allocate travel table to maximum possible size
-	size_t szA = std::min(szMa,seqA.size())+1;
+	size_t szA = (std::min)(szMa,seqA.size())+1;
 	tabTravel.resize(szA);
-	size_t szB = std::min(szMb,seqB.size())+1;
+	size_t szB = (std::min)(szMb,seqB.size())+1;
 	for(travel_table::iterator it = tabTravel.begin();
 	    it != tabTravel.end(); ++it)
 		it->resize(szB);
@@ -579,5 +575,24 @@ void aligner::update_del_reverse(indel_vec &T, size_t i, size_t j, size_t szZ)
 			(T.back().p-costs.kstar(T.back().p-(i+1), RR[0][j]-T.back().d))
 			: 0) ,RR[0][j]));
 	}
+}
+
+double alignment::identity() const {
+	aln_data::size_type matches = 0, mismatches = 0;
+	std::string::const_iterator ait = seqA.dna.begin(), bit = seqB.dna.begin();
+	for(aln_data::const_iterator cit = data.begin(); cit != data.end(); ++cit) {
+		if(*cit == 0) {
+			if(*ait == *bit)
+				++matches;
+			else
+				++mismatches;
+			++ait;
+			++bit;
+		} else if(*cit > 0)
+			bit+=*cit;
+		else
+			ait-=*cit;
+	}
+	return (1.0*matches)/(matches+mismatches);
 }
 

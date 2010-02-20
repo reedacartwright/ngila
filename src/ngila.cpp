@@ -19,11 +19,14 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 
 #include <boost/preprocessor.hpp>
 #include <boost/foreach.hpp>
 #include <boost/config.hpp>
+//BOOST_DISABLE_ASSERTS
 #include <boost/multi_array.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -95,13 +98,14 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 	}
 }
 
-template<size_t _N>
-size_t key_switch(const std::string &ss, const std::string (&key)[_N]) {
-	for(size_t i=0;i<_N;++i) {
-		if(key[i].find(ss) == 0)
+template<std::size_t _N>
+std::size_t key_switch(const std::string &ss, const std::string (&key)[_N]) {
+	using boost::algorithm::starts_with;
+	for(std::size_t i=0;i<_N;++i) {
+		if(starts_with(key[i], ss))
 			return i;
 	}
-	return (size_t)-1;
+	return (std::size_t)-1;
 }
 
 int ngila_app::run()
@@ -168,8 +172,8 @@ int ngila_app::run()
 	pair_vec pvec;
 	string pairs_keys[] = { string("first"), string("all"), string("each") };
 	seq_db::size_type table_size = mydb.size();
-	switch(key_switch(arg.pairs, pairs_keys))
-	{
+	
+	switch(key_switch(arg.pairs, pairs_keys)) {
 	case 0:
 		pvec.push_back(make_pair(0,1));
 		table_size = 2;
@@ -188,7 +192,11 @@ int ngila_app::run()
 		return EXIT_FAILURE;
 	};
 	
-	string format_keys[] = { string("aln"), string("fasta"), string("smat") /*,string("imat")*/ };
+	string format_keys[] = {
+		string("aln"), string("fasta"),
+		string("dist"), string("dist-c"),
+		string("dist-d"), string("dist-i")
+	};
 	int out_format = 0;
 	if(!arg.output.empty()) {
 		string ssFormat;
@@ -222,14 +230,22 @@ int ngila_app::run()
 			return EXIT_FAILURE;
 		}
 	}
+	ostream &myout = fout.is_open() ? static_cast<ostream&>(fout)
+	                                : static_cast<ostream&>(cout);
+	typedef boost::multi_array<float, 2> dist_mat;
+	dist_mat dist_table;
+	const bool do_dist = (out_format >= 2);
+	if(do_dist) {
+		dist_table.resize(boost::extents[table_size][table_size]);
+		fill(dist_table.data(), dist_table.data()+dist_table.num_elements(), numeric_limits<float>::quiet_NaN());
+		float diag = (out_format == 5) ? 1.0f : 0.0f;
+		for(seq_db::size_type i = 0; i < table_size; ++i)
+			dist_table[i][i] = diag;
+	}
 	
-	typedef boost::multi_array<float, 2> tabmat;
-	tabmat cost_table(boost::extents[table_size][table_size]);
-
-	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit)
-	{
-		if(cit != pvec.begin())
-			cout << "//" << endl;
+	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit) {
+		if(!do_dist && cit != pvec.begin())
+			myout << "//" << endl;
 		// swap a and b so that a's hashed position is lower
 		size_t a = cit->first;
 		size_t b = cit->second;
@@ -242,15 +258,42 @@ int ngila_app::run()
 
 		alignment aln(mydb[a], mydb[b]);
 		double dcost = alner.align(aln);
-			dcost += pmod->offset(mydb[a].dna,
-		                      mydb[b].dna);
+		dcost += pmod->offset(mydb[a].dna, mydb[b].dna);
+		double dident = aln.identity();
 		
-		if(fout.is_open()) {
-			aln.print(fout, out_format, dcost,
+		if(!do_dist) {
+			aln.print(myout, out_format, dcost,
 				((arg.const_align & 16) ? 0 : direction), swapped);
 		} else {
-			aln.print(cout, out_format, dcost,
-				((arg.const_align & 16) ? 0 : direction), swapped);
+			double upper,lower;
+			if(a > b)
+				swap(a,b);
+			switch(out_format) {
+			default:
+			case 2: //dist
+				lower = 1.0-dident;
+				upper = dcost;
+				break;
+			case 3: //dist-c
+				upper = lower = dcost;
+				break;
+			case 4: //dist-d
+				upper = lower = 1.0-dident;
+				break;
+			case 5: //dist-i
+				upper = lower = dident;
+				break;
+			}
+			dist_table[a][b] = (float)upper;
+			dist_table[b][a] = (float)lower;
+		}
+	}
+	if(do_dist) {
+		myout << setprecision(10);
+		for(seq_db::size_type i = 0; i < table_size; ++i) {
+			for(seq_db::size_type j = 0; j < table_size-1; ++j)
+				myout << dist_table[i][j] << "\t";
+			myout << dist_table[i][table_size-1] << endl;
 		}
 	}
 	
