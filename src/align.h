@@ -130,9 +130,14 @@ private:
 template<class OS>
 inline void alignment::print(OS &os, int format, double cost, int dir, bool swapped) const
 {
-	std::string strA, strB, strC,
-		nameA(seqA.name.substr(0, 14)),
-		nameB(seqB.name.substr(0, 14));
+	std::string strA, strB, strC, nameA, nameB;
+	if(format == 0) {
+		nameA = seqA.name.substr(0, 14);
+		nameB = seqB.name.substr(0, 14);
+	} else {
+		nameA = seqA.name;
+		nameB = seqB.name;
+	}
 	//preallocate
 	strA.reserve(4048);
 	strB.reserve(4048);
