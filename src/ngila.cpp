@@ -297,5 +297,11 @@ int ngila_app::run()
 		}
 	}
 	
+	if(arg.desktop) {
+		cerr << "\nPress any key to continue." << endl;
+		char x;
+		cin.get(x);
+	}
+	
 	return EXIT_SUCCESS;
 }

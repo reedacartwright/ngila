@@ -57,6 +57,8 @@ XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))
 XCMD((version),      , "display version information", bool, false)
 XCMD((help),         , "display help message", bool, false)
 XCMD((input),        , "input file", std::vector< std::string >, std::vector< std::string >(1, std::string("-")) )
+XCMD((desktop),      , "behave as if called on the desktop", bool, false)
+
 
 /***************************************************************************
  *    cleanup                                                              *

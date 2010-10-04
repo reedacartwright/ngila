@@ -1,6 +1,6 @@
-NGILA VERSION 1.2 - Logarithmic and Affine Sequence Alignments
+NGILA VERSION 1.3 - Logarithmic and Affine Sequence Alignments
 
-Copyright (C) 2005-2007  Reed A. Cartwright - All rights reserved.
+Copyright (C) 2005-2010  Reed A. Cartwright - All rights reserved.
 
 DESCRIPTION
   Ngila is a global alignment program that can align pairs of sequences using
@@ -11,13 +11,20 @@ REFERENCE
   affine gap costs. Bioinformatics. 23(11):1427-1428
 
 CONTACT
-  See AUTHORS for contact information.
+  reed@scit.us or racartwright@uh.edu
 
 LICENSE
-  See COPYING for license information.
+  GPL ver 3.  See copying.txt
 
 INSTALLATION
-  See INSTALL for installation instructions.
+  Installation from source requires CMake (http://cmake.org/), Boost Libraries
+  (http://boost.org/), and GSL (http://www.gnu.org/software/gsl/).  Binary
+  packages are available.  To install on unix-like sytems simply use
+  
+  cmake . && make && make install
+  
+  in the extracted source code directory.  On Windows you can use CMake GUI
+  to create project files for Visual Studio and install from there.
 
 DOWNLOAD
   Ngila can be downloaded from the url <http://scit.us/projects/ngila/>, which
