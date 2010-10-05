@@ -63,7 +63,7 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 	}
 		
 	for(container::iterator it = cont.begin(); it != cont.end(); ++it)
-		cont.modify(it, bind(&seq_data::sanitize, _1, bi));
+		cont.modify(it, boost::bind(&seq_data::sanitize, _1, bi));
 	
 	return true;
 }
@@ -71,7 +71,7 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 struct hash_data {
 	std::size_t hashed;
 	int dir;
-	typedef reference_wrapper<const seq_data> wrap;
+	typedef boost::reference_wrapper<const seq_data> wrap;
 	wrap ref;
 	
 	hash_data(std::size_t h, int d, const seq_data &s) :

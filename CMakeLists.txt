@@ -158,6 +158,16 @@ IF(WIN32 AND NOT UNIX)
   SET(CPACK_NSIS_CONTACT "reed@scit.us")
   SET(CPACK_NSIS_DISPLAY_NAME "${PROJ_NAME_PRO} ${PROJ_VERSION}")
   SET(CPACK_NSIS_MODIFY_PATH ON)
+  SET(CPACK_CREATE_DESKTOP_LINKS)
+  SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+  StrCmp \\\"$INSTALL_DESKTOP\\\" \\\"1\\\" 0 +2
+    CreateShortCut \\\"$DESKTOP\\\\Ngila.lnk\\\" \\\"$INSTDIR\\\\bin\\\\ngila.exe\\\" \\\"--desktop\\\"
+")
+  SET(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+  StrCmp \\\"$INSTALL_DESKTOP\\\" \\\"1\\\" 0 +2
+    Delete \\\"$DESKTOP\\\\Ngila.lnk\\\"
+")
+
 ELSEIF(APPLE)
   SET(CPACK_GENERATOR "PackageMaker")
   SET(CPACK_SOURCE_GENERATOR "TGZ") 

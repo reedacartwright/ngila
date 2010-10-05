@@ -22,7 +22,7 @@
 ;-------------------------------
 ;Vista Orange Theme
 ;Sets the theme path
-  !define OMUI_THEME_PATH "${NSISDIR}\Contrib\MUIOrangeVistaTheme\Clean"
+  !define OMUI_THEME_PATH "${NSISDIR}\Contrib\MUI Orange Vista Theme\Clean"
 
 ; MUI Settings / Icons
 ; In the moment of writing this, NSIS don't support well Vista icons with PNG compression.
