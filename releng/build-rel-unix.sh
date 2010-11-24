@@ -1,12 +1,12 @@
 #!/bin/sh
 
 PROJ=ngila
-PROJ_DISTS=ngila-1*
+PROJ_DISTS=ngila-2*
 MAKE=make
 CMAKE=cmake
 REPOS=`svn info | grep URL: | perl -pe 's!^URL: (.+)/releng$!$1!'`
 
-echo 
+echo
 echo Building distributions for $REPOS ...
 
 
@@ -28,7 +28,7 @@ svn co -q $REPOS $SOURCE_DIR || exit 1
 mkdir $BUILD_DIR || exit 1
 cd $BUILD_DIR || exit 1
 
-$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release
+$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DUSE_STATIC_LIBS=Yes
 $MAKE
 $MAKE package
 $MAKE package_source
