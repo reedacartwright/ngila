@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PROJ=ngila
-PROJ_DISTS=ngila-2*
+PROJ_DISTS=ngila-1*
 MAKE=make
 CMAKE=cmake
 REPOS=`svn info | grep URL: | perl -pe 's!^URL: (.+)/releng$!$1!'`
