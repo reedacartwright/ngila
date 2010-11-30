@@ -290,6 +290,11 @@ int ngila_app::run()
 	}
 	if(do_dist) {
 		myout << setprecision(10);
+		if(arg.header) {
+			for(seq_db::size_type i = 0; i < table_size-1; ++i)
+				myout << mydb[i].name << "\t";
+			myout << mydb[table_size-1].name << endl;
+		}
 		for(seq_db::size_type i = 0; i < table_size; ++i) {
 			for(seq_db::size_type j = 0; j < table_size-1; ++j)
 				myout << dist_table[i][j] << "\t";
