@@ -23,8 +23,15 @@
 #include <iomanip>
 #include <ios>
 
+#include <boost/cstdint.hpp>
+#include <boost/preprocessor/cat.hpp>
+
 #include "seqdb.h"
 #include "models.h"
+
+#ifndef TABLE_CELL_BITSIZE
+#	define TABLE_CELL_BITSIZE 16
+#endif
 
 const char chGap = '-';
 
@@ -71,8 +78,11 @@ public:
 	typedef std::string sequence;
 	typedef alignment::aln_data aln_data;
 	typedef std::vector<indel> indel_vec;
-	typedef std::vector<int> travel_row;
-	typedef std::vector< travel_row > travel_table;
+	
+	
+	typedef BOOST_PP_CAT(boost::int, BOOST_PP_CAT(TABLE_CELL_BITSIZE, _t)) travel_cell;
+	typedef std::vector<travel_cell> travel_row;
+	typedef std::vector<travel_row> travel_table;
 	
 	aligner(const cost_model& m, size_t ma, size_t mb, bool fe) : costs(m), szMa(ma), szMb(mb), bFreeEnds(fe) { };
 	

@@ -88,7 +88,7 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 	for(size_t j=1;j<=szNb;++j)
 	{
 		CC[0][j] = GC[j];
-		tabTravel[0][j] = static_cast<int>(j);
+		tabTravel[0][j] = static_cast<travel_cell>(j);
 	}
 	// TODO: Is this needed?
 	SF[0].assign(1, indel(0, szNa, CC[0][0]));
@@ -96,7 +96,7 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 	for(size_t i=1;i<=szNa;++i)
 	{
 		CC[1][0] = (bFreeFront ? FGC : GC)[i];
-		tabTravel[i][0] = -static_cast<int>(i);
+		tabTravel[i][0] = -static_cast<travel_cell>(i);
 		for(size_t j=1;j<=szNb;++j)
 		{
 			double dM = CC[0][j-1]+costs.mCost[(size_t)itA1[i-1]][(size_t)itB1[j-1]];
@@ -117,17 +117,17 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 			if(dM < dI && dM < dD)
 			{
 				CC[1][j] = dM;
-				tabTravel[i][j] = 0;
+				tabTravel[i][j] = static_cast<travel_cell>(0);
 			}
 			else if(dI <= dM && dI < dD)
 			{
 				CC[1][j] = dI;
-				tabTravel[i][j] = static_cast<int>(j-T.back().p);
+				tabTravel[i][j] = static_cast<travel_cell>(j-T.back().p);
 			}
 			else
 			{
 				CC[1][j] = dD;
-				tabTravel[i][j] = -static_cast<int>(i-SF[j].back().p);
+				tabTravel[i][j] = -static_cast<travel_cell>(i-SF[j].back().p);
 			}
 		}
 		swap(CC[0], CC[1]);
@@ -137,7 +137,7 @@ double aligner::align_mn(sequence::const_iterator itA1, sequence::const_iterator
 	alnBuf.clear();
 	while(!(i == 0 && j == 0))
 	{
-		int t = tabTravel[i][j];
+		travel_cell t = tabTravel[i][j];
 		alnBuf.push_back(t);
 		if(t == 0)
 		{
@@ -304,7 +304,7 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 			rAln.push_back(1);
 			rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
 		}
-		else if( i == 0)
+		else if(i == 0)
 		{
 			// B->A(1), Del A(2,Na)
 			rAln.push_back(0);
@@ -316,7 +316,7 @@ double aligner::align_s(sequence::const_iterator itA1, sequence::const_iterator 
 			rAln.push_back(-static_cast<alignment::aln_atom>(szNa-1));
 			rAln.push_back(0);
 		}
-		else if( i == szNa)
+		else if(i == szNa)
 		{
 			// Del A(1,Na), Ins B
 			rAln.push_back(-static_cast<alignment::aln_atom>(szNa));
@@ -552,8 +552,6 @@ void aligner::update_del_forward_f(indel_vec &T, size_t i, size_t j, size_t szZ)
 			: szZ), CC[0][j]));
 	}
 }
-
-
 
 void aligner::update_del_reverse(indel_vec &T, size_t i, size_t j, size_t szZ)
 {
