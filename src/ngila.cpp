@@ -50,15 +50,8 @@ int main(int argc, char *argv[])
 	return ret;
 }
 
-namespace boost { namespace program_options {
-template<>
-typed_value<bool>* value(bool* v) {
-	return bool_switch(v);
-}
-}}
-
-ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
-{
+ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options") {
+	runname = argv[0];
 	try {
 		desc.add_options()
 			#define XCMD(lname, sname, desc, type, def) ( \
@@ -68,29 +61,39 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options")
 			#include "ngila.cmds"
 			#undef XCMD
 			;
-		po::variables_map vm;
-		po::positional_options_description pdesc;
+		indesc.add_options()("input", po::value< vector<string> >(&arg.input), "input files");
+		indesc.add(desc);
 		pdesc.add("input", -1);
-		po::store(po::command_line_parser(argc, argv).options(desc).positional(pdesc).run(), vm);
+		po::store(po::command_line_parser(argc, argv).options(indesc).positional(pdesc).run(), vm);
 		po::notify(vm);
-		if(!arg.arg_file.empty())
-		{
-			if(arg.arg_file == "-")
-			{
-				po::store(po::parse_config_file(cin, desc), vm);	
-			}
-			else
-			{
-				std::ifstream ifs(arg.arg_file.c_str());
-				if(!ifs.is_open())
-				{
+		// check to see if ngilarc is specified as stdin
+		if(arg.ngilarc == "-") {
+			po::store(po::parse_config_file(cin, desc), vm);
+			po::notify(vm);
+		} else {
+			std::ifstream ifs;
+			// if ngilarc is specified try to open it
+			if(!arg.ngilarc.empty()) {
+				ifs.open(arg.ngilarc.c_str());
+				if(!ifs.is_open()) {
 					string sse = "unable to open argument file ";
-					sse += arg.arg_file;
+					sse += arg.ngilarc;
 					throw std::runtime_error(sse);
 				}
-				po::store(po::parse_config_file(ifs, desc), vm);
+			} else {
+			// if ngilarc is not specified, check for it in HOME
+#ifdef BOOST_WINDOWS
+				char buf[_MAX_PATH];
+				_makepath_s(buf, getenv("HOMEDRIVE"), getenv("HOMEPATH"), "ngilarc", "txt");
+				ifs.open(buf);
+#else
+#error missing code
+#endif
 			}
-			po::notify(vm);
+			if(ifs.is_open()) {
+				po::store(po::parse_config_file(ifs, desc), vm);
+				po::notify(vm);
+			}
 		}
 	} catch (exception &e) {
 		CERROR(e.what());
@@ -114,9 +117,11 @@ int ngila_app::run()
 		cerr << endl << VERSION_MSG << endl << endl;
 		return EXIT_SUCCESS;
 	}
-	if(arg.help) {
+	if(arg.help || arg.input.empty()) {
 		cerr << endl << VERSION_MSG << endl << endl;
-		cerr.precision(5);
+		cerr << "Usage:\n  "
+		     << runname << " [options] input.fas ..."
+			 << endl << endl;
 		cerr << desc << endl;
 		return EXIT_SUCCESS;
 	}

@@ -22,8 +22,6 @@
 #	include "config.h"
 #endif
 
-//#define BOOST_SPIRIT_DEBUG 1
-
 #include <iostream>
 #include <vector>
 #include <deque>
@@ -35,7 +33,7 @@
 #include <iterator>
 
 #define VERSION_MSG PACKAGE_STRING "\n" \
-	"    Copyright (C) 2005-2009  Reed A. Cartwright, PhD <reed@scit.us>\n" \
+	"    Copyright (C) 2005-2010  Reed A. Cartwright, PhD <reed@scit.us>\n" \
 	"    Report bugs to " PACKAGE_BUGREPORT
 
 // Utility functions

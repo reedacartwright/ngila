@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
+ *  Copyright (C) 2005-2010  Reed A. Cartwright, PhD <reed@scit.us>         *
  *                                                                          *
  *  This program is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -53,10 +53,9 @@ XCMD((pairs),        , "control how pairs are determined: first|all|each", std::
 XCMD((no)(scale),    , "do not force identical sequences to have a cost of zero", bool, false)
 XCMD((const)(align), , "sort and align sequences regardless of direction and order", size_t, 0)
 XCMD((quiet),        , "disable all warnings and error messages", bool, false)
-XCMD((arg)(file),    , "read arguments from file", std::string, std::string(""))
+XCMD((ngilarc),      , "alternative path for rc file", std::string, std::string(""))
 XCMD((version),      , "display version information", bool, false)
 XCMD((help),         , "display help message", bool, false)
-XCMD((input),        , "input file", std::vector< std::string >, std::vector< std::string >(1, std::string("-")) )
 XCMD((desktop),      , "behave as if called on the desktop", bool, false)
 XCMD((header),       , "include a header of sequence names in table output format", bool, false)
 
