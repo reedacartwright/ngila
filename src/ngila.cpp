@@ -87,7 +87,12 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options") {
 				_makepath_s(buf, getenv("HOMEDRIVE"), getenv("HOMEPATH"), "ngilarc", "txt");
 				ifs.open(buf);
 #else
-#error missing code
+				char *h;
+				if((h = getenv("HOME")) != NULL) {
+					string buf = h;
+					buf += "/.ngilarc";
+					ifs.open(buf.c_str());
+				}
 #endif
 			}
 			if(ifs.is_open()) {
@@ -295,7 +300,7 @@ int ngila_app::run()
 	}
 	if(do_dist) {
 		myout << setprecision(10);
-		if(arg.header) {
+		if(!arg.no_header) {
 			for(seq_db::size_type i = 0; i < table_size-1; ++i)
 				myout << mydb[i].name << "\t";
 			myout << mydb[table_size-1].name << endl;
