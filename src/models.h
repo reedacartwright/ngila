@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
+ *  Copyright (C) 2005-2010  Reed A. Cartwright, PhD <reed@scit.us>         *
  *                                                                          *
  *  This program is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -52,17 +52,17 @@ struct cost_model
 	{
 		if(L < 1)
 			return 0.0;
-		if(L <=  std::numeric_limits<_travel_cell>::max())
-			return dA+dB*L+dC*log((double)L);
-		return std::numeric_limits<double>::max()/16.0;
+		if(L > (size_t)std::numeric_limits<_travel_cell>::max())
+			return std::numeric_limits<double>::max()/16.0;
+		return dA+dB*L+dC*log((double)L);
 	}
 	inline double freegapcost(size_t L)
 	{
 		if(L < 1)
 			return 0.0;
-		if(L <=  std::numeric_limits<_travel_cell>::max())
-			return dF+dG*L+dH*log((double)L);
-		return std::numeric_limits<double>::max()/16.0;
+		if(L > (size_t)std::numeric_limits<_travel_cell>::max())
+			return std::numeric_limits<double>::max()/16.0;
+		return dF+dG*L+dH*log((double)L);
 	}
 	inline size_t kstar(double x, double y)
 	{
@@ -74,8 +74,7 @@ struct cost_model
 	}		
 };
 
-struct k2p_model : public cost_model
-{
+struct k2p_model : public cost_model {
 	double dEnd;
 	virtual bool create(const ngila_app::args &rargs);
 	virtual double offset(const std::string &seqA,
@@ -84,14 +83,11 @@ protected:
 	double dNucScale;
 };
 
-struct zeta_model : public k2p_model
-{
+struct zeta_model : public k2p_model {
 	virtual bool create(const ngila_app::args &rargs);
-
 };
 
-struct geo_model : public k2p_model
-{
+struct geo_model : public k2p_model {
 	virtual bool create(const ngila_app::args &rargs);
 };
 

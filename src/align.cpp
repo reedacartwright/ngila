@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Copyright (C) 2005-2007  Reed A. Cartwright, PhD <reed@scit.us>         *
+ *  Copyright (C) 2005-2010  Reed A. Cartwright, PhD <reed@scit.us>         *
  *                                                                          *
  *  This program is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
