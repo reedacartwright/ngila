@@ -225,6 +225,7 @@ bool k2p_model::create(const ngila_app::args &rargs)
 	}
 	sub_costs[nN][nN] = -(l_h+log(0.0625)); // All N's are weighted by 0.25
 	
+	sub_matrix_clear(mCost);
 	for(size_t i = 0;i<64;++i)
 	{
 		int ni = nuc_table[i];
@@ -232,9 +233,8 @@ bool k2p_model::create(const ngila_app::args &rargs)
 		{
 			int nj = nuc_table[j];
 			if(ni == -1 || nj == -1)
-				mCost[i+64][j+64] = (ni == nj) ? 0.0 : 0.5*numeric_limits<double>::max();
-			else
-				mCost[i+64][j+64] = sub_costs[ni][nj] - 2.0*dNucScale;
+				continue;
+			mCost[i+64][j+64] = sub_costs[ni][nj] - 2.0*dNucScale;
 		}
 	}
 	dEnd = rargs.no_scale ? log(rargs.avgaln+1.0) : 0.0;

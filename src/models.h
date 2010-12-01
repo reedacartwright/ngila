@@ -20,10 +20,20 @@
 
 #include <cmath>
 #include <cfloat>
+#include <limits>
+
+#include <boost/cstdint.hpp>
+#include <boost/preprocessor/cat.hpp>
 
 #include "ngila_app.h"
 #include "matparser.h"
 #include "seqdb.h"
+
+#ifndef TABLE_CELL_BITSIZE
+#	define TABLE_CELL_BITSIZE 16
+#endif
+
+typedef BOOST_PP_CAT(boost::int, BOOST_PP_CAT(TABLE_CELL_BITSIZE, _t)) _travel_cell;
 
 struct cost_model
 {
@@ -40,11 +50,19 @@ struct cost_model
 	
 	inline double gapcost(size_t L)
 	{
-		return (L != 0) ? dA+dB*L+dC*log((double)L) : 0.0;
+		if(L < 1)
+			return 0.0;
+		if(L <=  std::numeric_limits<_travel_cell>::max())
+			return dA+dB*L+dC*log((double)L);
+		return std::numeric_limits<double>::max()/16.0;
 	}
 	inline double freegapcost(size_t L)
 	{
-		return (L != 0) ? dF+dG*L+dH*log((double)L) : 0.0;
+		if(L < 1)
+			return 0.0;
+		if(L <=  std::numeric_limits<_travel_cell>::max())
+			return dF+dG*L+dH*log((double)L);
+		return std::numeric_limits<double>::max()/16.0;
 	}
 	inline size_t kstar(double x, double y)
 	{
