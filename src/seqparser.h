@@ -20,16 +20,9 @@
 
 #include "seqdb.h"
 
-#include <boost/version.hpp>
-#if BOOST_VERSION >= 103600
-#	include <boost/spirit/include/classic.hpp>
-#	include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_core.hpp>
 using namespace boost::spirit::classic;
-#else
-#	include <boost/spirit.hpp>
-#	include <boost/spirit/core.hpp>
-using namespace boost::spirit;
-#endif
 
 struct push_string
 {
