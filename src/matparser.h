@@ -18,6 +18,8 @@
 #ifndef MATPARSER_H
 #define MATPARSER_H
 
+#include <limits>
+
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 103600
 #	include <boost/spirit/include/classic.hpp>
@@ -37,7 +39,12 @@ using namespace boost::spirit;
 
 typedef double sub_matrix[128][128];
 const size_t sub_matrix_size = 128;
-inline void sub_matrix_clear(sub_matrix &m) { std::fill(&m[0][0], (&m[0][0])+128*128, 0.0); }
+inline void sub_matrix_clear(sub_matrix &m) {
+	std::fill(&m[0][0], (&m[0][0])+sub_matrix_size*sub_matrix_size,
+		std::numeric_limits<double>::max()/16.0);
+	for(size_t i=0;i<sub_matrix_size;++i)
+		m[i][i] = 0.0;
+}
 
 bool parse_matrix(const char *cs, sub_matrix &rsm, bool bi = false);
 
