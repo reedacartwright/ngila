@@ -151,7 +151,11 @@ int ngila_app::run()
 	}
 
 	cost_model *pmod = NULL;
-	string model_keys[] = { string("zeta"), string("geo"), string("cost") };
+	string model_keys[] = {
+		string("zeta"), string("geo"),
+		string("aazeta"), string("aageo"),
+		string("cost")
+	};
 	switch(key_switch(arg.model, model_keys))
 	{
 	case 0:
@@ -161,6 +165,12 @@ int ngila_app::run()
 		pmod = new geo_model;
 		break;
 	case 2:
+		pmod = new aazeta_model;
+		break;
+	case 3:
+		pmod = new aageo_model;
+		break;
+	case 4:
 		pmod = new cost_model;
 		break;
 	default:
@@ -270,6 +280,10 @@ int ngila_app::run()
 		double dcost = alner.align(aln);
 		dcost += pmod->offset(mydb[a].dna, mydb[b].dna);
 		double dident = aln.identity();
+		
+		// round to nearest billionth
+		dcost = floor(dcost*1e9+0.5)/1e9;
+		dident = floor(dident*1e9+0.5)/1e9;
 		
 		if(!do_dist) {
 			aln.print(myout, out_format, dcost,

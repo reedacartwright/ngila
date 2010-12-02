@@ -264,8 +264,7 @@ double k2p_model::offset(const std::string &seqA, const std::string &seqB) const
  *    class zeta_model                                                      *
  ****************************************************************************/
 
-bool zeta_model::create(const ngila_app::args &rargs)
-{
+bool zeta_model::create(const ngila_app::args &rargs) {
 	if(!k2p_model::create(rargs))
 		return false;
 	if(rargs.indel_slope <= 1.0)
@@ -276,6 +275,7 @@ bool zeta_model::create(const ngila_app::args &rargs)
 		- log_zeta(rargs.indel_slope));
 	dB = -log(0.25) - dNucScale; // All N's are weighted by 0.25
 	dC = rargs.indel_slope;
+
 	dF = dH = 0.0;
 	//dG = -log(0.25) - dNucScale;
 	dG = rargs.no_scale ? -log(0.25) : 0.0;
@@ -287,8 +287,7 @@ bool zeta_model::create(const ngila_app::args &rargs)
  *    class geo_model                                                       *
  ****************************************************************************/
 
-bool geo_model::create(const ngila_app::args &rargs)
-{
+bool geo_model::create(const ngila_app::args &rargs) {
 	if(!k2p_model::create(rargs))
 		return false;
 	if(rargs.indel_mean <= 1.0)
@@ -296,9 +295,10 @@ bool geo_model::create(const ngila_app::args &rargs)
 	
 	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
 		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
-		- log(rargs.indel_mean));
+		- log(rargs.indel_mean-1));
 	dB = -(log(0.25)+log(rargs.indel_mean-1.0)-log(rargs.indel_mean)) - dNucScale; // All N's are weighted by 0.25
 	dC = 0.0;
+
 	dF = dH = 0.0;
 	//dG = -log(0.25) - dNucScale;
 	dG = rargs.no_scale ? -log(0.25) : 0.0;
@@ -325,41 +325,118 @@ bool aa_model::create(const ngila_app::args &rargs) {
 	if(rargs.indel_rate <= 0.0)
 		return CERRORR("indel rate must be positive.");
 	
-	double el[20], x[20][20], y[20][20];
+	// skeleton parameters
+	double l_h = -2.0*rargs.indel_rate*rargs.branch_length
+		+log(rargs.avgaln)-log(rargs.avgaln+1.0);	
+	
+	
+	double el[20], x[20][20], m[20];
 	sub_matrix_clear(mCost);
 	
+	// cost of stationary amino acids
+	std::fill(&vAACost[0], &vAACost[128],
+		std::numeric_limits<double>::max()/16.0);
+	for(int i=0;i<20;++i)
+		vAACost[AA[i]] = vAACost[aa[i]] = -2.0*log(data[D+i]);
+		
 	// exp the eigenvalues	
 	for(int i=0;i<20;++i)
 		el[i] = exp(rargs.branch_length*data[E+i]);
 	// D*U*el
 	for(int i=0;i<20;++i) {
 		for(int j=0;j<20;++j) {
-			x[i][j] = data[D+i]*data[U+j+20*i]*el[j];
+			x[i][j] = data[U+j+20*i]*el[j]/data[D+i];
 		}
 	}
 	// x*(U^T*D^-1)
+	// matches
 	for(int i=0;i<20;++i) {
-		for(int j=0;j<20;++j) {
+		double scost = 0.0;
+		for(int k=0;k<20;++k)
+			scost += x[i][k]*data[U+k+20*i]*data[D+i];
+		scost = -(log(scost))-l_h-vAACost[AA[i]];
+		m[i] = 0.0;
+		if(!rargs.no_scale) {
+			m[i] = scost+2*vAACost[AA[i]];
+			scost = -2*vAACost[AA[i]];
+		}
+		mCost[AA[i]][AA[i]] =  mCost[AA[i]][aa[i]]
+			= mCost[aa[i]][AA[i]] =  mCost[aa[i]][aa[i]]
+			= scost;
+	}
+	// mismatches
+	for(int i=0;i<20;++i) {
+		for(int j=i+1;j<20;++j) {
 			double scost = 0.0;
-			for(int k=0;k<20;++k) {
-				scost += x[i][k]*data[U+k+20*j]/data[D+j];
-			}
-			scost = -log(scost);
-			mCost[AA[i]][A		
+			for(int k=0;k<20;++k)
+				scost += x[i][k]*data[U+k+20*j]*data[D+j];
+			scost = -(log(scost))-l_h-vAACost[AA[j]];
+			scost -= (m[i]+m[j])/2;
+			
+			mCost[AA[i]][AA[j]] =  mCost[AA[j]][AA[i]]
+				= mCost[AA[i]][aa[j]] =  mCost[AA[j]][aa[i]]
+				= mCost[aa[i]][AA[j]] =  mCost[aa[j]][AA[i]]
+				= mCost[aa[i]][aa[j]] =  mCost[aa[j]][aa[i]]
+				= scost;
 		}
 	}
-		
+	dEnd = rargs.no_scale ? log(rargs.avgaln+1.0) : 0.0;
 	
-	return true;
-	
-	double l_h = -2.0*rargs.indel_rate*rargs.branch_length
-		+log(rargs.avgaln)-log(rargs.avgaln+1.0);
-	
-	double c_ts = -(log(p_ts)+l_h+log(0.25));
-	double c_tv = -(log(p_tv)+l_h+log(0.125));
-	double c_m  = -(log(p_match)+l_h+log(0.25));
-	
-	dNucScale = rargs.no_scale ? 0.0 : 0.5*c_m;
-	
+	return true;	
 }
+
+double aa_model::offset(const string &seqA, const string &seqB) const {
+	double off = 0.0;
+	for(string::size_type k=0;k<seqA.size();++k) {
+		off += vAACost[seqA[k]];
+	}
+	for(string::size_type k=0;k<seqB.size();++k) {
+		off += vAACost[seqB[k]];
+	}
+	return dEnd+off;
+}
+
+/****************************************************************************
+ *    class aazeta_model                                                    *
+ ****************************************************************************/
+
+bool aazeta_model::create(const ngila_app::args &rargs) {
+	if(!aa_model::create(rargs))
+		return false;
+	if(rargs.indel_slope <= 1.0)
+		return CERRORR("indel slope must be greater than 1.0");
+	
+	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
+		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
+		- log_zeta(rargs.indel_slope));
+	dB = 0.0;
+	dC = rargs.indel_slope;
+	dF = dH = 0.0;
+	dG = 0.0;
+
+	return true;
+}
+
+/****************************************************************************
+ *    class aageo_model                                                     *
+ ****************************************************************************/
+
+bool aageo_model::create(const ngila_app::args &rargs) {
+	if(!aa_model::create(rargs))
+		return false;
+	if(rargs.indel_mean <= 1.0)
+		return CERRORR("indel mean must be greater than 1.0");
+	
+	dA = -(log(0.5)+log(1.0-exp(-2.0*rargs.indel_rate*rargs.branch_length))
+		+ log(rargs.avgaln)-log(rargs.avgaln+1.0)
+		- log(rargs.indel_mean-1.0));
+	dB = -(log(rargs.indel_mean-1.0)-log(rargs.indel_mean));
+	dC = 0.0;
+	dF = dH = 0.0;
+	dG = 0.0;
+
+	return true;
+}
+
+
 

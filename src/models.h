@@ -76,6 +76,7 @@ struct cost_model
 
 struct k2p_model : public cost_model {
 	double dEnd;
+	
 	virtual bool create(const ngila_app::args &rargs);
 	virtual double offset(const std::string &seqA,
 		const std::string &seqB) const;
@@ -93,11 +94,13 @@ struct geo_model : public k2p_model {
 
 struct aa_model : public cost_model {
 	double dEnd;
+	double vAACost[128];
+		
 	virtual bool create(const ngila_app::args &rargs);
 	virtual double offset(const std::string &seqA,
 		const std::string &seqB) const;
 protected:
-	double dNucScale;
+	double dAaScale;
 };
 
 struct aazeta_model : public aa_model {
