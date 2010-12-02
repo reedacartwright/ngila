@@ -305,3 +305,61 @@ bool geo_model::create(const ngila_app::args &rargs)
 
 	return true;
 }
+
+/****************************************************************************
+ *    class aa_model                                                        *
+ ****************************************************************************/
+
+bool aa_model::create(const ngila_app::args &rargs) {
+	enum {D=0,E=20,U=40};
+	static const char AA[] = "ARNDCQEGHILKMFPSTWYV";
+	static const char aa[] = "arndcqeghilkmfpstwyv";
+	
+	static const double data[440] = {
+#		include "lgmod.incl"
+	};
+	if(rargs.branch_length <= 0.0)
+		return CERRORR("branch length must be positive.");
+	if(rargs.avgaln <= 0.0)
+		return CERRORR("avgaln must be positive.");
+	if(rargs.indel_rate <= 0.0)
+		return CERRORR("indel rate must be positive.");
+	
+	double el[20], x[20][20], y[20][20];
+	sub_matrix_clear(mCost);
+	
+	// exp the eigenvalues	
+	for(int i=0;i<20;++i)
+		el[i] = exp(rargs.branch_length*data[E+i]);
+	// D*U*el
+	for(int i=0;i<20;++i) {
+		for(int j=0;j<20;++j) {
+			x[i][j] = data[D+i]*data[U+j+20*i]*el[j];
+		}
+	}
+	// x*(U^T*D^-1)
+	for(int i=0;i<20;++i) {
+		for(int j=0;j<20;++j) {
+			double scost = 0.0;
+			for(int k=0;k<20;++k) {
+				scost += x[i][k]*data[U+k+20*j]/data[D+j];
+			}
+			scost = -log(scost);
+			mCost[AA[i]][A		
+		}
+	}
+		
+	
+	return true;
+	
+	double l_h = -2.0*rargs.indel_rate*rargs.branch_length
+		+log(rargs.avgaln)-log(rargs.avgaln+1.0);
+	
+	double c_ts = -(log(p_ts)+l_h+log(0.25));
+	double c_tv = -(log(p_tv)+l_h+log(0.125));
+	double c_m  = -(log(p_match)+l_h+log(0.25));
+	
+	dNucScale = rargs.no_scale ? 0.0 : 0.5*c_m;
+	
+}
+

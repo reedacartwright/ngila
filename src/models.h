@@ -91,5 +91,23 @@ struct geo_model : public k2p_model {
 	virtual bool create(const ngila_app::args &rargs);
 };
 
+struct aa_model : public cost_model {
+	double dEnd;
+	virtual bool create(const ngila_app::args &rargs);
+	virtual double offset(const std::string &seqA,
+		const std::string &seqB) const;
+protected:
+	double dNucScale;
+};
+
+struct aazeta_model : public aa_model {
+	virtual bool create(const ngila_app::args &rargs);
+};
+
+struct aageo_model : public aa_model {
+	virtual bool create(const ngila_app::args &rargs);
+};
+
+
 #endif
 
