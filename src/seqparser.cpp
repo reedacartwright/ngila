@@ -20,30 +20,3 @@
 
 using namespace std;
 
-bool parse_file(const char* cs, seq_db &rdb)
-{
-	stack<string> my_stack;
-	seq_grammar my_grammar(my_stack, rdb);
-	if(strcmp(cs, "-")==0)
-	{
-		string ss; 
-		getline(cin, ss, '\004');
-		if(ss.empty())
-			return CERRORR("unable to open stdin.");
-		parse_info<string::const_iterator> info = parse(ss.begin(), ss.end(), my_grammar);
-		if (!info.full)
-			return CERRORR("unable to parse stdin.");
-	}
-	else
-	{
-		file_iterator<char> file_first(cs);
-		if(!file_first)
-			return CERRORR("unable to open \'" << cs << "\'.");
-		file_iterator<char>  file_last = file_first.make_end();
-		parse_info< file_iterator<char> > info = parse(file_first, file_last, my_grammar);
-		if (!info.full)
-			return CERRORR("unable to parse \'" << cs << "\'.");
-	}
-	return true;
-}
-

@@ -74,47 +74,67 @@ struct pop_sequence
 	seq_db &rdb;
 };
 
+struct add_sequence
+{
+	add_sequence(seq_db::size_type &pos, seq_db& db) : rpos(pos), rdb(db) { }
+	
+	template<typename It> void operator() ( It first, It last) const
+	{
+		std::string seq(first,last);
+		sanitize_string(seq);
+		seq_db::size_type pos = rpos++ % rdb.size();
+		rdb.add(seq_data(rdb[pos].name, seq));
+	}
+	
+	seq_db::size_type &rpos;
+	seq_db &rdb;
+};
+
+
 struct seq_grammar : public grammar<seq_grammar>
 {
-	seq_grammar(std::stack<std::string>& st, seq_db& db ) : string_stack(st), rdb(db) {}
+	seq_grammar(std::stack<std::string>& st, seq_db& db, seq_db::size_type &p) : string_stack(st), rdb(db), pos(p) {}
 	
 	template <typename ScannerT> struct definition
 	{
 		definition(seq_grammar const& self)
 		{
-			file_format =
-					(*space_p) >>
-					fasta_format
-//				|	clustal
-//				|	phylip
-				;
-			fasta_format = 
-					*fasta_seq
-				;
-			fasta_seq =
-				(	fasta_seq_head
-				>>	fasta_seq_body
-				)	[pop_sequence(self.string_stack, self.rdb)]
-					;
-			fasta_seq_head = 
-					ch_p('>')
-				>>	(+(graph_p|blank_p))[push_string(self.string_stack)]
+			self.pos = 0;
+			
+			file_format = (*space_p) >> (phylip_format|fasta_format) >> (*space_p);
+			blank_line = *blank_p >> eol_p;
+
+			fasta_format = *fasta_seq;
+			fasta_seq =	(fasta_seq_head >> fasta_seq_body)
+				[pop_sequence(self.string_stack, self.rdb)];
+			fasta_seq_head = ch_p('>')
+				>>(+(graph_p|blank_p))[push_string(self.string_stack)]
 				>>	eol_p
 				;
-			fasta_seq_body =
-					(+(~ch_p('>')))[push_string(self.string_stack)]
-				;
+			fasta_seq_body = (+(~ch_p('>')))[push_string(self.string_stack)];
+
+			phylip_format =	phylip_head >> phylip_block1
+				>> *(blank_line >> phylip_block);
+			phylip_head = uint_p >> +(blank_p) >> uint_p >> (*blank_p >> eol_p);
+			phylip_block1 = *(phylip_seq1 >> eol_p);
+			phylip_seq1 = (phylip_seq_name >> phylip_seq_seq)
+				[pop_sequence(self.string_stack, self.rdb)];
+			phylip_seq_name = (repeat_p(10)[graph_p|blank_p])[push_string(self.string_stack)];
+			phylip_seq_seq = (+(graph_p|blank_p))[push_string(self.string_stack)];
+			phylip_block = *(*blank_p >> phylip_seq >> eol_p);
+			phylip_seq = (+(graph_p|blank_p))[add_sequence(self.pos, self.rdb)];
 			
 		}
 
-		rule<ScannerT> file_format;
-		rule<ScannerT> fasta_format;
-		rule<ScannerT> fasta_seq;
-		rule<ScannerT> fasta_seq_head;
-		rule<ScannerT> fasta_seq_body;
+		rule<ScannerT> file_format, blank_line;
+		rule<ScannerT> fasta_format, fasta_seq, fasta_seq_head, fasta_seq_body;
+		rule<ScannerT> phylip_format, phylip_head, phylip_block1, phylip_block,
+			phylip_seq1, phylip_seq, phylip_seq_name, phylip_seq_seq;
+		
 		rule<ScannerT> const& start() const { return file_format; }
 	};
 	
 	std::stack<std::string> &string_stack;
+	seq_db::size_type &pos;
 	seq_db &rdb;
 };

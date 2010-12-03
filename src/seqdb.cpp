@@ -40,7 +40,8 @@ bool seq_db::parse_file(const char *csfile, bool bappend, bool bi)
 		clear();
 
 	stack<string> my_stack;
-	seq_grammar my_grammar(my_stack, *this);
+	size_type pos;
+	seq_grammar my_grammar(my_stack, *this,pos);
 	
 	if(strcmp(csfile, "-")==0) {
 		string ss; 
