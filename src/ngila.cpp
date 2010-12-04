@@ -24,9 +24,11 @@
 #include <boost/preprocessor.hpp>
 #include <boost/foreach.hpp>
 #include <boost/config.hpp>
+#include <boost/scoped_ptr.hpp>
 //BOOST_DISABLE_ASSERTS
 #include <boost/multi_array.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/thread.hpp>
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -37,6 +39,84 @@
 #define foreach BOOST_FOREACH
 
 using namespace std;
+
+typedef std::pair<size_t,size_t> job_pair;
+typedef std::vector<job_pair> pair_vec;
+struct job_info  {
+	
+	typedef boost::mutex::scoped_lock lock;
+	
+	const seq_db &db;
+	const pair_vec &pairs;
+	const cost_model &model;
+	const size_t const_align;
+	const int out_format;
+	const int direction;
+	
+	job_info(const seq_db &d, const pair_vec &v, const cost_model &m, size_t ca,
+		int of, int dir, ostream &o)
+		: db(d), pairs(v), model(m), const_align(ca), out_format(of),
+		direction((ca&16)?0:dir),
+		pos(0), out(o)  { }
+	
+	size_t next_pair(job_pair &p) {
+		lock lk(np_monitor);
+		if(pos >= pairs.size())
+			return size_t(-1);
+		p = pairs[pos];
+		return pos++;
+	}
+	
+	size_t print_aln(const alignment &aln, double dcost, double dident, bool swapped) {
+		lock lk(print_monitor);
+		// round to nearest billionth
+		dcost = floor(dcost*1e9+0.5)/1e9;
+		dident = floor(dident*1e9+0.5)/1e9;
+		
+		if(out_format < 2)
+			aln.print(out, out_format, dcost, direction, swapped);
+
+	}
+	
+	
+private:
+	pair_vec::size_type pos;
+	boost::mutex np_monitor, print_monitor;
+	ostream &out;
+};
+
+
+struct ngila_worker {
+	ngila_worker(const aligner &a, job_info &i) :
+		alner(a), info(i) {
+	}
+	void operator()() {
+		// swap a and b so that a's hashed position is lower
+		job_pair p;
+		size_t pos;
+		while((pos = info.next_pair(p)) != size_t(-1)) {
+			size_t a = p.first;
+			size_t b = p.second;
+			bool swapped = false;
+			if(!(info.const_align & 8) && info.db.db().project<hashid>(info.db.db().begin()+a) > 
+				info.db.db().project<hashid>(info.db.db().begin()+b) ) {
+				swap(a,b);
+				swapped = true;
+			}
+
+			alignment aln(info.db[a], info.db[b]);
+			double dcost = alner.align(aln);
+			dcost += info.model.offset(info.db[a].dna, info.db[b].dna);
+			double dident = aln.identity();
+			
+			info.print_aln(aln, dcost, dident, swapped);
+		}
+	}
+private:
+	aligner alner;
+	job_info &info;
+};
+
 
 int main(int argc, char *argv[])
 {
@@ -150,7 +230,8 @@ int ngila_app::run()
 		}
 	}
 
-	cost_model *pmod = NULL;
+
+	boost::scoped_ptr<cost_model> pmod;
 	string model_keys[] = {
 		string("zeta"), string("geo"),
 		string("aazeta"), string("aageo"),
@@ -159,19 +240,19 @@ int ngila_app::run()
 	switch(key_switch(arg.model, model_keys))
 	{
 	case 0:
-		pmod = new zeta_model;
+		pmod.reset(new zeta_model);
 		break;
 	case 1:
-		pmod = new geo_model;
+		pmod.reset(new geo_model);
 		break;
 	case 2:
-		pmod = new aazeta_model;
+		pmod.reset(new aazeta_model);
 		break;
 	case 3:
-		pmod = new aageo_model;
+		pmod.reset(new aageo_model);
 		break;
 	case 4:
-		pmod = new cost_model;
+		pmod.reset(new cost_model);
 		break;
 	default:
 		CERROR("unknown model \'" << arg.model << "\'.");
@@ -183,7 +264,6 @@ int ngila_app::run()
 		CERROR("creating model \'" << arg.model << "\'.");
 		return EXIT_FAILURE;
 	}
-	aligner alner(*pmod, arg.threshold_larger, arg.threshold_smaller, arg.free_end_gaps);
 	if(mydb.size() < 2)
 	{
 		CERROR("two or more sequences are required for alignment.");
@@ -263,6 +343,18 @@ int ngila_app::run()
 			dist_table[i][i] = diag;
 	}
 	
+	
+	boost::thread_group threads;
+	aligner alner(*pmod, arg.threshold_larger, arg.threshold_smaller, arg.free_end_gaps);
+    job_info info(mydb, pvec, *pmod, arg.const_align,
+    	out_format, direction, myout);
+    
+    for (size_t i = 0; i < arg.threads; ++i)
+        threads.create_thread(ngila_worker(alner,info));
+    threads.join_all();
+
+	return EXIT_SUCCESS;
+
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit) {
 		if(!do_dist && cit != pvec.begin())
 			myout << "//" << endl;

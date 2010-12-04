@@ -35,8 +35,6 @@ namespace po = boost::program_options;
 
 class ngila_app  {
 public:
-	typedef std::vector< std::pair<size_t,size_t> > pair_vec;
-	
 	ngila_app(int argc, char *argv[]);
 	virtual ~ngila_app() { }
 	virtual int run();
