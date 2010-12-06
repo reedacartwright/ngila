@@ -28,7 +28,10 @@
 //BOOST_DISABLE_ASSERTS
 #include <boost/multi_array.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/thread.hpp>
+
+#ifdef USE_THREADS
+#	include <boost/thread.hpp>
+#endif
 
 #include "ngila_app.h"
 #include "seqdb.h"
@@ -42,6 +45,8 @@ using namespace std;
 
 typedef std::pair<size_t,size_t> job_pair;
 typedef std::vector<job_pair> pair_vec;
+
+#ifdef USE_THREADS
 struct job_info  {
 	
 	typedef boost::mutex::scoped_lock lock;
@@ -116,6 +121,7 @@ private:
 	aligner alner;
 	job_info &info;
 };
+#endif
 
 
 int main(int argc, char *argv[])
@@ -343,9 +349,10 @@ int ngila_app::run()
 			dist_table[i][i] = diag;
 	}
 	
-	
-	boost::thread_group threads;
 	aligner alner(*pmod, arg.threshold_larger, arg.threshold_smaller, arg.free_end_gaps);
+
+#ifdef USE_THREADS
+	boost::thread_group threads;
     job_info info(mydb, pvec, *pmod, arg.const_align,
     	out_format, direction, myout);
     
@@ -353,7 +360,7 @@ int ngila_app::run()
         threads.create_thread(ngila_worker(alner,info));
     threads.join_all();
 
-	return EXIT_SUCCESS;
+#else
 
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit) {
 		if(!do_dist && cit != pvec.begin())
@@ -417,12 +424,14 @@ int ngila_app::run()
 			myout << dist_table[i][table_size-1] << endl;
 		}
 	}
+
+#endif
 	
 	if(arg.desktop) {
 		cerr << "\nPress any key to continue." << endl;
 		char x;
 		cin.get(x);
 	}
-	
+
 	return EXIT_SUCCESS;
 }

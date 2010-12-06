@@ -12,6 +12,10 @@ IF(USE_STATIC_LIBS)
   SET(GSL_USE_STATIC_LIBS ON)
 ENDIF(USE_STATIC_LIBS)
 
+SET(USE_THREADS OFF CACHE BOOL
+	"Enable multi-threading support in Ngila (experimental).")
+MARK_AS_ADVANCED(USE_THREADS)
+
 PROJECT(Ngila)
 
 SET(PROJ_NAME "ngila")
