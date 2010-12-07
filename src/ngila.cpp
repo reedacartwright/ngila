@@ -72,7 +72,7 @@ struct job_info  {
 		return pos++;
 	}
 	
-	size_t print_aln(const alignment &aln, double dcost, double dident, bool swapped) {
+	void print_aln(const alignment &aln, double dcost, double dident, bool swapped) {
 		lock lk(print_monitor);
 		// round to nearest billionth
 		dcost = floor(dcost*1e9+0.5)/1e9;
