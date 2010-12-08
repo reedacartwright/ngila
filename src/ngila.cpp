@@ -78,7 +78,7 @@ struct job_info  {
 		dcost = floor(dcost*1e9+0.5)/1e9;
 		dident = floor(dident*1e9+0.5)/1e9;
 		
-		if(out_format < 2)
+		if(out_format < 3)
 			aln.print(out, out_format, dcost, direction, swapped);
 
 	}
@@ -299,7 +299,7 @@ int ngila_app::run()
 	};
 	
 	string format_keys[] = {
-		string("aln"), string("fasta"),
+		string("aln"), string("fasta"), string("phylip"),
 		string("dist"), string("dist-c"),
 		string("dist-d"), string("dist-i")
 	};
@@ -340,11 +340,11 @@ int ngila_app::run()
 	                                : static_cast<ostream&>(cout);
 	typedef boost::multi_array<float, 2> dist_mat;
 	dist_mat dist_table;
-	const bool do_dist = (out_format >= 2);
+	const bool do_dist = (out_format >= 3);
 	if(do_dist) {
 		dist_table.resize(boost::extents[table_size][table_size]);
 		fill(dist_table.data(), dist_table.data()+dist_table.num_elements(), numeric_limits<float>::quiet_NaN());
-		float diag = (out_format == 5) ? 1.0f : 0.0f;
+		float diag = (out_format == 6) ? 1.0f : 0.0f;
 		for(seq_db::size_type i = 0; i < table_size; ++i)
 			dist_table[i][i] = diag;
 	}
@@ -393,17 +393,17 @@ int ngila_app::run()
 				swap(a,b);
 			switch(out_format) {
 			default:
-			case 2: //dist
+			case 3: //dist
 				lower = 1.0-dident;
 				upper = dcost;
 				break;
-			case 3: //dist-c
+			case 4: //dist-c
 				upper = lower = dcost;
 				break;
-			case 4: //dist-d
+			case 5: //dist-d
 				upper = lower = 1.0-dident;
 				break;
-			case 5: //dist-i
+			case 6: //dist-i
 				upper = lower = dident;
 				break;
 			}

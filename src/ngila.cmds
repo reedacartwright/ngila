@@ -46,9 +46,9 @@ XCMD((case)(insensitivity), (I), "sequences are case insensitive", bool, false)
 XCMD((threshold)(larger),   (M), "threshold for O(MN) alignment", size_t, 10000)
 XCMD((threshold)(smaller),  (N), "threshold for O(MN) alignment", size_t, 10000)
 XCMD((remove)(gaps),        (G), "realign after removing specific gap characters", std::string, std::string("-+="))
-
+#ifdef USE_THREADS
 XCMD((threads),             (T), "number of worker threads to use", size_t, 1)
-
+#endif
 XCMD((output),     (o), "output file", std::string, std::string("-"))
 
 XCMD((pairs),        , "control how pairs are determined: first|all|each", std::string, std::string("first"))
