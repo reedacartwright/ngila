@@ -133,10 +133,14 @@ private:
 template<class OS>
 inline void alignment::print(OS &os, int format, double cost, int dir, bool swapped) const
 {
+	// 0 = clustal, 1 = fasta, 2 = phylip
 	std::string strA, strB, strC, nameA, nameB;
 	if(format == 0) {
 		nameA = seqA.name.substr(0, 14);
 		nameB = seqB.name.substr(0, 14);
+	} else if(format == 2) {
+		nameA = seqA.name.substr(0, 9);
+		nameB = seqB.name.substr(0, 9);		
 	} else {
 		nameA = seqA.name;
 		nameB = seqB.name;
@@ -178,7 +182,7 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 	if(format == 0) {
 		os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING
 		   << "; Cost = " << std::setprecision(10) << cost
-		   << ")" << std::endl << std::endl;
+		   << ")\n\n";
 
 		// Print interleaved sequences
 		size_t a=0, b=0;
@@ -187,31 +191,45 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 			ss = strA.substr(u, 60);
 			a += ss.length() - std::count(ss.begin(), ss.end(), chGap);
 			os << std::setw(14) << std::setiosflags(std::ios::left) << nameA
-				<< " " << ss << " " << a << std::endl;
+				<< " " << ss << " " << a << "\n";
 		
 			ss = strB.substr(u, 60);
 			b += ss.length() - std::count(ss.begin(), ss.end(), chGap);
 			os << std::setw(14) << std::setiosflags(std::ios::left) << nameB
-				 << " " << ss << " " << b << std::endl;
+				 << " " << ss << " " << b << "\n";
 		
-			os << std::setw(14) << std::setiosflags(std::ios::left) << " "   << " " << strC.substr(u, 60) << std::endl;
-			os << std::endl;
+			os << std::setw(15) << std::setiosflags(std::ios::left)
+			   << " " << strC.substr(u, 60) << "\n\n";
 		}
 	} else if(format == 1) {
 		os << ">" << nameA << " " 
 		   << "(Created by " << PACKAGE_STRING
 		   << "; Cost = " << std::setprecision(10) << cost
-		   << ")" << std::endl;
+		   << ")\n";
 		for(size_t u = 0; u < sz; u += 80)
-			os << strA.substr(u, 80) << std::endl;
-		os << std::endl;
-		os << ">" << nameB << std::endl;
+			os << strA.substr(u, 80) << "\n";
+		os << "\n";
+		os << ">" << nameB << "\n";
 		for(size_t u = 0; u < sz; u += 80)
-			os << strB.substr(u, 80) << std::endl;
-		os << std::endl;
+			os << strB.substr(u, 80) << "\n";
+		os << "\n";
+	} else if (format == 2) {
+		os << "    " << 2 << " " << sz << "\n";
+		os << std::setw(9) << std::setiosflags(std::ios::left) << nameA << " "
+		   << strA.substr(0,68) << "\n";
+
+		os << std::setw(9) << std::setiosflags(std::ios::left) << nameB << " "
+		   << strB.substr(0,68) << "\n\n";
+		
+		for(size_t u=68;u < sz; u+= 78) {
+			os << strA.substr(u,78) << "\n"
+			   << strB.substr(u,78) << "\n\n";
+		}
+		
 	} else {
-		os << "Invalid output format.  Valid formats are 'aln' and 'fas'." << std::endl;
+		os << "Invalid output format.  Valid formats are 'aln' and 'fas'.\n";
 	}
+	os.flush();
 }
 
 #endif
