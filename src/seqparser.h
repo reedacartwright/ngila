@@ -91,17 +91,15 @@ struct add_sequence
 };
 
 
-struct seq_grammar : public grammar<seq_grammar>
-{
+struct seq_grammar : public grammar<seq_grammar> {
 	seq_grammar(std::stack<std::string>& st, seq_db& db, seq_db::size_type &p) : string_stack(st), rdb(db), pos(p) {}
 	
-	template <typename ScannerT> struct definition
-	{
-		definition(seq_grammar const& self)
-		{
+	template <typename ScannerT> struct definition {
+		definition(seq_grammar const& self) {
 			self.pos = 0;
 			
-			file_format = (*space_p) >> (phylip_format|fasta_format) >> (*space_p);
+			file_format = (*space_p) >> (phylip_format|aln_format|fasta_format)
+				>> (*space_p);
 			blank_line = *blank_p >> eol_p;
 
 			fasta_format = *fasta_seq;
@@ -112,6 +110,16 @@ struct seq_grammar : public grammar<seq_grammar>
 				>>	eol_p
 				;
 			fasta_seq_body = (+(~ch_p('>')))[push_string(self.string_stack)];
+
+			aln_format = aln_head >> +aln_line;
+			aln_head = str_p("CLUSTAL") >> *(graph_p|blank_p) >> eol_p;
+			aln_line = (aln_seq | aln_special | *blank_p) >> eol_p;
+			aln_seq = (aln_seq_name >> +blank_p >> aln_seq_body >> *blank_p
+				>> *digit_p)
+				[pop_sequence(self.string_stack, self.rdb)];
+			aln_seq_name = (+graph_p)[push_string(self.string_stack)];
+			aln_seq_body = (+graph_p)[push_string(self.string_stack)];
+			aln_special = +blank_p >> punct_p >> *(blank_p|punct_p);
 
 			phylip_format =	phylip_head >> phylip_block1
 				>> *(blank_line >> phylip_block);
@@ -128,6 +136,8 @@ struct seq_grammar : public grammar<seq_grammar>
 
 		rule<ScannerT> file_format, blank_line;
 		rule<ScannerT> fasta_format, fasta_seq, fasta_seq_head, fasta_seq_body;
+		rule<ScannerT> aln_format, aln_head, aln_line, aln_seq, aln_seq_name,
+			aln_seq_body, aln_special;
 		rule<ScannerT> phylip_format, phylip_head, phylip_block1, phylip_block,
 			phylip_seq1, phylip_seq, phylip_seq_name, phylip_seq_seq;
 		
