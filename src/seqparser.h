@@ -95,7 +95,7 @@ struct seq_grammar : public grammar<seq_grammar> {
 	seq_grammar(std::stack<std::string>& st, seq_db& db, seq_db::size_type &p) : string_stack(st), rdb(db), pos(p) {}
 	
 	template <typename ScannerT> struct definition {
-		definition(seq_grammar const& self) {
+		definition(seq_grammar const& self) : aln_sp("*:. ") {
 			self.pos = 0;
 			
 			file_format = (*space_p) >> (phylip_format|aln_format|fasta_format)
@@ -119,7 +119,7 @@ struct seq_grammar : public grammar<seq_grammar> {
 				[pop_sequence(self.string_stack, self.rdb)];
 			aln_seq_name = (+graph_p)[push_string(self.string_stack)];
 			aln_seq_body = (+graph_p)[push_string(self.string_stack)];
-			aln_special = +blank_p >> punct_p >> *(blank_p|punct_p);
+			aln_special = +aln_sp;
 
 			phylip_format =	phylip_head >> phylip_block1
 				>> *(blank_line >> phylip_block);
@@ -133,7 +133,7 @@ struct seq_grammar : public grammar<seq_grammar> {
 			phylip_seq = (+(graph_p|blank_p))[add_sequence(self.pos, self.rdb)];
 			
 		}
-
+		chset<> aln_sp;
 		rule<ScannerT> file_format, blank_line;
 		rule<ScannerT> fasta_format, fasta_seq, fasta_seq_head, fasta_seq_body;
 		rule<ScannerT> aln_format, aln_head, aln_line, aln_seq, aln_seq_name,
