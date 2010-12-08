@@ -1,0 +1,4 @@
+model=zeta
+branch-length=0.2
+indel-rate=0.05
+threashold-larger=2000

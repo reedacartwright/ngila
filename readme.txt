@@ -66,6 +66,13 @@ OUTPUT FILES
 SUBSTITUTION MATRIX
   Used by the "cost" model.  An example of the format can be seen in matrix/dna.
 
+NGILARC
+  Commandline options can be specified using an ngilarc file.  By default the
+  program looks for $HOME/.ngilarc (unix) or %HOME%/ngilarc.txt (windows).  This
+  file can contain long-form command line options like in the ngilarc.txt
+  example file.
+ 
+
 ALGORITHM
   Ngila implements a Miller and Myers (1988) candidate list method of sequence
   alignment with the gap cost being of the form g(x) = a + b*x + c*ln x.  Ngila

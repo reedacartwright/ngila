@@ -1,13 +1,23 @@
-2010-??-??  1.3-RELEASE
+2010-12-09  1.3-RELEASE
 
 * Use CMake for compilation and installation
 * New scaling option enabled by default (identical sequences default to cost of 0)
-* Ordering of --pairs-all fixed
+* Protein evolutionary models: aazeta and aageo
+* Fasta and Phylip format output support
+* Clustal and Phylip format input support
+* Report sequence identity measure
+* Matrix output formats for distance measures
+* Look for "ngilarc" file in the home directory.
+* New separator option
 * New const-align option
-* Fasta format output support
+* Replace arg-file option with ngilarc option.
+* Use custom zeta function if GSL not found.
+* Optimize size of travel table.
+
+* Ordering of --pairs-all fixed
 * bug fix for output of large alignments >10kb
-* report sequence identity measure
-* support matrix output formats for distance measures
+* minor bug fix for geo model
+
 
 2007-08-23  1.2.1-RELEASE
 

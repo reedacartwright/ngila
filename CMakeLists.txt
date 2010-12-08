@@ -201,12 +201,12 @@ ELSEIF(APPLE)
 ELSE(WIN32 AND NOT UNIX)
   SET(CPACK_GENERATOR "TGZ")
   SET(CPACK_SOURCE_GENERATOR "TGZ") 
-  SET(CPACK_STRIP_FILES "bin/spagedi")
+  SET(CPACK_STRIP_FILES "bin/ngila")
 ENDIF(WIN32 AND NOT UNIX)
 
 INCLUDE(CPack)
 
-#INSTALL(FILES copying.txt readme.txt changelog.txt DESTINATION ${CMAKE_DOC_DIR})
+INSTALL(FILES copying.txt readme.txt ngilarc.txt ChangeLog DESTINATION ${CMAKE_DOC_DIR})
 #INSTALL(FILES lambda.pl outsplit.pl nexus2fasta.pl varrep.pl DESTINATION ${CMAKE_DATA_DIR})
 
 ADD_SUBDIRECTORY(src)
@@ -215,3 +215,4 @@ ADD_SUBDIRECTORY(doc)
 #ADD_SUBDIRECTORY(tests)
 
 #INCLUDE(InstallRequiredSystemLibraries)
+
