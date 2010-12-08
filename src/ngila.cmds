@@ -55,6 +55,7 @@ XCMD((pairs),        , "control how pairs are determined: first|all|each", std::
 XCMD((no)(scale),    , "do not force identical sequences to have a cost of zero", bool, false)
 XCMD((no)(header),   , "exclude a header of sequence names in table output format", bool, false)
 XCMD((const)(align), , "sort and align sequences regardless of direction and order", size_t, 0)
+XCMD((separator),    , "text to use as a separator of alignments", std::string, std::string(""))
 XCMD((quiet),        , "disable all warnings and error messages", bool, false)
 XCMD((ngilarc),      , "alternative path for rc file", std::string, std::string(""))
 XCMD((version),      , "display version information", bool, false)

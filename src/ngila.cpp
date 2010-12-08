@@ -364,7 +364,7 @@ int ngila_app::run()
 
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit) {
 		if(!do_dist && cit != pvec.begin())
-			myout << "//" << endl;
+			myout << arg.separator << endl;
 		// swap a and b so that a's hashed position is lower
 		size_t a = cit->first;
 		size_t b = cit->second;
