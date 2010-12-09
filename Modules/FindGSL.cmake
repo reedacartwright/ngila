@@ -39,6 +39,11 @@ IF(WIN32)
     "C:/Programs/"
     "C:/Program Files/"
     )
+  IF(GSL_USE_STATIC_LIBS)
+    SET(GSLSTATIC lib)
+  ENDIF(GSL_USE_STATIC_LIBS)  
+	 
+
   FIND_PATH(GSL_INCLUDE_DIR
     NAMES gsl/gsl_cdf.h gsl/gsl_randist.h
     HINTS ${GSL_POSSIBLE_ROOT_DIRS}
@@ -47,13 +52,13 @@ IF(WIN32)
     )
   
   FIND_LIBRARY(GSL_GSL_LIBRARY
-    NAMES gsl libgsl
+    NAMES "${GSLSTATIC}gsl"
     HINTS  ${GSL_POSSIBLE_ROOT_DIRS}
     PATH_SUFFIXES lib
     DOC "GSL library dir" )  
   
   FIND_LIBRARY(GSL_GSLCBLAS_LIBRARY
-    NAMES gslcblas libgslcblas cblas libcblas
+    NAMES "${GSLSTATIC}gslcblas" "${GSLSTATIC}cblas"
     HINTS  ${GSL_POSSIBLE_ROOT_DIRS}
     PATH_SUFFIXES lib
     DOC "GSL cblas library dir" )
