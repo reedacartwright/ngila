@@ -19,7 +19,7 @@ LICENSE
 INSTALLATION
   Installation from source requires CMake (http://cmake.org/), Boost Libraries
   (http://boost.org/).  Binary packages are available.  To install on unix-like
-  sytems simply use
+  systems simply use
   
   cmake . && make && make install
   
@@ -50,7 +50,7 @@ MODEL DESCRIPTIONS
 	cost: specify substitution and gap costs explicitly
 	
 INPUT FILES
-  The input file has to be in FASTA or PHYLIP format.  If more than two
+  The input file has to be in FASTA, PHYLIP, or CLUSTAL format.  If more than two
   sequences are given then Ngila will align based on the 'pairs' option.
 
 OUTPUT FILES
@@ -60,14 +60,14 @@ OUTPUT FILES
   specified directly; "ngila -o seqs.fas" and "ngila -o fas:seqs.txt" both
   produce fasta output.  "ngila -o aln:-" sends Clustal formated sequence to
   stdout.  The following extensions are supported for distance matrices:
-  dist-c = likelihood-based cost scores, dist-i = sequence identies, dist-d =
+  dist-c = likelihood-based cost scores, dist-i = sequence identities, dist-d =
   sequence distances, dist = lower-triangle like dist-d and upper like dist-i.
 
 SUBSTITUTION MATRIX
   Used by the "cost" model.  An example of the format can be seen in matrix/dna.
 
 NGILARC
-  Commandline options can be specified using an ngilarc file.  By default the
+  Command-line options can be specified using an ngilarc file.  By default the
   program looks for $HOME/.ngilarc (unix) or %HOME%/ngilarc.txt (windows).  This
   file can contain long-form command line options like in the ngilarc.txt
   example file.
