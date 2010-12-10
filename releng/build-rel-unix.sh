@@ -6,6 +6,16 @@ MAKE=make
 CMAKE=cmake
 REPOS=`svn info | grep URL: | perl -pe 's!^URL: (.+)/releng$!$1!'`
 
+build_mingw32=
+build_m32=
+for build_option; do
+	case $build_option in
+	--mingw32)
+		build_mingw32=yes ;;
+	--m32)
+		build_m32=yes ;;
+done
+
 echo
 echo Building distributions for $REPOS ...
 
@@ -28,7 +38,16 @@ svn co -q $REPOS $SOURCE_DIR || exit 1
 mkdir $BUILD_DIR || exit 1
 cd $BUILD_DIR || exit 1
 
-$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DBoost_USE_STATIC_LIBS=ON -DGSL_USE_STATIC_LIBS=ON
+if test -n "build_mingw32"; then
+	$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_TOOLCHAIN_FILE="${SOURCE_DIR}/tools/i586-mingw32msvc.cmake" \
+		-DUSE_STATIC_LIBS=on
+elif test -n "build_m32"; then
+	
+else 
+	$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release \
+		-DBoost_USE_STATIC_LIBS=ON -DGSL_USE_STATIC_LIBS=ON
+fi
 $MAKE
 $MAKE package
 $MAKE package_source
