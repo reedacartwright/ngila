@@ -14,6 +14,7 @@ for build_option; do
 		build_mingw32=yes ;;
 	--m32)
 		build_m32=yes ;;
+	esac
 done
 
 echo
@@ -43,8 +44,8 @@ if test -n "build_mingw32"; then
 		-DCMAKE_TOOLCHAIN_FILE="${SOURCE_DIR}/tools/i586-mingw32msvc.cmake" \
 		-DUSE_STATIC_LIBS=on
 elif test -n "build_m32"; then
-	
-else 
+	$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release
+else
 	$CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release \
 		-DBoost_USE_STATIC_LIBS=ON -DGSL_USE_STATIC_LIBS=ON
 fi

@@ -102,7 +102,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
   "_CPACK_PACKAGES"  "_CPack_Packages"
   "\\\\.vcproj"  "\\\\.dir"  "\\\\.ncb$"  "\\\\.sln$"  "\\\\.suo$"
   "Makefile$" "\\\\.ilk"  "\\\\.pdb"
-  "/releng/"
+  "/build/.*"
   "${PROJ_NAME}[-]${PROJ_VERSION_MAJOR}" "${PROJ_NAME}$" "${PROJ_NAME}\\\\.exe"
 )
 
@@ -153,6 +153,7 @@ IF(NOT DEFINED CPACK_PACKAGE_FILE_NAME)
 ENDIF(NOT DEFINED CPACK_PACKAGE_FILE_NAME)
 
 IF(WIN32 AND NOT UNIX)
+  SET(CPACK_GENERATOR "ZIP;NSIS")
   # There is a bug in NSI that does not handle full unix paths properly. Make
   # sure there is at least one set of four (4) backlasshes.
   #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
