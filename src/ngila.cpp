@@ -170,7 +170,7 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options") {
 			// if ngilarc is not specified, check for it in HOME
 #ifdef BOOST_WINDOWS
 				char buf[_MAX_PATH];
-				_makepath_s(buf, getenv("HOMEDRIVE"), getenv("HOMEPATH"), "ngilarc", "txt");
+				_makepath(buf, getenv("HOMEDRIVE"), getenv("HOMEPATH"), "ngilarc", "txt");
 				ifs.open(buf);
 #else
 				char *h;
