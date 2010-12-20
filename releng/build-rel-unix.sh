@@ -18,7 +18,7 @@ for build_option; do
 done
 
 echo
-echo Building distributions for $REPOS ...
+echo Building distributions "for" $REPOS ...
 
 
 RELENG_DIR=`mktemp -q -d -t ${PROJ}-releng.XXX`

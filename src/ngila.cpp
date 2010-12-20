@@ -169,17 +169,20 @@ ngila_app::ngila_app(int argc, char* argv[]) : desc("Allowed Options") {
 			} else {
 			// if ngilarc is not specified, check for it in HOME
 #ifdef BOOST_WINDOWS
-				char buf[_MAX_PATH];
-				_makepath(buf, getenv("HOMEDRIVE"), getenv("HOMEPATH"), "ngilarc", "txt");
-				ifs.open(buf);
+#	define NGILARC_HOME "USERPROFILE"
+#	define NGILARC_FILE "\\ngilarc.txt"
 #else
+#	define NGILARC_HOME "HOME"
+#	define NGILARC_FILE "/.ngilarc"
+#endif
 				char *h;
-				if((h = getenv("HOME")) != NULL) {
+				if((h = getenv(NGILARC_HOME)) != NULL) {
 					string buf = h;
-					buf += "/.ngilarc";
+					buf += NGILARC_FILE;
 					ifs.open(buf.c_str());
 				}
-#endif
+#undef NGILARC_HOME
+#undef NGILARC_FILE
 			}
 			if(ifs.is_open()) {
 				po::store(po::parse_config_file(ifs, desc), vm);
