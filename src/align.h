@@ -139,12 +139,20 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 		nameA = seqA.name.substr(0, 14);
 		nameB = seqB.name.substr(0, 14);
 	} else if(format == 2) {
-		nameA = seqA.name.substr(0, 9);
-		nameB = seqB.name.substr(0, 9);		
+		nameA = seqA.name;
+		nameB = seqB.name;
+		if(nameA.length() < 9)
+			nameA.resize(9, ' ');
+		if(nameB.length() < 9)
+			nameB.resize(9, ' ');
 	} else {
 		nameA = seqA.name;
 		nameB = seqB.name;
 	}
+	
+	size_t name_max = std::max(nameA.length(),nameB.length());
+	
+	
 	//preallocate
 	strA.reserve(4048);
 	strB.reserve(4048);
@@ -215,11 +223,11 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 		os << "\n";
 	} else if (format == 2) {
 		os << "    " << 2 << " " << sz << "\n";
-		os << std::setw(9) << std::setiosflags(std::ios::left) << nameA << " "
-		   << strA.substr(0,68) << "\n";
+		os << std::setw(name_max) << std::setiosflags(std::ios::left) << nameA << " "
+		   << strA.substr(0,78-name_max-1) << "\n";
 
-		os << std::setw(9) << std::setiosflags(std::ios::left) << nameB << " "
-		   << strB.substr(0,68) << "\n\n";
+		os << std::setw(name_max) << std::setiosflags(std::ios::left) << nameB << " "
+		   << strB.substr(0,78-name_max-1) << "\n\n";
 		
 		for(size_t u=68;u < sz; u+= 78) {
 			os << strA.substr(u,78) << "\n"

@@ -125,9 +125,9 @@ struct seq_grammar : public grammar<seq_grammar> {
 				>> *(blank_line >> phylip_block);
 			phylip_head = uint_p >> +(blank_p) >> uint_p >> (*blank_p >> eol_p);
 			phylip_block1 = *(phylip_seq1 >> eol_p);
-			phylip_seq1 = (phylip_seq_name >> phylip_seq_seq)
+			phylip_seq1 = (phylip_seq_name >> +blank_p >> phylip_seq_seq)
 				[pop_sequence(self.string_stack, self.rdb)];
-			phylip_seq_name = (repeat_p(10)[graph_p|blank_p])[push_string(self.string_stack)];
+			phylip_seq_name = (+graph_p)[push_string(self.string_stack)];
 			phylip_seq_seq = (+(graph_p|blank_p))[push_string(self.string_stack)];
 			phylip_block = *(*blank_p >> phylip_seq >> eol_p);
 			phylip_seq = (+(graph_p|blank_p))[add_sequence(self.pos, self.rdb)];
