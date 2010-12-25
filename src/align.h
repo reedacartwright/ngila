@@ -185,7 +185,13 @@ inline void alignment::print(OS &os, int format, double cost, int dir, bool swap
 	seq_transform(strB, dir);
 	seq_transform(strC, dir);
 
-	size_t sz = strA.size();	
+	size_t sz = strA.size();
+	if(sz == 0) {
+		strA.append(1, chGap);
+		strB.append(1, chGap);
+		strC.append(1, ' ');
+		sz = 1;
+	}
 	std::string ss;
 	if(format == 0) {
 		os << "CLUSTAL multiple sequence alignment (Created by " << PACKAGE_STRING

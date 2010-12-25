@@ -109,7 +109,7 @@ struct seq_grammar : public grammar<seq_grammar> {
 				>>(+(graph_p|blank_p))[push_string(self.string_stack)]
 				>>	eol_p
 				;
-			fasta_seq_body = (+(~ch_p('>')))[push_string(self.string_stack)];
+			fasta_seq_body = (*(~ch_p('>')))[push_string(self.string_stack)];
 
 			aln_format = aln_head >> +aln_line;
 			aln_head = str_p("CLUSTAL") >> *(graph_p|blank_p) >> eol_p;
