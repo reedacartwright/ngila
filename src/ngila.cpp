@@ -372,9 +372,9 @@ int ngila_app::run()
 		size_t a = cit->first;
 		size_t b = cit->second;
 		bool swapped = false;
-		if( mydb[b].size() > mydb[a].size()
+		if( mydb[b].dna.size() > mydb[a].dna.size()
 			|| ( arg.const_align != 0
-			&&   mydb[b].size() == mydb[a].size()
+			&&   mydb[b].dna.size() == mydb[a].dna.size()
 			&&  (mydb.db().project<hashid>(mydb.db().begin()+a) > 
 			     mydb.db().project<hashid>(mydb.db().begin()+b) ))
 		) {
