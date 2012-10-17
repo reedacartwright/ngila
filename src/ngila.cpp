@@ -372,8 +372,12 @@ int ngila_app::run()
 		size_t a = cit->first;
 		size_t b = cit->second;
 		bool swapped = false;
-		if(!(arg.const_align & 8) && mydb.db().project<hashid>(mydb.db().begin()+a) > 
-			mydb.db().project<hashid>(mydb.db().begin()+b) ) {
+		if( mydb[b].size() > mydb[a].size()
+			|| ( arg.const_align != 0
+			&&   mydb[b].size() == mydb[a].size()
+			&&  (mydb.db().project<hashid>(mydb.db().begin()+a) > 
+			     mydb.db().project<hashid>(mydb.db().begin()+b) ))
+		) {
 			swap(a,b);
 			swapped = true;
 		}
