@@ -378,7 +378,7 @@ int ngila_app::run()
 		size_t a = cit->first;
 		size_t b = cit->second;
 		size_t szA = mydb[a].dna.size();
-		site_t saB = mydb[b].dna.size();
+		size_t szB = mydb[b].dna.size();
 		bool swapped = false;
 		
 		if( szB  > szA || (szB == szA && 
