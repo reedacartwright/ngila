@@ -231,7 +231,12 @@ int ngila_app::run()
 	}
 	
 	int direction = 0;
-	if(arg.const_align != 0) {
+	// if any alternative directions are set, find best order and orrientation
+	// arg.const_align flags:
+	//   1,2,4: alternative orders
+	//   8: do not put sorted sequence back into original order
+	//   16: do not untranslate orrientaiton
+	if((arg.const_align & 7) != 0) {
 		direction = mydb.unique_sort(seq_db::DIR_ORI | (arg.const_align & 7));
 		mydb.transform(direction);
 		if(!(arg.const_align & 8)) { // return to original order
@@ -368,15 +373,17 @@ int ngila_app::run()
 	for(pair_vec::const_iterator cit = pvec.begin(); cit != pvec.end(); ++cit) {
 		if(!do_dist && cit != pvec.begin())
 			myout << arg.separator << endl;
-		// swap a and b so that a's hashed position is lower
+		// swap as needed to make A the larger sequence or the sequence 
+		// with higher ordering
 		size_t a = cit->first;
 		size_t b = cit->second;
+		size_t szA = mydb[a].dna.size();
+		site_t saB = mydb[b].dna.size();
 		bool swapped = false;
-		if( mydb[b].dna.size() > mydb[a].dna.size()
-			|| ( arg.const_align != 0
-			&&   mydb[b].dna.size() == mydb[a].dna.size()
-			&&  (mydb.db().project<hashid>(mydb.db().begin()+a) > 
-			     mydb.db().project<hashid>(mydb.db().begin()+b) ))
+		
+		if( szB  > szA || (szB == szA && 
+		   (mydb.db().project<hashid>(mydb.db().begin()+a) >
+		    mydb.db().project<hashid>(mydb.db().begin()+b) ))
 		) {
 			swap(a,b);
 			swapped = true;
