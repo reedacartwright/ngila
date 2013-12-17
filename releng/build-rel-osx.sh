@@ -4,18 +4,18 @@ PROJ=ngila
 PROJ_DISTS=ngila-1*
 MAKE=make
 CMAKE=cmake
-REPOS=`svn info | grep URL: | perl -pe 's!^URL: (.+)/releng$!$1!'`
+REPOS=`svn info | grep -e '^URL:' | perl -pe 's!^URL: (.+)/releng$!$1!'`
 
 echo 
 echo Building distributions for $REPOS ...
 
-xcode=/Xcode2.5
-xcodep=${xcode}/usr
-PATH="${xcodep}/bin:${PATH}"; export PATH
-CFLAGS="$CFLAGS -I${xcodep}/include"; export CFLAGS
-CXXFLAGS="$CXXFLAGS -I${xcodep}/include"; export CXXFLAGS
-LDFLAGS="-L${xcodep}/lib"; export LDFLAGS
-CMAKE_OSX_SYSROOT="${xcode}/SDKs/MacOSX10.4u.sdk"; export CMAKE_OSX_SYSROOT
+# xcode=/Xcode2.5
+# xcodep=${xcode}/usr
+# PATH="${xcodep}/bin:${PATH}"; export PATH
+# CFLAGS="$CFLAGS -I${xcodep}/include"; export CFLAGS
+# CXXFLAGS="$CXXFLAGS -I${xcodep}/include"; export CXXFLAGS
+# LDFLAGS="-L${xcodep}/lib"; export LDFLAGS
+# CMAKE_OSX_SYSROOT="${xcode}/SDKs/MacOSX10.4u.sdk"; export CMAKE_OSX_SYSROOT
 
 RELENG_DIR=`mktemp -q -d -t ${PROJ}-releng`
 if [ $? -ne 0 ]; then
@@ -36,9 +36,9 @@ mkdir $BUILD_DIR || exit 1
 cd $BUILD_DIR || exit 1
 
 $CMAKE $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_OSX_ARCHITECTURES="ppc;i386" \
-  -DCPACK_SYSTEM_NAME=Darwin8-universal \
-  -DAPPLE_BUNDLE=ON
+  -DCMAKE_OSX_ARCHITECTURES="x86_64;i386" \
+  -DCPACK_SYSTEM_NAME=Darwin64 \
+  -DAPPLE_BUNDLE=OFF
 $MAKE
 $MAKE package
 $MAKE package_source
