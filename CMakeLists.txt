@@ -84,6 +84,9 @@ ADD_SUBDIRECTORY(matrix)
 ADD_SUBDIRECTORY(doc)
 #ADD_SUBDIRECTORY(tests)
 
+ADD_DEPENDENCIES(new_package ngila)
+ADD_DEPENDENCIES(ngila version)
+
 ########### Add uninstall target ###############
 CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/Modules/cmake_uninstall.cmake.in"
