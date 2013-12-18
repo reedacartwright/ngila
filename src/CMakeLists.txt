@@ -74,14 +74,19 @@ INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 ADD_EXECUTABLE(ngila ${PROJ_MACOSX_BUNDLE}
   align.cpp matparser.cpp models.cpp ngila.cpp seqdb.cpp
   align.h matparser.h models.h ngila.h ngila_app.h seqdb.h seqparser.h
-  ver.h ../version.h
+  ver.h
   xm.h ngila.cmds sort.h
   "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/version.h"
   ${COMPAT}
   ${RES_SRCS})
 
 IF(USE_STATIC_LIBS)
   SET_TARGET_PROPERTIES(ngila PROPERTIES LINK_SEARCH_END_STATIC On)
+  SET_TARGET_PROPERTIES(ngila PROPERTIES LINK_SEARCH_START_STATIC On)
+  IF(NOT MSVC)
+    SET_TARGET_PROPERTIES(ngila PROPERTIES LINK_FLAGS "-static")
+  ENDIF()
 ENDIF(USE_STATIC_LIBS)
 
 TARGET_LINK_LIBRARIES(ngila ${CMAKE_REQUIRED_LIBRARIES})
