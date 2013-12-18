@@ -38,6 +38,7 @@
 #include "matparser.h"
 #include "models.h"
 #include "align.h"
+#include "ver.h"
 
 #define foreach BOOST_FOREACH
 

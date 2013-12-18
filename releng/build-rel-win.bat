@@ -1,52 +1,57 @@
 @echo off
+set ProductDir=
+set toolchain=
+set arch=
+set archivetag=current
 
-set PROJ=ngila
-set PROJ_DISTS=ngila-1*
-set MAKE=nmake
-set CMAKE=cmake
-set SVN=svn
-set PERL=perl
+if "%~1"=="-t" goto TOOLCHAIN
+goto BEGINVCVAR
+:TOOLCHAIN
+if "%~2"=="M32" goto M32
+if "%~2"=="m32" goto M32
+if "%~2"=="M64" goto M64
+if "%~2"=="m64" goto M64
+set toolchain="%~f2"
+goto ENDTOOLCHAIN
+:M32
+set arch=x86
+goto ENDTOOLCHAIN
+:M64
+set arch=amd64
+:ENDTOOLCHAIN
+shift
+shift
 
-%SVN% info | findstr /b URL | %PERL% -pe "s!^URL: (.+)/releng$!$1!" > url.tmp
-set /P REPOS=<url.tmp
-del url.tmp
+rem Find Visual Studio Install
+:BEGINVCVAR
+if DEFINED VCINSTALLDIR goto ENDVCVAR
+if NOT DEFINED PROCESSOR_ARCHITECTURE goto X86
+if /I %PROCESSOR_ARCHITECTURE% == x86 goto X86
+:AMD64
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\WOW6432Node\Microsoft\VCExpress\8.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\WOW6432Node\Microsoft\VisualStudio\8.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\WOW6432Node\Microsoft\VCExpress\9.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\WOW6432Node\Microsoft\VisualStudio\9.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\WOW6432Node\Microsoft\VisualStudio\10.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\WOW6432Node\Microsoft\VisualStudio\11.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+goto REST
+:X86
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\Microsoft\VCExpress\8.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\Microsoft\VisualStudio\8.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\Microsoft\VCExpress\9.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\Microsoft\VisualStudio\9.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\Microsoft\VisualStudio\10.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+FOR /F "tokens=2*" %%A IN ('REG.EXE QUERY "HKLM\Software\Microsoft\VisualStudio\11.0\Setup\VC" /V "ProductDir" 2^>NUL ^| FIND "REG_SZ"') DO SET ProductDir=%%B
+:REST
+if NOT DEFINED ProductDir goto ENDVCVAR
+:VCVAR
+call "%ProductDir%\vcvarsall.bat" %arch%
+:ENDVCVAR
 
-set PF=%ProgramFiles%
-if defined ProgramFiles(x86) set PF=%ProgramFiles(x86)%
+if NOT [%1]==[] set archivetag=%1
+set buildargs=-DRELENG_TAG=%archivetag%
+if DEFINED toolchain set buildargs=%buildargs% -DRELENG_TOOLCHAIN=%toolchain%
 
-echo.
-echo Building distributions for %REPOS% ...
+cmake %buildargs% -P releng.cmake
 
-set RELENG_DIR="%TEMP%\%PROJ%-releng.%RANDOM%"
-mkdir %RELENG_DIR% || exit /B 1
-
-echo Using temp directory %RELENG_DIR% ...
-echo.
-
-set DEST_DIR="%CD%"
-set SOURCE_DIR="%RELENG_DIR%\source"
-set BUILD_DIR="%RELENG_DIR%\build"
-
-%SVN% co -q %REPOS% %SOURCE_DIR% || exit /B 1
-
-mkdir %BUILD_DIR% || exit /B 1
-cd %BUILD_DIR% || exit /B 1
-
-call "%PF%\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
-
-
-%CMAKE% -G "NMake Makefiles" %SOURCE_DIR% -DCMAKE_BUILD_TYPE=Release -DUSE_STATIC_LIBS=ON
-%MAKE%
-%MAKE% package
-%MAKE% package_source
-
-echo.
-echo Copying distribution packages ...
-
-xcopy /Y %PROJ_DISTS% %DEST_DIR%
-
-echo.
-echo Cleaning up ...
-
-cd %DEST_DIR%
-rd /S /Q %RELENG_DIR%
+:EOF
