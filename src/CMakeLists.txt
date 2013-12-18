@@ -77,7 +77,6 @@ ADD_EXECUTABLE(ngila ${PROJ_MACOSX_BUNDLE}
   ver.h
   xm.h ngila.cmds sort.h
   "${CMAKE_CURRENT_BINARY_DIR}/config.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/src/version.h"
   ${COMPAT}
   ${RES_SRCS})
 
