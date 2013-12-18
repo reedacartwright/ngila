@@ -39,7 +39,7 @@ endif()
 
 string(RANDOM TMP)
 set(RELENG_DIR "${TMPDIR}/${PROJECT_NAME}-releng-${TMP}/")
-set(ARCHIVE_DIR "${RELENG_DIR}/dawg")
+set(ARCHIVE_DIR "${RELENG_DIR}/${PROJECT_NAME}")
 
 message(STATUS "Using ${RELENG_DIR} to build packages ...")
 file(MAKE_DIRECTORY "${RELENG_DIR}")
