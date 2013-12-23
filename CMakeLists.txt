@@ -12,6 +12,8 @@ SET(CMAKE_VERBOSE_MAKEFILE OFF CACHE BOOL "Turn on Verbose Makefiles" FORCE)
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Modules")
 SET_PROPERTY(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
 
+PROJECT(Ngila)
+
 #### Static Lib Support ####
 
 SET(USE_STATIC_LIBS OFF CACHE BOOL "Link against static libraries.")
@@ -34,7 +36,6 @@ if("${isSystemDir}" STREQUAL "-1")
    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 endif()
 
-PROJECT(Ngila)
 
 INCLUDE(NewPackage)
 
@@ -52,7 +53,7 @@ SET(CMAKE_MAN_DIR "man" CACHE STRING
 MARK_AS_ADVANCED(CMAKE_DATA_DIR CMAKE_DOC_DIR CMAKE_MAN_DIR)
 
 SET(CPACK_SOURCE_IGNORE_FILES
-  "dawg\\\\.exe"  "dawg$"
+  "ngila\\\\.exe"  "ngila$"
 )
 
 SET(CPACK_PACKAGE_NAME "Ngila")
@@ -97,4 +98,5 @@ ADD_CUSTOM_TARGET(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake") 
 
 #INCLUDE(InstallRequiredSystemLibraries)
+
 
